@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 use super::flags_register::FlagsRegister;
-use super::opcodes::instruction::ArithmeticRegister;
+use super::opcodes::opcode::ArithmeticRegister;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Registers {
@@ -48,7 +48,7 @@ impl Registers {
         self.l = (value & 0xFF) as u8;
     }
 
-    pub fn get_target(&mut self, register: ArithmeticRegister) -> u8 {
+    pub fn get_target(&mut self, register: &ArithmeticRegister) -> u8 {
         match register {
             ArithmeticRegister::A => self.a,
             ArithmeticRegister::B => self.b,

@@ -1,8 +1,8 @@
-use super::registers::Registers;
-use super::opcodes::instruction::ArithmeticRegister;
+use super::super::registers::Registers;
+use super::super::opcodes::opcode::ArithmeticRegister;
 
 #[test]
-pub fn get_bc_test() {
+fn get_bc_test() {
     let mut registers: Registers = Default::default();
     registers.b = 1;
     registers.c = 1;
@@ -13,7 +13,7 @@ pub fn get_bc_test() {
 }
 
 #[test]
-pub fn set_bc_test() {
+fn set_bc_test() {
     let b = 1 as u16;
     let c = 1 as u16;
     let bc = (b << 8) | c;
@@ -81,13 +81,13 @@ pub fn get_target_test() {
     registers.h = 6;
     registers.l = 7;
 
-    let target_a = registers.get_target(ArithmeticRegister::A);
-    let target_b = registers.get_target(ArithmeticRegister::B);
-    let target_c = registers.get_target(ArithmeticRegister::C);
-    let target_d = registers.get_target(ArithmeticRegister::D);
-    let target_e = registers.get_target(ArithmeticRegister::E);
-    let target_h = registers.get_target(ArithmeticRegister::H);
-    let target_l = registers.get_target(ArithmeticRegister::L);
+    let target_a = registers.get_target(&ArithmeticRegister::A);
+    let target_b = registers.get_target(&ArithmeticRegister::B);
+    let target_c = registers.get_target(&ArithmeticRegister::C);
+    let target_d = registers.get_target(&ArithmeticRegister::D);
+    let target_e = registers.get_target(&ArithmeticRegister::E);
+    let target_h = registers.get_target(&ArithmeticRegister::H);
+    let target_l = registers.get_target(&ArithmeticRegister::L);
 
     assert_eq!(target_a, registers.a);
     assert_eq!(target_b, registers.b);
