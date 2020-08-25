@@ -1,0 +1,1 @@
+pub const INTERRUPT_ENABLE_REGISTER: u16 = 0xFFFF;
