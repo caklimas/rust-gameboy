@@ -1,77 +1,8 @@
 use super::super::registers::Registers;
-use super::super::opcodes::opcode::ArithmeticRegister;
+use super::super::opcodes::opcode::{CpuRegister, CpuRegister16};
 
 #[test]
-fn get_bc_test() {
-    let mut registers: Registers = Default::default();
-    registers.b = 1;
-    registers.c = 1;
-
-    let expected = (1 << 8) as u16 | (1 as u16);
-    let actual = registers.get_bc();
-    assert_eq!(expected, actual);
-}
-
-#[test]
-fn set_bc_test() {
-    let b = 1 as u16;
-    let c = 1 as u16;
-    let bc = (b << 8) | c;
-    let mut registers: Registers = Default::default();
-    registers.set_bc(bc);
-
-    assert_eq!(b as u8, registers.b);
-    assert_eq!(c as u8, registers.c);
-}
-
-#[test]
-pub fn get_de_test() {
-    let mut registers: Registers = Default::default();
-    registers.d = 1;
-    registers.e = 1;
-
-    let expected = (1 << 8) as u16 | (1 as u16);
-    let actual = registers.get_de();
-    assert_eq!(expected, actual);
-}
-
-#[test]
-pub fn set_de_test() {
-    let d = 1 as u16;
-    let e = 1 as u16;
-    let de = (d << 8) | e;
-    let mut registers: Registers = Default::default();
-    registers.set_de(de);
-
-    assert_eq!(d as u8, registers.d);
-    assert_eq!(e as u8, registers.e);
-}
-
-#[test]
-pub fn get_hl_test() {
-    let mut registers: Registers = Default::default();
-    registers.h = 1;
-    registers.l = 1;
-
-    let expected = (1 << 8) as u16 | (1 as u16);
-    let actual = registers.get_hl();
-    assert_eq!(expected, actual);
-}
-
-#[test]
-pub fn set_hl_test() {
-    let h = 1 as u16;
-    let l = 1 as u16;
-    let hl = (h << 8) | l;
-    let mut registers: Registers = Default::default();
-    registers.set_hl(hl);
-
-    assert_eq!(h as u8, registers.h);
-    assert_eq!(l as u8, registers.l);
-}
-
-#[test]
-pub fn get_target_test() {
+fn get_target_test() {
     let mut registers: Registers = Default::default();
     registers.a = 1;
     registers.b = 2;
@@ -81,13 +12,13 @@ pub fn get_target_test() {
     registers.h = 6;
     registers.l = 7;
 
-    let target_a = registers.get_target(&ArithmeticRegister::A);
-    let target_b = registers.get_target(&ArithmeticRegister::B);
-    let target_c = registers.get_target(&ArithmeticRegister::C);
-    let target_d = registers.get_target(&ArithmeticRegister::D);
-    let target_e = registers.get_target(&ArithmeticRegister::E);
-    let target_h = registers.get_target(&ArithmeticRegister::H);
-    let target_l = registers.get_target(&ArithmeticRegister::L);
+    let target_a = registers.get_target(&CpuRegister::A);
+    let target_b = registers.get_target(&CpuRegister::B);
+    let target_c = registers.get_target(&CpuRegister::C);
+    let target_d = registers.get_target(&CpuRegister::D);
+    let target_e = registers.get_target(&CpuRegister::E);
+    let target_h = registers.get_target(&CpuRegister::H);
+    let target_l = registers.get_target(&CpuRegister::L);
 
     assert_eq!(target_a, registers.a);
     assert_eq!(target_b, registers.b);
@@ -96,4 +27,47 @@ pub fn get_target_test() {
     assert_eq!(target_e, registers.e);
     assert_eq!(target_h, registers.h);
     assert_eq!(target_l, registers.l);
+}
+
+#[test]
+fn set_register_test() {
+    let mut registers: Registers = Default::default();
+    let a = 1;
+    let b = 2;
+    let c = 3;
+    let d = 4;
+    let e = 5;
+    let h = 6;
+    let l = 7;
+
+    registers.set_target(&CpuRegister::A, a);
+    registers.set_target(&CpuRegister::B, b);
+    registers.set_target(&CpuRegister::C, c);
+    registers.set_target(&CpuRegister::D, d);
+    registers.set_target(&CpuRegister::E, e);
+    registers.set_target(&CpuRegister::H, h);
+    registers.set_target(&CpuRegister::L, l);
+
+    assert_eq!(a, registers.a);
+    assert_eq!(b, registers.b);
+    assert_eq!(c, registers.c);
+    assert_eq!(d, registers.d);
+    assert_eq!(e, registers.e);
+    assert_eq!(h, registers.h);
+    assert_eq!(l, registers.l);
+}
+
+#[test]
+fn target_16_test() {
+    let mut registers: Registers = Default::default();
+    let bc = 1;
+    let de = 2;
+    let hl = 3;
+    registers.set_target_16(&CpuRegister16::BC, bc);
+    registers.set_target_16(&CpuRegister16::DE, de);
+    registers.set_target_16(&CpuRegister16::HL, hl);
+
+    assert_eq!(bc, registers.get_target_16(&CpuRegister16::BC));
+    assert_eq!(de, registers.get_target_16(&CpuRegister16::DE));
+    assert_eq!(hl, registers.get_target_16(&CpuRegister16::HL));
 }

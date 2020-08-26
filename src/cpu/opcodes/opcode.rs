@@ -1,35 +1,40 @@
-use super::super::Cpu;
-
 pub type Clock = (u16, u16);
 
 pub enum Opcode {
-    Adc(fn(&mut Cpu, &ArithmeticRegister), ArithmeticRegister, Clock),
+    Adc(CpuRegister, Clock),
     AdcD8(Clock),
     AdcHL(Clock),
-    Add(fn(&mut Cpu, &ArithmeticRegister), ArithmeticRegister, Clock),
+    Add(CpuRegister, Clock),
     AddD8(Clock),
     AddHL(Clock),
-    And(fn(&mut Cpu, &ArithmeticRegister), ArithmeticRegister, Clock),
+    And(CpuRegister, Clock),
     AndD8(Clock),
     AndHL(Clock),
-    Cp(fn(&mut Cpu, &ArithmeticRegister), ArithmeticRegister, Clock),
+    Cp(CpuRegister, Clock),
     CpD8(Clock),
     CpHL(Clock),
-    Or(fn(&mut Cpu, &ArithmeticRegister), ArithmeticRegister, Clock),
+    Ld(CpuRegister, CpuRegister, Clock),
+    LdD8(CpuRegister, Clock),
+    LdHlD8(Clock),
+    LdHlA(bool, Clock),
+    LdAHl(bool, Clock),
+    Ld16R(CpuRegister16, CpuRegister, Clock),
+    LdR16(CpuRegister, CpuRegister16, Clock),
+    Or(CpuRegister, Clock),
     OrD8(Clock),
     OrHL(Clock),
-    Sbc(fn(&mut Cpu, &ArithmeticRegister), ArithmeticRegister, Clock),
+    Sbc(CpuRegister, Clock),
     SbcD8(Clock),
     SbcHL(Clock),
-    Sub(fn(&mut Cpu, &ArithmeticRegister), ArithmeticRegister, Clock),
+    Sub(CpuRegister, Clock),
     SubD8(Clock),
     SubHL(Clock),
-    XOr(fn(&mut Cpu, &ArithmeticRegister), ArithmeticRegister, Clock),
+    XOr(CpuRegister, Clock),
     XOrD8(Clock),
     XOrHL(Clock)
 }
 
-pub enum ArithmeticRegister {
+pub enum CpuRegister {
     A,
     B,
     C,
@@ -37,4 +42,10 @@ pub enum ArithmeticRegister {
     E,
     H,
     L
+}
+
+pub enum CpuRegister16 {
+    BC,
+    DE,
+    HL
 }

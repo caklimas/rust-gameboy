@@ -28,8 +28,8 @@ impl Cpu {
         let mut clock: Option<&Clock> = None;
         if let Some(ref o) = opcodes::opcode_table::OPCODE_TABLE[self.opcode] {
             match o {
-                Opcode::Adc(f, a, c) => {
-                    f(self, a);
+                Opcode::Adc(r, c) => {
+                    self.adc_a(r);
                     clock = Some(c);
                 },
                 Opcode::AdcD8(c) => {
@@ -40,8 +40,8 @@ impl Cpu {
                     self.adc_hl();
                     clock = Some(c);
                 },
-                Opcode::Add(f, a, c) => {
-                    f(self, a);
+                Opcode::Add(r, c) => {
+                    self.add_a(r);
                     clock = Some(c);
                 },
                 Opcode::AddD8(c) => {
@@ -52,8 +52,8 @@ impl Cpu {
                     self.add_hl();
                     clock = Some(c);
                 },
-                Opcode::And(f, a, c) => {
-                    f(self, a);
+                Opcode::And(r, c) => {
+                    self.and_a(r);
                     clock = Some(c);
                 },
                 Opcode::AndD8(c) => {
@@ -64,8 +64,8 @@ impl Cpu {
                     self.and_hl();
                     clock = Some(c);
                 },
-                Opcode::Cp(f, a, c) => {
-                    f(self, a);
+                Opcode::Cp(r, c) => {
+                    self.cp_a(r);
                     clock = Some(c);
                 },
                 Opcode::CpD8(c) => {
@@ -76,8 +76,37 @@ impl Cpu {
                     self.cp_hl();
                     clock = Some(c);
                 },
-                Opcode::Or(f, a, c) => {
-                    f(self, a);
+                Opcode::Ld(dest, src, c) => {
+                    self.ld(dest, src);
+                    clock = Some(c);
+                },
+                Opcode::LdD8(r, c) => {
+                    self.ld_d8(r);
+                    clock = Some(c);
+                },
+                Opcode::LdHlD8(c) => {
+                    self.ld_hl_d8();
+                    clock = Some(c);
+                },
+                Opcode::LdHlA(increment, c) => {
+                    self.ld_hl_a(increment);
+                    clock = Some(c);
+
+                },
+                Opcode::LdAHl(increment, c) => {
+                    self.ld_a_hl(increment);
+                    clock = Some(c);
+                },
+                Opcode::Ld16R(r16, r, c) => {
+                    self.ld_16_r(r16, r);
+                    clock = Some(c);
+                },
+                Opcode::LdR16(r, r16, c) => {
+                    self.ld_r_16(r, r16);
+                    clock = Some(c);
+                },
+                Opcode::Or(r, c) => {
+                    self.or_a(r);
                     clock = Some(c);
                 },
                 Opcode::OrD8(c) => {
@@ -88,8 +117,8 @@ impl Cpu {
                     self.or_hl();
                     clock = Some(c);
                 },
-                Opcode::Sbc(f, a, c) => {
-                    f(self, a);
+                Opcode::Sbc(r, c) => {
+                    self.sbc_a(r);
                     clock = Some(c);
                 },
                 Opcode::SbcD8(c) => {
@@ -100,8 +129,8 @@ impl Cpu {
                     self.sbc_hl();
                     clock = Some(c);
                 },
-                Opcode::Sub(f, a, c) => {
-                    f(self, a);
+                Opcode::Sub(r, c) => {
+                    self.sub_a(r);
                     clock = Some(c);
                 },
                 Opcode::SubD8(c) => {
@@ -112,8 +141,8 @@ impl Cpu {
                     self.sub_hl();
                     clock = Some(c);
                 },
-                Opcode::XOr(f, a, c) => {
-                    f(self, a);
+                Opcode::XOr(r, c) => {
+                    self.xor_a(r);
                     clock = Some(c);
                 },
                 Opcode::XOrD8(c) => {
