@@ -1,6 +1,6 @@
 use super::super::super::super::addresses::video_ram::VIDEO_RAM_LOWER;
 use super::super::super::Cpu;
-use super::super::opcode::ArithmeticRegister;
+use super::super::opcode::{CpuRegister, CpuRegister16};
 
 #[test]
 fn adc_a_test() {
@@ -11,7 +11,7 @@ fn adc_a_test() {
     cpu.registers.b = b;
     cpu.registers.f.set_carry(true);
 
-    cpu.adc_a(&ArithmeticRegister::B);
+    cpu.adc_a(&CpuRegister::B);
 
     assert_eq!(a + b + 1, cpu.registers.a);
 }
@@ -40,7 +40,7 @@ fn adc_hl_test() {
 
     let a = 1;
     cpu.registers.a = a;
-    cpu.registers.set_hl(VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
     cpu.registers.f.set_carry(true);
 
     cpu.adc_hl();
@@ -56,7 +56,7 @@ fn add_a_test() {
     cpu.registers.a = a;
     cpu.registers.b = b;
 
-    cpu.add_a(&ArithmeticRegister::B);
+    cpu.add_a(&CpuRegister::B);
 
     assert_eq!(a + b, cpu.registers.a);
 }
@@ -84,7 +84,7 @@ fn add_hl_test() {
 
     let a = 1;
     cpu.registers.a = a;
-    cpu.registers.set_hl(VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
 
     cpu.add_hl();
 
@@ -127,7 +127,7 @@ fn and_a_test() {
     cpu.registers.a = a;
     cpu.registers.b = b;
 
-    cpu.and_a(&ArithmeticRegister::B);
+    cpu.and_a(&CpuRegister::B);
 
     assert_eq!(a & b, cpu.registers.a);
 }
@@ -155,7 +155,7 @@ fn and_hl_test() {
 
     let a = 1;
     cpu.registers.a = a;
-    cpu.registers.set_hl(VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
 
     cpu.and_hl();
 
@@ -190,7 +190,7 @@ fn cp_a_test() {
     cpu.registers.a = 0;
     cpu.registers.b = 0;
 
-    cpu.cp_a(&ArithmeticRegister::B);
+    cpu.cp_a(&CpuRegister::B);
 
     assert_eq!(true, cpu.registers.f.zero());
     assert_eq!(true, cpu.registers.f.subtraction());
@@ -199,7 +199,7 @@ fn cp_a_test() {
     cpu.registers.a = 0b1010_0100;
     cpu.registers.b = 0b0001_1110;
 
-    cpu.cp_a(&ArithmeticRegister::B);
+    cpu.cp_a(&CpuRegister::B);
 
     assert_eq!(true, cpu.registers.f.half_carry());
     assert_eq!(false, cpu.registers.f.carry());
@@ -207,7 +207,7 @@ fn cp_a_test() {
     cpu.registers.a = 0;
     cpu.registers.b = 1;
 
-    cpu.cp_a(&ArithmeticRegister::B);
+    cpu.cp_a(&CpuRegister::B);
 
     assert_eq!(true, cpu.registers.f.carry());
 }
@@ -216,7 +216,7 @@ fn cp_a_test() {
 fn cp_d8_test() {
     let mut data = 0;
     let mut cpu: Cpu = Default::default();
-    cpu.registers.set_hl(VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
     cpu.registers.a = 0;
 
@@ -277,6 +277,103 @@ fn cp_hl_test() {
 }
 
 #[test]
+fn ld_test() {
+    let mut cpu: Cpu = Default::default();
+    let b = 5;
+    let c = 0;
+
+    cpu.registers.b = b;
+    cpu.registers.c = c;
+
+    cpu.ld(&CpuRegister::C, &CpuRegister::B);
+
+    assert_eq!(b, cpu.registers.c);
+}
+
+#[test]
+fn ld_d8_test() {
+    let data = 5;
+    let mut cpu: Cpu = Default::default();
+    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
+
+    cpu.ld_d8(&CpuRegister::B);
+
+    assert_eq!(data, cpu.registers.b);
+}
+
+#[test]
+fn ld_hl_d8_test() {
+    let data = 5;
+    let mut cpu: Cpu = Default::default();
+    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER + 1);
+
+    cpu.ld_hl_d8();
+
+    assert_eq!(data, cpu.mmu.read_byte(VIDEO_RAM_LOWER + 1));
+}
+
+#[test]
+fn ld_hl_a_test() {
+    let data = 5;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = data;
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
+
+    cpu.ld_hl_a(&true);
+
+    assert_eq!(data, cpu.mmu.read_byte(VIDEO_RAM_LOWER));
+    assert_eq!(VIDEO_RAM_LOWER + 1, cpu.registers.get_target_16(&CpuRegister16::HL));
+
+    cpu.ld_hl_a(&false);
+
+    assert_eq!(VIDEO_RAM_LOWER, cpu.registers.get_target_16(&CpuRegister16::HL));
+}
+
+#[test]
+fn ld_a_hl_test() {
+    let data = 5;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
+    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
+
+    cpu.ld_a_hl(&true);
+
+    assert_eq!(data, cpu.registers.a);
+    assert_eq!(VIDEO_RAM_LOWER + 1, cpu.registers.get_target_16(&CpuRegister16::HL));
+
+    cpu.ld_hl_a(&false);
+
+    assert_eq!(VIDEO_RAM_LOWER, cpu.registers.get_target_16(&CpuRegister16::HL));
+}
+
+#[test]
+fn ld_16_r_test() {
+    let data = 5;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = data;
+    cpu.registers.set_target_16(&CpuRegister16::BC, VIDEO_RAM_LOWER);
+
+    cpu.ld_16_r(&CpuRegister16::BC, &CpuRegister::A);
+
+    assert_eq!(data, cpu.mmu.read_byte(VIDEO_RAM_LOWER));
+}
+
+#[test]
+fn ld_r_16_test() {
+    let data = 5;
+    let mut cpu: Cpu = Default::default();
+    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
+    cpu.registers.set_target_16(&CpuRegister16::BC, VIDEO_RAM_LOWER);
+
+    cpu.ld_r_16(&CpuRegister::A, &CpuRegister16::BC);
+
+    assert_eq!(data, cpu.registers.a);
+}
+
+#[test]
 fn or_a_test() {
     let mut cpu: Cpu = Default::default();
     let a = 0;
@@ -284,7 +381,7 @@ fn or_a_test() {
     cpu.registers.a = a;
     cpu.registers.b = b;
 
-    cpu.or_a(&ArithmeticRegister::B);
+    cpu.or_a(&CpuRegister::B);
 
     assert_eq!(a | b, cpu.registers.a);
 }
@@ -312,7 +409,7 @@ fn or_hl_test() {
 
     let a = 1;
     cpu.registers.a = a;
-    cpu.registers.set_hl(VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
 
     cpu.or_hl();
 
@@ -351,7 +448,7 @@ fn sbc_a_test() {
     cpu.registers.b = b;
     cpu.registers.f.set_carry(true);
 
-    cpu.sbc_a(&ArithmeticRegister::B);
+    cpu.sbc_a(&CpuRegister::B);
 
     assert_eq!(a - b - 1, cpu.registers.a);
 }
@@ -380,7 +477,7 @@ fn sbc_hl_test() {
 
     let a = 2;
     cpu.registers.a = a;
-    cpu.registers.set_hl(VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
     cpu.registers.f.set_carry(true);
 
     cpu.sbc_hl();
@@ -396,7 +493,7 @@ fn sub_a_test() {
     cpu.registers.a = a;
     cpu.registers.b = b;
 
-    cpu.sub_a(&ArithmeticRegister::B);
+    cpu.sub_a(&CpuRegister::B);
 
     assert_eq!(a - b, cpu.registers.a);
 }
@@ -424,7 +521,7 @@ fn sub_hl_test() {
 
     let a = data + 2;
     cpu.registers.a = a;
-    cpu.registers.set_hl(VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
 
     cpu.sub_hl();
 
@@ -467,7 +564,7 @@ fn xor_a_test() {
     cpu.registers.a = a;
     cpu.registers.b = b;
 
-    cpu.xor_a(&ArithmeticRegister::B);
+    cpu.xor_a(&CpuRegister::B);
 
     assert_eq!(a ^ b, cpu.registers.a);
 }
@@ -495,7 +592,7 @@ fn xor_hl_test() {
 
     let a = 1;
     cpu.registers.a = a;
-    cpu.registers.set_hl(VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
 
     cpu.xor_hl();
 

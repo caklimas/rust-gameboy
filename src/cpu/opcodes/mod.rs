@@ -4,12 +4,12 @@ pub mod opcode_table;
 #[cfg(test)]
 mod tests;
 
-use opcode::ArithmeticRegister;
+use opcode::{CpuRegister, CpuRegister16};
 
 const LOWER_NIBBLE: u8 = 0xF;
 
 impl super::Cpu {
-    pub fn adc_a(&mut self, register: &ArithmeticRegister) {
+    pub fn adc_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.add(target, true);
         self.registers.a = result as u8;
@@ -22,12 +22,12 @@ impl super::Cpu {
     }
 
     pub fn adc_hl(&mut self) {
-        let target = self.mmu.read_byte(self.registers.get_hl());
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.add(target, true);
         self.registers.a = result;
     }
 
-    pub fn add_a(&mut self, register: &ArithmeticRegister) {
+    pub fn add_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.add(target, false);
         self.registers.a = result as u8;
@@ -40,12 +40,12 @@ impl super::Cpu {
     }
 
     pub fn add_hl(&mut self) {
-        let target = self.mmu.read_byte(self.registers.get_hl());
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.add(target, false);
         self.registers.a = result;
     }
 
-    pub fn and_a(&mut self, register: &ArithmeticRegister) {
+    pub fn and_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.and(target);
         self.registers.a = result;
@@ -58,12 +58,12 @@ impl super::Cpu {
     }
 
     pub fn and_hl(&mut self) {
-        let target = self.mmu.read_byte(self.registers.get_hl());
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.and(target);
         self.registers.a = result;
     }
 
-    pub fn cp_a(&mut self, register: &ArithmeticRegister) {
+    pub fn cp_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         self.sub(target, false);
     }
@@ -74,11 +74,64 @@ impl super::Cpu {
     }
 
     pub fn cp_hl(&mut self) {
-        let target = self.mmu.read_byte(self.registers.get_hl());
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         self.sub(target, false);
     }
 
-    pub fn or_a(&mut self, register: &ArithmeticRegister) {
+    pub fn ld(&mut self, dest: &CpuRegister, src: &CpuRegister) {
+        let value = self.registers.get_target(src);
+        self.registers.set_target(dest, value);
+    }
+
+    pub fn ld_d8(&mut self, dest: &CpuRegister) {
+        let value = self.mmu.read_next_byte(self.program_counter);
+        self.registers.set_target(dest, value);
+    }
+
+    pub fn ld_hl_d8(&mut self) {
+        let address = self.registers.get_target_16(&CpuRegister16::HL);
+        let data = self.mmu.read_next_byte(self.program_counter);
+        self.mmu.write_byte(address, data);
+    }
+
+    pub fn ld_hl_a(&mut self, increment: &bool) {
+        let data = self.registers.get_target(&CpuRegister::A);
+        let address = self.registers.get_target_16(&CpuRegister16::HL);
+        self.mmu.write_byte(address, data);
+
+        if increment.clone() {
+            self.registers.set_target_16(&CpuRegister16::HL, address + 1);
+        } else {
+            self.registers.set_target_16(&CpuRegister16::HL, address - 1);
+        }
+    }
+
+    pub fn ld_a_hl(&mut self, increment: &bool) {
+        let address = self.registers.get_target_16(&CpuRegister16::HL);
+        let value = self.mmu.read_byte(address);
+        self.registers.set_target(&CpuRegister::A, value);
+
+        if increment.clone() {
+            self.registers.set_target_16(&CpuRegister16::HL, address + 1);
+        } else {
+            self.registers.set_target_16(&CpuRegister16::HL, address - 1);
+        }
+    }
+
+    pub fn ld_16_r(&mut self, dest: &CpuRegister16, src: &CpuRegister) {
+        let address = self.registers.get_target_16(dest);
+        let data = self.registers.get_target(src);
+        self.mmu.write_byte(address, data);
+
+    }
+
+    pub fn ld_r_16(&mut self, dest: &CpuRegister, src: &CpuRegister16) {
+        let address = self.registers.get_target_16(src);
+        let value = self.mmu.read_byte(address);
+        self.registers.set_target(dest, value);
+    }
+
+    pub fn or_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.or(target);
         self.registers.a = result as u8;
@@ -91,12 +144,12 @@ impl super::Cpu {
     }
 
     pub fn or_hl(&mut self) {
-        let target = self.mmu.read_byte(self.registers.get_hl());
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.or(target);
         self.registers.a = result;
     }
 
-    pub fn sbc_a(&mut self, register: &ArithmeticRegister) {
+    pub fn sbc_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.sub(target, true);
         self.registers.a = result as u8;
@@ -109,12 +162,12 @@ impl super::Cpu {
     }
 
     pub fn sbc_hl(&mut self) {
-        let target = self.mmu.read_byte(self.registers.get_hl());
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.sub(target, true);
         self.registers.a = result;
     }
 
-    pub fn sub_a(&mut self, register: &ArithmeticRegister) {
+    pub fn sub_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.sub(target, false);
         self.registers.a = result as u8;
@@ -127,12 +180,12 @@ impl super::Cpu {
     }
 
     pub fn sub_hl(&mut self) {
-        let target = self.mmu.read_byte(self.registers.get_hl());
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.sub(target, false);
         self.registers.a = result;
     }
 
-    pub fn xor_a(&mut self, register: &ArithmeticRegister) {
+    pub fn xor_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.xor(target);
         self.registers.a = result as u8;
@@ -145,7 +198,7 @@ impl super::Cpu {
     }
 
     pub fn xor_hl(&mut self) {
-        let target = self.mmu.read_byte(self.registers.get_hl());
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.xor(target);
         self.registers.a = result;
     }
