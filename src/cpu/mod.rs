@@ -64,6 +64,10 @@ impl Cpu {
                     self.and_hl();
                     clock = Some(c);
                 },
+                Opcode::Ccf(c) => {
+                    self.ccf();
+                    clock = Some(c);
+                },
                 Opcode::Cp(r, c) => {
                     self.cp_a(r);
                     clock = Some(c);
@@ -74,6 +78,42 @@ impl Cpu {
                 },
                 Opcode::CpHL(c) => {
                     self.cp_hl();
+                    clock = Some(c);
+                },
+                Opcode::Cpl(c) => {
+                    self.cpl();
+                    clock = Some(c);
+                },
+                Opcode::DecHL(c) => {
+                    self.dec_hl();
+                    clock = Some(c);
+                },
+                Opcode::DecR(r, c) => {
+                    self.dec_r(r);
+                    clock = Some(c);
+                },
+                Opcode::DecSp(c) => {
+                    self.dec_sp();
+                    clock = Some(c);
+                },
+                Opcode::Dec16(r, c) => {
+                    self.dec_16(r);
+                    clock = Some(c);
+                },
+                Opcode::IncHL(c) => {
+                    self.inc_hl();
+                    clock = Some(c);
+                },
+                Opcode::IncR(r, c) => {
+                    self.inc_r(r);
+                    clock = Some(c);
+                },
+                Opcode::IncSp(c) => {
+                    self.inc_sp();
+                    clock = Some(c);
+                },
+                Opcode::Inc16(r, c) => {
+                    self.inc_16(r);
                     clock = Some(c);
                 },
                 Opcode::Ld(dest, src, c) => {
@@ -127,6 +167,10 @@ impl Cpu {
                 },
                 Opcode::SbcHL(c) => {
                     self.sbc_hl();
+                    clock = Some(c);
+                },
+                Opcode::Scf(c) => {
+                    self.scf();
                     clock = Some(c);
                 },
                 Opcode::Sub(r, c) => {

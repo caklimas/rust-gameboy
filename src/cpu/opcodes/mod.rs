@@ -63,6 +63,12 @@ impl super::Cpu {
         self.registers.a = result;
     }
 
+    pub fn ccf(&mut self) {
+        self.registers.f.set_carry(!self.registers.f.carry());
+        self.registers.f.set_half_carry(false);
+        self.registers.f.set_subtraction(false);
+    }
+
     pub fn cp_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         self.sub(target, false);
@@ -76,6 +82,64 @@ impl super::Cpu {
     pub fn cp_hl(&mut self) {
         let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         self.sub(target, false);
+    }
+
+    pub fn cpl(&mut self) {
+        self.registers.a = !self.registers.a;
+        self.registers.f.set_half_carry(true);
+        self.registers.f.set_subtraction(true);
+    }
+
+    pub fn dec_hl(&mut self) {
+        let address = self.registers.get_target_16(&CpuRegister16::HL);
+        let target = self.mmu.read_byte(address);
+        let data = self.dec_8(target);
+        self.mmu.write_byte(address, data);
+    }
+
+    pub fn dec_r(&mut self, register: &CpuRegister) {
+        let target = self.registers.get_target(register);
+        let value = self.dec_8(target);
+        self.registers.set_target(register, value);
+    }
+
+    pub fn dec_sp(&mut self) {
+        let target = self.mmu.read_byte(self.stack_pointer);
+        let data = target.wrapping_sub(1);
+        self.mmu.write_byte(self.stack_pointer, data);
+    }
+
+    pub fn dec_16(&mut self, register: &CpuRegister16) {
+        let address = self.registers.get_target_16(register);
+        let target = self.mmu.read_byte(address);
+        let data = target.wrapping_sub(1);
+        self.mmu.write_byte(address, data);
+    }
+
+    pub fn inc_hl(&mut self) {
+        let address = self.registers.get_target_16(&CpuRegister16::HL);
+        let target = self.mmu.read_byte(address);
+        let data = self.inc_8(target);
+        self.mmu.write_byte(address, data);
+    }
+
+    pub fn inc_r(&mut self, register: &CpuRegister) {
+        let target = self.registers.get_target(register);
+        let value = self.inc_8(target);
+        self.registers.set_target(register, value);
+    }
+
+    pub fn inc_sp(&mut self) {
+        let target = self.mmu.read_byte(self.stack_pointer);
+        let data = target.wrapping_add(1);
+        self.mmu.write_byte(self.stack_pointer, data);
+    }
+
+    pub fn inc_16(&mut self, register: &CpuRegister16) {
+        let address = self.registers.get_target_16(register);
+        let target = self.mmu.read_byte(address);
+        let data = target.wrapping_add(1);
+        self.mmu.write_byte(address, data);
     }
 
     pub fn ld(&mut self, dest: &CpuRegister, src: &CpuRegister) {
@@ -167,6 +231,12 @@ impl super::Cpu {
         self.registers.a = result;
     }
 
+    pub fn scf(&mut self) {
+        self.registers.f.set_carry(true);
+        self.registers.f.set_half_carry(false);
+        self.registers.f.set_subtraction(false);
+    }
+
     pub fn sub_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.sub(target, false);
@@ -208,7 +278,7 @@ impl super::Cpu {
         let (result, overflow) = self.registers.a.overflowing_add(target);
         let (result_2, overflow_2) = result.overflowing_add(carry);
         self.registers.f.set_carry(overflow | overflow_2);
-        self.registers.f.set_half_carry(is_half_carry(self.registers.a, target + carry));
+        self.registers.f.set_half_carry(is_half_carry(self.registers.a, target + carry, false));
         self.registers.f.set_subtraction(false);
         self.registers.f.set_zero(result_2 == 0);
 
@@ -219,6 +289,24 @@ impl super::Cpu {
         let result = self.registers.a & target;
         self.registers.f.set_carry(false);
         self.registers.f.set_half_carry(true);
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(result == 0);
+
+        result
+    }
+
+    fn dec_8(&mut self, target: u8) -> u8 {
+        let result = target.wrapping_sub(1);
+        self.registers.f.set_half_carry(is_half_carry(target, 1, true));
+        self.registers.f.set_subtraction(true);
+        self.registers.f.set_zero(result == 0);
+
+        result
+    }
+
+    fn inc_8(&mut self, target: u8) -> u8 {
+        let result = target.wrapping_add(1);
+        self.registers.f.set_half_carry(is_half_carry(target, 1, false));
         self.registers.f.set_subtraction(false);
         self.registers.f.set_zero(result == 0);
 
@@ -240,7 +328,7 @@ impl super::Cpu {
         let (result, overflow) = self.registers.a.overflowing_sub(target);
         let (result_2, overflow_2) = result.overflowing_sub(carry);
         self.registers.f.set_carry(overflow | overflow_2);
-        self.registers.f.set_half_carry(is_half_carry(self.registers.a, target - carry));
+        self.registers.f.set_half_carry(is_half_carry(self.registers.a, target - carry, false));
         self.registers.f.set_subtraction(true);
         self.registers.f.set_zero(result == 0);
 
@@ -258,6 +346,10 @@ impl super::Cpu {
     }
 }
 
-fn is_half_carry(register: u8, value: u8) -> bool {
-    (register & LOWER_NIBBLE) + (value & LOWER_NIBBLE) > LOWER_NIBBLE
+fn is_half_carry(register: u8, value: u8, subtract: bool) -> bool {
+    if subtract {
+        (register & LOWER_NIBBLE).wrapping_sub(value & LOWER_NIBBLE) > LOWER_NIBBLE
+    } else {
+        (register & LOWER_NIBBLE).wrapping_add(value & LOWER_NIBBLE) > LOWER_NIBBLE
+    }
 }
