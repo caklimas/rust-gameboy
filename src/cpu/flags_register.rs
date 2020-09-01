@@ -9,5 +9,5 @@ bitfield!{
     pub half_carry, set_half_carry: 5;
     pub subtraction, set_subtraction: 6;
     pub zero, set_zero: 7;
-    pub get, _: 7, 0;
+    pub get, set: 7, 0;
 }
