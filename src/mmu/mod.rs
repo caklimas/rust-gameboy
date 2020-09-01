@@ -36,10 +36,6 @@ impl MemoryManagementUnit {
         }
     }
 
-    pub fn read_next_byte(&self, address: u16) -> u8 {
-        self.read_byte(address + 1)
-    }
-
     pub fn write_word(&mut self, address: u16, data: u16) {
         let low = (data & 0xFF) as u8;
         let high = ((data & 0xFF00) >> 8) as u8;

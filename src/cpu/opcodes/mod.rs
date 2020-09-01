@@ -16,7 +16,7 @@ impl super::Cpu {
     }
 
     pub fn adc_d8(&mut self) {
-        let target = self.mmu.read_next_byte(self.program_counter);
+        let target = self.read_next_byte();
         let result = self.add(target, true);
         self.registers.a = result;
     }
@@ -34,7 +34,7 @@ impl super::Cpu {
     }
 
     pub fn add_d8(&mut self) {
-        let target = self.mmu.read_next_byte(self.program_counter);
+        let target = self.read_next_byte();
         let result = self.add(target, false);
         self.registers.a = result;
     }
@@ -52,7 +52,7 @@ impl super::Cpu {
     }
 
     pub fn and_d8(&mut self) {
-        let target = self.mmu.read_next_byte(self.program_counter);
+        let target = self.read_next_byte();
         let result = self.and(target);
         self.registers.a = result;
     }
@@ -75,7 +75,7 @@ impl super::Cpu {
     }
 
     pub fn cp_d8(&mut self) {
-        let target = self.mmu.read_next_byte(self.program_counter);
+        let target = self.read_next_byte();
         self.sub(target, false);
     }
 
@@ -148,13 +148,13 @@ impl super::Cpu {
     }
 
     pub fn ld_d8(&mut self, dest: &CpuRegister) {
-        let value = self.mmu.read_next_byte(self.program_counter);
+        let value = self.read_next_byte();
         self.registers.set_target(dest, value);
     }
 
     pub fn ld_hl_d8(&mut self) {
         let address = self.registers.get_target_16(&CpuRegister16::HL);
-        let data = self.mmu.read_next_byte(self.program_counter);
+        let data = self.read_next_byte();
         self.mmu.write_byte(address, data);
     }
 
@@ -182,6 +182,11 @@ impl super::Cpu {
         }
     }
 
+    pub fn ld_a16_sp(&mut self) {
+        let address = self.read_next_word();
+        self.mmu.write_word(address, self.stack_pointer);
+    }
+
     pub fn ld_16_r(&mut self, dest: &CpuRegister16, src: &CpuRegister) {
         let address = self.registers.get_target_16(dest);
         let data = self.registers.get_target(src);
@@ -195,6 +200,33 @@ impl super::Cpu {
         self.registers.set_target(dest, value);
     }
 
+    pub fn ld_r16_d16(&mut self, register: &CpuRegister16) {
+        let value = self.read_next_word();
+        self.registers.set_target_16(register, value);
+    }
+
+    pub fn ld_sp_d16(&mut self) {
+        let value = self.read_next_word();
+        self.stack_pointer = value;
+    }
+
+    pub fn ld_sp_e8(&mut self) {
+        let e = self.read_next_byte() as i8;
+        let (value, overflow) = self.stack_pointer.overflowing_add(e as u16);
+        self.registers.set_target_16(&CpuRegister16::HL, value);
+
+        self.registers.f.set_carry(overflow);
+        self.registers.f.set_half_carry(is_half_carry(self.stack_pointer as u8, e as u8, false));
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(false);
+    }
+
+    pub fn ld_sp_hl(&mut self) {
+        let address = self.registers.get_target_16(&CpuRegister16::HL);
+        let data = self.mmu.read_byte(address);
+        self.mmu.write_byte(self.stack_pointer, data);
+    }
+
     pub fn or_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.or(target);
@@ -202,7 +234,7 @@ impl super::Cpu {
     }
 
     pub fn or_d8(&mut self) {
-        let target = self.mmu.read_next_byte(self.program_counter);
+        let target = self.read_next_byte();
         let result = self.or(target);
         self.registers.a = result;
     }
@@ -213,6 +245,18 @@ impl super::Cpu {
         self.registers.a = result;
     }
 
+    pub fn pop(&mut self, register: &CpuRegister16) {
+        self.stack_pointer += 2;
+        let value = self.mmu.read_word(self.stack_pointer);
+        self.registers.set_target_16(register, value)
+    }
+
+    pub fn push(&mut self, register: &CpuRegister16) {
+        let data = self.registers.get_target_16(register);
+        self.mmu.write_word(self.stack_pointer, data);
+        self.stack_pointer -= 2;
+    }
+
     pub fn sbc_a(&mut self, register: &CpuRegister) {
         let target = self.registers.get_target(register);
         let result = self.sub(target, true);
@@ -220,7 +264,7 @@ impl super::Cpu {
     }
 
     pub fn sbc_d8(&mut self) {
-        let target = self.mmu.read_next_byte(self.program_counter);
+        let target = self.read_next_byte();
         let result = self.sub(target, true);
         self.registers.a = result;
     }
@@ -244,7 +288,7 @@ impl super::Cpu {
     }
 
     pub fn sub_d8(&mut self) {
-        let target = self.mmu.read_next_byte(self.program_counter);
+        let target = self.read_next_byte();
         let result = self.sub(target, false);
         self.registers.a = result;
     }
@@ -262,7 +306,7 @@ impl super::Cpu {
     }
 
     pub fn xor_d8(&mut self) {
-        let target = self.mmu.read_next_byte(self.program_counter);
+        let target = self.read_next_byte();
         let result = self.xor(target);
         self.registers.a = result;
     }
@@ -347,9 +391,11 @@ impl super::Cpu {
 }
 
 fn is_half_carry(register: u8, value: u8, subtract: bool) -> bool {
-    if subtract {
-        (register & LOWER_NIBBLE).wrapping_sub(value & LOWER_NIBBLE) > LOWER_NIBBLE
+    let result = if subtract {
+        (register & LOWER_NIBBLE).wrapping_sub(value & LOWER_NIBBLE)
     } else {
-        (register & LOWER_NIBBLE).wrapping_add(value & LOWER_NIBBLE) > LOWER_NIBBLE
-    }
+        (register & LOWER_NIBBLE).wrapping_add(value & LOWER_NIBBLE)
+    };
+
+    result & 0x10 == 0x10
 }

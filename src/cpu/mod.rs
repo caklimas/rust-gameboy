@@ -36,7 +36,7 @@ impl Cpu {
                     self.adc_d8();
                     clock = Some(c);
                 },
-                Opcode::AdcHL(c) => {
+                Opcode::AdcHl(c) => {
                     self.adc_hl();
                     clock = Some(c);
                 },
@@ -48,7 +48,7 @@ impl Cpu {
                     self.add_d8();
                     clock = Some(c);
                 },
-                Opcode::AddHL(c) => {
+                Opcode::AddHl(c) => {
                     self.add_hl();
                     clock = Some(c);
                 },
@@ -60,7 +60,7 @@ impl Cpu {
                     self.and_d8();
                     clock = Some(c);
                 },
-                Opcode::AndHL(c) => {
+                Opcode::AndHl(c) => {
                     self.and_hl();
                     clock = Some(c);
                 },
@@ -76,7 +76,7 @@ impl Cpu {
                     self.cp_d8();
                     clock = Some(c);
                 },
-                Opcode::CpHL(c) => {
+                Opcode::CpHl(c) => {
                     self.cp_hl();
                     clock = Some(c);
                 },
@@ -84,7 +84,7 @@ impl Cpu {
                     self.cpl();
                     clock = Some(c);
                 },
-                Opcode::DecHL(c) => {
+                Opcode::DecHl(c) => {
                     self.dec_hl();
                     clock = Some(c);
                 },
@@ -100,7 +100,7 @@ impl Cpu {
                     self.dec_16(r);
                     clock = Some(c);
                 },
-                Opcode::IncHL(c) => {
+                Opcode::IncHl(c) => {
                     self.inc_hl();
                     clock = Some(c);
                 },
@@ -137,6 +137,10 @@ impl Cpu {
                     self.ld_a_hl(increment);
                     clock = Some(c);
                 },
+                Opcode::LdA16Sp(c) => {
+                    self.ld_a16_sp();
+                    clock = Some(c);
+                },
                 Opcode::Ld16R(r16, r, c) => {
                     self.ld_16_r(r16, r);
                     clock = Some(c);
@@ -144,6 +148,22 @@ impl Cpu {
                 Opcode::LdR16(r, r16, c) => {
                     self.ld_r_16(r, r16);
                     clock = Some(c);
+                },
+                Opcode::LdR16D16(r, c) => {
+                    self.ld_r16_d16(r);
+                    clock = Some(c);
+                },
+                Opcode::LdSpD16(c) => {
+                    self.ld_sp_d16();
+                    clock = Some(c);
+                },
+                Opcode::LdSpE8(c) => {
+                    self.ld_sp_e8();
+                    clock = Some(c);
+                },
+                Opcode::LdSpHl(c) => {
+                    self.ld_sp_hl();
+                    clock = Some(c)
                 },
                 Opcode::Or(r, c) => {
                     self.or_a(r);
@@ -153,8 +173,16 @@ impl Cpu {
                     self.or_d8();
                     clock = Some(c);
                 },
-                Opcode::OrHL(c) => {
+                Opcode::OrHl(c) => {
                     self.or_hl();
+                    clock = Some(c);
+                },
+                Opcode::Pop(r, c) => {
+                    self.pop(r);
+                    clock = Some(c);
+                },
+                Opcode::Push(r, c) => {
+                    self.push(r);
                     clock = Some(c);
                 },
                 Opcode::Sbc(r, c) => {
@@ -165,7 +193,7 @@ impl Cpu {
                     self.sbc_d8();
                     clock = Some(c);
                 },
-                Opcode::SbcHL(c) => {
+                Opcode::SbcHl(c) => {
                     self.sbc_hl();
                     clock = Some(c);
                 },
@@ -181,7 +209,7 @@ impl Cpu {
                     self.sub_d8();
                     clock = Some(c);
                 },
-                Opcode::SubHL(c) => {
+                Opcode::SubHl(c) => {
                     self.sub_hl();
                     clock = Some(c);
                 },
@@ -193,7 +221,7 @@ impl Cpu {
                     self.xor_d8();
                     clock = Some(c)
                 },
-                Opcode::XOrHL(c) => {
+                Opcode::XOrHl(c) => {
                     self.xor_hl();
                     clock = Some(c);
                 }
@@ -204,5 +232,13 @@ impl Cpu {
             self.program_counter += c.0;
             self.system_clock += c.1;
         }
+    }
+
+    pub fn read_next_byte(&self) -> u8 {
+        self.mmu.read_byte(self.program_counter + 1)
+    }
+
+    pub fn read_next_word(&self) -> u16 {
+        self.mmu.read_word(self.program_counter + 1)
     }
 }

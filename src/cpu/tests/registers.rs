@@ -30,7 +30,7 @@ fn get_target_test() {
 }
 
 #[test]
-fn set_register_test() {
+fn set_target_test() {
     let mut registers: Registers = Default::default();
     let a = 1;
     let b = 2;
@@ -60,13 +60,16 @@ fn set_register_test() {
 #[test]
 fn target_16_test() {
     let mut registers: Registers = Default::default();
-    let bc = 1;
-    let de = 2;
-    let hl = 3;
+    let af = 1;
+    let bc = 2;
+    let de = 3;
+    let hl = 4;
+    registers.set_target_16(&CpuRegister16::AF, af);
     registers.set_target_16(&CpuRegister16::BC, bc);
     registers.set_target_16(&CpuRegister16::DE, de);
     registers.set_target_16(&CpuRegister16::HL, hl);
 
+    assert_eq!(af, registers.get_target_16(&CpuRegister16::AF));
     assert_eq!(bc, registers.get_target_16(&CpuRegister16::BC));
     assert_eq!(de, registers.get_target_16(&CpuRegister16::DE));
     assert_eq!(hl, registers.get_target_16(&CpuRegister16::HL));
