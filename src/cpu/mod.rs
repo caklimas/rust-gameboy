@@ -8,7 +8,7 @@ mod tests;
 
 use serde::{Serialize, Deserialize};
 use super::mmu::MemoryManagementUnit;
-use opcodes::opcode::{Clock, Opcode};
+use opcodes::opcode::{ClockCycle, Opcode};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cpu {
@@ -25,7 +25,7 @@ pub struct Cpu {
 
 impl Cpu {
     pub fn clock(&mut self) {
-        let mut clock: Option<&Clock> = None;
+        let mut clock: Option<&ClockCycle> = None;
         if let Some(ref o) = opcodes::opcode_table::OPCODE_TABLE[self.opcode] {
             match o {
                 Opcode::Adc(r, c) => {
@@ -118,6 +118,30 @@ impl Cpu {
                 },
                 Opcode::Ld(dest, src, c) => {
                     self.ld(dest, src);
+                    clock = Some(c);
+                },
+                Opcode::LdA8A(c) => {
+                    self.ld_a8_a();
+                    clock = Some(c);
+                },
+                Opcode::LdAA8(c) => {
+                    self.ld_a_a8();
+                    clock = Some(c);
+                },
+                Opcode::LdA16A(c) => {
+                    self.ld_a16_a();
+                    clock = Some(c);
+                },
+                Opcode::LdAA16(c) => {
+                    self.ld_a_a16();
+                    clock = Some(c);
+                },
+                Opcode::LdAC(c) => {
+                    self.ld_a_c();
+                    clock = Some(c);
+                },
+                Opcode::LdCA(c) => {
+                    self.ld_c_a();
                     clock = Some(c);
                 },
                 Opcode::LdD8(r, c) => {

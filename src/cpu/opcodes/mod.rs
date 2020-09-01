@@ -5,6 +5,7 @@ pub mod opcode_table;
 mod tests;
 
 use opcode::{CpuRegister, CpuRegister16};
+use super::super::addresses::ld_opcode::LD_ADDRESS_LOWER;
 
 const LOWER_NIBBLE: u8 = 0xF;
 
@@ -145,6 +146,40 @@ impl super::Cpu {
     pub fn ld(&mut self, dest: &CpuRegister, src: &CpuRegister) {
         let value = self.registers.get_target(src);
         self.registers.set_target(dest, value);
+    }
+
+    pub fn ld_a8_a(&mut self) {
+        let address = LD_ADDRESS_LOWER + (self.read_next_byte() as u16);
+        self.mmu.write_byte(address, self.registers.a);
+    }
+
+    pub fn ld_a_a8(&mut self) {
+        let address = LD_ADDRESS_LOWER + (self.read_next_byte() as u16);
+        let value = self.mmu.read_byte(address);
+        self.registers.set_target(&CpuRegister::A, value);
+    }
+
+    pub fn ld_a16_a(&mut self) {
+        let address = self.read_next_word();
+        self.mmu.write_byte(address, self.registers.a);
+    }
+
+    pub fn ld_a_a16(&mut self) {
+        let address = self.read_next_word();
+        let value = self.mmu.read_byte(address);
+        self.registers.set_target(&CpuRegister::A, value);
+    }
+
+    pub fn ld_a_c(&mut self) {
+        let address = LD_ADDRESS_LOWER + (self.registers.c as u16);
+        let value = self.mmu.read_byte(address);
+        self.registers.set_target(&CpuRegister::A, value);
+    }
+
+    pub fn ld_c_a(&mut self) {
+        let data = self.registers.a;
+        let address = LD_ADDRESS_LOWER + (self.registers.get_target(&CpuRegister::C) as u16);
+        self.mmu.write_byte(address, data);
     }
 
     pub fn ld_d8(&mut self, dest: &CpuRegister) {

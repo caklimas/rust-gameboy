@@ -8,10 +8,12 @@ pub mod video_ram;
 mod tests;
 
 use serde::{Serialize, Deserialize};
+use super::addresses::high_ram::*;
 use super::addresses::video_ram::*;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct MemoryManagementUnit {
+    high_ram: high_ram::HighRam,
     video_ram: video_ram::VideoRam,
     work_ram: work_ram::WorkRam
 }
@@ -26,9 +28,8 @@ impl MemoryManagementUnit {
 
     pub fn read_byte(&self, address: u16) -> u8 {
         match address {
-            VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => {
-                self.video_ram.read(address)
-            },
+            VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.read(address),
+            HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.read(address),
             _ => {
                 println!("Invalid address 0x{:4X}", address);
                 0
@@ -46,12 +47,9 @@ impl MemoryManagementUnit {
 
     pub fn write_byte(&mut self, address: u16, data: u8) {
         match address {
-            VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => {
-                self.video_ram.write(address, data);
-            },
-            _ => {
-                println!("Invalid address 0x{:4X}", address);
-            }
+            VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
+            HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.write(address, data),
+            _ => println!("Invalid address 0x{:4X}", address)
         }
     }
 }
