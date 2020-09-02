@@ -62,6 +62,63 @@ fn add_a_test() {
 }
 
 #[test]
+fn add_hl_16_test() {
+    let hl_data = 5;
+    let bc_data = 5;
+    let bc_register = &CpuRegister16::BC;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.f.set_subtraction(true);
+    cpu.registers.set_target_16(&CpuRegister16::HL, hl_data);
+    cpu.registers.set_target_16(bc_register, bc_data);
+
+    cpu.add_hl_16(bc_register);
+
+    assert_eq!(hl_data + bc_data, cpu.registers.get_target_16(&CpuRegister16::HL));
+    assert_eq!(false, cpu.registers.f.carry());
+    assert_eq!(false, cpu.registers.f.half_carry());
+    assert_eq!(false, cpu.registers.f.subtraction());
+
+    cpu.registers.set_target_16(&CpuRegister16::HL, 0xFFFF);
+    cpu.registers.set_target_16(bc_register, 1);
+    cpu.add_hl_16(bc_register);
+
+    assert_eq!(true, cpu.registers.f.carry());
+
+    cpu.registers.set_target_16(&CpuRegister16::HL, 0b1111_1111_1111);
+    cpu.add_hl_16(bc_register);
+
+    assert_eq!(true, cpu.registers.f.half_carry());
+}
+
+#[test]
+fn add_hl_16_sp_test() {
+    let hl_data = 5;
+    let sp_data = 5;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.f.set_subtraction(true);
+    cpu.registers.set_target_16(&CpuRegister16::HL, hl_data);
+    cpu.stack_pointer = sp_data;
+
+    cpu.add_hl_16_sp();
+
+    assert_eq!(hl_data + sp_data, cpu.registers.get_target_16(&CpuRegister16::HL));
+    assert_eq!(false, cpu.registers.f.carry());
+    assert_eq!(false, cpu.registers.f.half_carry());
+    assert_eq!(false, cpu.registers.f.subtraction());
+
+    cpu.registers.set_target_16(&CpuRegister16::HL, 0xFFFF);
+    cpu.stack_pointer = 1;
+    cpu.add_hl_16_sp();
+
+    assert_eq!(true, cpu.registers.f.carry());
+
+    cpu.registers.set_target_16(&CpuRegister16::HL, 0b1111_1111_1111);
+    cpu.add_hl_16_sp();
+
+    assert_eq!(true, cpu.registers.f.half_carry());
+}
+
+#[test]
 fn add_d8_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
@@ -77,7 +134,7 @@ fn add_d8_test() {
 }
 
 #[test]
-fn add_hl_test() {
+fn add_a_hl_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
@@ -86,7 +143,7 @@ fn add_hl_test() {
     cpu.registers.a = a;
     cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
 
-    cpu.add_hl();
+    cpu.add_a_hl();
 
     assert_eq!(a + data, cpu.registers.a);
 }
