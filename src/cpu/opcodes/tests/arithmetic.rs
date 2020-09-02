@@ -149,6 +149,37 @@ fn add_a_hl_test() {
 }
 
 #[test]
+fn add_sp_e8_test() {
+    let mut data = 5;
+    let address = VIDEO_RAM_LOWER;
+    let mut cpu: Cpu = Default::default();
+    cpu.program_counter = address - 1;
+    cpu.mmu.write_byte(address, data);
+
+    cpu.add_sp_e8();
+
+    assert_eq!(data as u16, cpu.stack_pointer);
+    assert_eq!(false, cpu.registers.f.carry());
+    assert_eq!(false, cpu.registers.f.half_carry());
+    assert_eq!(false, cpu.registers.f.subtraction());
+    assert_eq!(false, cpu.registers.f.zero());
+
+    cpu.stack_pointer = 0xFFFF - 1;
+
+    cpu.add_sp_e8();
+
+    assert_eq!(true, cpu.registers.f.carry());
+
+    data = 1;
+    cpu.stack_pointer = 0b1111;
+    cpu.mmu.write_byte(address, data);
+
+    cpu.add_sp_e8();
+
+    assert_eq!(true, cpu.registers.f.half_carry());
+}
+
+#[test]
 fn add_test() {
     let mut cpu: Cpu = Default::default();
     cpu.registers.a = 0;

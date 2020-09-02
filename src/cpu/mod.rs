@@ -64,6 +64,10 @@ impl Cpu {
                     let c = self.add_hl_16_sp();
                     clock = Some(c);
                 },
+                Opcode::AddSpE8 => {
+                    let c = self.add_sp_e8();
+                    clock = Some(c);
+                },
                 Opcode::And(r) => {
                     let c = self.and_a(r);
                     clock = Some(c);
