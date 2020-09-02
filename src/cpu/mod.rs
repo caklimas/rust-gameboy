@@ -8,11 +8,15 @@ mod tests;
 
 use serde::{Serialize, Deserialize};
 use super::mmu::MemoryManagementUnit;
-use opcodes::opcode::{ClockCycle, Opcode};
+use opcodes::{
+    ClockCycle,
+    opcode::Opcode
+};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cpu {
     index_registers: index_registers::IndexRegisters,
+    interrupt_master_enable: bool,
     interrupt_page_address: u8,
     memory_refresh: u8,
     mmu: MemoryManagementUnit,
@@ -25,228 +29,276 @@ pub struct Cpu {
 
 impl Cpu {
     pub fn clock(&mut self) {
-        let mut clock: Option<&ClockCycle> = None;
+        let mut clock: Option<ClockCycle> = None;
         if let Some(ref o) = opcodes::opcode_table::OPCODE_TABLE[self.opcode] {
             match o {
-                Opcode::Adc(r, c) => {
-                    self.adc_a(r);
+                Opcode::Adc(r) => {
+                    let c = self.adc_a(r);
                     clock = Some(c);
                 },
-                Opcode::AdcD8(c) => {
-                    self.adc_d8();
+                Opcode::AdcD8 => {
+                    let c = self.adc_d8();
                     clock = Some(c);
                 },
-                Opcode::AdcHl(c) => {
-                    self.adc_hl();
+                Opcode::AdcHl => {
+                    let c = self.adc_hl();
                     clock = Some(c);
                 },
-                Opcode::Add(r, c) => {
-                    self.add_a(r);
+                Opcode::Add(r) => {
+                    let c = self.add_a(r);
                     clock = Some(c);
                 },
-                Opcode::AddD8(c) => {
-                    self.add_d8();
+                Opcode::AddD8 => {
+                    let c = self.add_d8();
                     clock = Some(c);
                 },
-                Opcode::AddHl(c) => {
-                    self.add_hl();
+                Opcode::AddHl => {
+                    let c = self.add_hl();
                     clock = Some(c);
                 },
-                Opcode::And(r, c) => {
-                    self.and_a(r);
+                Opcode::And(r) => {
+                    let c = self.and_a(r);
                     clock = Some(c);
                 },
-                Opcode::AndD8(c) => {
-                    self.and_d8();
+                Opcode::AndD8 => {
+                    let c = self.and_d8();
                     clock = Some(c);
                 },
-                Opcode::AndHl(c) => {
-                    self.and_hl();
+                Opcode::AndHl => {
+                    let c = self.and_hl();
                     clock = Some(c);
                 },
-                Opcode::Ccf(c) => {
-                    self.ccf();
+                Opcode::Call => {
+                    let c = self.call();
                     clock = Some(c);
                 },
-                Opcode::Cp(r, c) => {
-                    self.cp_a(r);
+                Opcode::CallCc(condition) => {
+                    let c = self.call_cc(condition);
                     clock = Some(c);
                 },
-                Opcode::CpD8(c) => {
-                    self.cp_d8();
+                Opcode::Ccf => {
+                    let c = self.ccf();
                     clock = Some(c);
                 },
-                Opcode::CpHl(c) => {
-                    self.cp_hl();
+                Opcode::Cp(r) => {
+                    let c = self.cp_a(r);
                     clock = Some(c);
                 },
-                Opcode::Cpl(c) => {
-                    self.cpl();
+                Opcode::CpD8 => {
+                    let c = self.cp_d8();
                     clock = Some(c);
                 },
-                Opcode::DecHl(c) => {
-                    self.dec_hl();
+                Opcode::CpHl => {
+                    let c = self.cp_hl();
                     clock = Some(c);
                 },
-                Opcode::DecR(r, c) => {
-                    self.dec_r(r);
+                Opcode::Cpl => {
+                    let c = self.cpl();
                     clock = Some(c);
                 },
-                Opcode::DecSp(c) => {
-                    self.dec_sp();
+                Opcode::DecHl => {
+                    let c = self.dec_hl();
                     clock = Some(c);
                 },
-                Opcode::Dec16(r, c) => {
-                    self.dec_16(r);
+                Opcode::DecR(r) => {
+                    let c = self.dec_r(r);
                     clock = Some(c);
                 },
-                Opcode::IncHl(c) => {
-                    self.inc_hl();
+                Opcode::DecSp => {
+                    let c = self.dec_sp();
                     clock = Some(c);
                 },
-                Opcode::IncR(r, c) => {
-                    self.inc_r(r);
+                Opcode::Dec16(r) => {
+                    let c = self.dec_16(r);
                     clock = Some(c);
                 },
-                Opcode::IncSp(c) => {
-                    self.inc_sp();
+                Opcode::Ei => {
+                    let c = self.ei();
                     clock = Some(c);
                 },
-                Opcode::Inc16(r, c) => {
-                    self.inc_16(r);
+                Opcode::IncHl => {
+                    let c = self.inc_hl();
                     clock = Some(c);
                 },
-                Opcode::Ld(dest, src, c) => {
-                    self.ld(dest, src);
+                Opcode::IncR(r) => {
+                    let c = self.inc_r(r);
                     clock = Some(c);
                 },
-                Opcode::LdA8A(c) => {
-                    self.ld_a8_a();
+                Opcode::IncSp => {
+                    let c = self.inc_sp();
                     clock = Some(c);
                 },
-                Opcode::LdAA8(c) => {
-                    self.ld_a_a8();
+                Opcode::Inc16(r) => {
+                    let c = self.inc_16(r);
                     clock = Some(c);
                 },
-                Opcode::LdA16A(c) => {
-                    self.ld_a16_a();
+                Opcode::Jp => {
+                    let c = self.jp();
                     clock = Some(c);
                 },
-                Opcode::LdAA16(c) => {
-                    self.ld_a_a16();
+                Opcode::JpCc(condition) => {
+                    let c = self.jp_cc(condition);
                     clock = Some(c);
                 },
-                Opcode::LdAC(c) => {
-                    self.ld_a_c();
+                Opcode::JpHl => {
+                    let c = self.jp_hl();
                     clock = Some(c);
                 },
-                Opcode::LdCA(c) => {
-                    self.ld_c_a();
+                Opcode::Jr => {
+                    let c = self.jr();
                     clock = Some(c);
                 },
-                Opcode::LdD8(r, c) => {
-                    self.ld_d8(r);
+                Opcode::JrCc(condition) => {
+                    let c = self.jr_cc(condition);
                     clock = Some(c);
                 },
-                Opcode::LdHlD8(c) => {
-                    self.ld_hl_d8();
+                Opcode::Ld(dest, src) => {
+                    let c = self.ld(dest, src);
                     clock = Some(c);
                 },
-                Opcode::LdHlA(increment, c) => {
-                    self.ld_hl_a(increment);
+                Opcode::LdA8A => {
+                    let c = self.ld_a8_a();
+                    clock = Some(c);
+                },
+                Opcode::LdAA8 => {
+                    let c = self.ld_a_a8();
+                    clock = Some(c);
+                },
+                Opcode::LdA16A => {
+                    let c = self.ld_a16_a();
+                    clock = Some(c);
+                },
+                Opcode::LdAA16 => {
+                    let c = self.ld_a_a16();
+                    clock = Some(c);
+                },
+                Opcode::LdAC => {
+                    let c = self.ld_a_c();
+                    clock = Some(c);
+                },
+                Opcode::LdCA => {
+                    let c = self.ld_c_a();
+                    clock = Some(c);
+                },
+                Opcode::LdD8(r) => {
+                    let c = self.ld_d8(r);
+                    clock = Some(c);
+                },
+                Opcode::LdHlD8 => {
+                    let c = self.ld_hl_d8();
+                    clock = Some(c);
+                },
+                Opcode::LdHlA(increment) => {
+                    let c = self.ld_hl_a(increment);
                     clock = Some(c);
 
                 },
-                Opcode::LdAHl(increment, c) => {
-                    self.ld_a_hl(increment);
+                Opcode::LdAHl(increment) => {
+                    let c = self.ld_a_hl(increment);
                     clock = Some(c);
                 },
-                Opcode::LdA16Sp(c) => {
-                    self.ld_a16_sp();
+                Opcode::LdA16Sp => {
+                    let c = self.ld_a16_sp();
                     clock = Some(c);
                 },
-                Opcode::Ld16R(r16, r, c) => {
-                    self.ld_16_r(r16, r);
+                Opcode::Ld16R(r16, r) => {
+                    let c = self.ld_16_r(r16, r);
                     clock = Some(c);
                 },
-                Opcode::LdR16(r, r16, c) => {
-                    self.ld_r_16(r, r16);
+                Opcode::LdR16(r, r16) => {
+                    let c = self.ld_r_16(r, r16);
                     clock = Some(c);
                 },
-                Opcode::LdR16D16(r, c) => {
-                    self.ld_r16_d16(r);
+                Opcode::LdR16D16(r) => {
+                    let c = self.ld_r16_d16(r);
                     clock = Some(c);
                 },
-                Opcode::LdSpD16(c) => {
-                    self.ld_sp_d16();
+                Opcode::LdSpD16 => {
+                    let c = self.ld_sp_d16();
                     clock = Some(c);
                 },
-                Opcode::LdSpE8(c) => {
-                    self.ld_sp_e8();
+                Opcode::LdSpE8 => {
+                    let c = self.ld_sp_e8();
                     clock = Some(c);
                 },
-                Opcode::LdSpHl(c) => {
-                    self.ld_sp_hl();
+                Opcode::LdSpHl => {
+                    let c = self.ld_sp_hl();
                     clock = Some(c)
                 },
-                Opcode::Or(r, c) => {
-                    self.or_a(r);
+                Opcode::Or(r) => {
+                    let c = self.or_a(r);
                     clock = Some(c);
                 },
-                Opcode::OrD8(c) => {
-                    self.or_d8();
+                Opcode::OrD8 => {
+                    let c = self.or_d8();
                     clock = Some(c);
                 },
-                Opcode::OrHl(c) => {
-                    self.or_hl();
+                Opcode::OrHl => {
+                    let c = self.or_hl();
                     clock = Some(c);
                 },
-                Opcode::Pop(r, c) => {
-                    self.pop(r);
+                Opcode::Pop(r) => {
+                    let c = self.pop(r);
                     clock = Some(c);
                 },
-                Opcode::Push(r, c) => {
-                    self.push(r);
+                Opcode::Push(r) => {
+                    let c = self.push(r);
                     clock = Some(c);
                 },
-                Opcode::Sbc(r, c) => {
-                    self.sbc_a(r);
+                Opcode::Ret => {
+                    let c = self.ret();
                     clock = Some(c);
                 },
-                Opcode::SbcD8(c) => {
-                    self.sbc_d8();
+                Opcode::RetCc(condition) => {
+                    let c = self.ret_cc(condition);
                     clock = Some(c);
                 },
-                Opcode::SbcHl(c) => {
-                    self.sbc_hl();
+                Opcode::RetI => {
+                    let c = self.ret_i();
                     clock = Some(c);
                 },
-                Opcode::Scf(c) => {
-                    self.scf();
+                Opcode::Rst(v) => {
+                    let c = self.rst(v.clone());
                     clock = Some(c);
                 },
-                Opcode::Sub(r, c) => {
-                    self.sub_a(r);
+                Opcode::Sbc(r) => {
+                    let c = self.sbc_a(r);
                     clock = Some(c);
                 },
-                Opcode::SubD8(c) => {
-                    self.sub_d8();
+                Opcode::SbcD8 => {
+                    let c = self.sbc_d8();
                     clock = Some(c);
                 },
-                Opcode::SubHl(c) => {
-                    self.sub_hl();
+                Opcode::SbcHl => {
+                    let c = self.sbc_hl();
                     clock = Some(c);
                 },
-                Opcode::XOr(r, c) => {
-                    self.xor_a(r);
+                Opcode::Scf => {
+                    let c = self.scf();
                     clock = Some(c);
                 },
-                Opcode::XOrD8(c) => {
-                    self.xor_d8();
+                Opcode::Sub(r) => {
+                    let c = self.sub_a(r);
+                    clock = Some(c);
+                },
+                Opcode::SubD8 => {
+                    let c = self.sub_d8();
+                    clock = Some(c);
+                },
+                Opcode::SubHl => {
+                    let c = self.sub_hl();
+                    clock = Some(c);
+                },
+                Opcode::XOr(r) => {
+                    let c = self.xor_a(r);
+                    clock = Some(c);
+                },
+                Opcode::XOrD8 => {
+                    let c = self.xor_d8();
                     clock = Some(c)
                 },
-                Opcode::XOrHl(c) => {
-                    self.xor_hl();
+                Opcode::XOrHl => {
+                    let c = self.xor_hl();
                     clock = Some(c);
                 }
             }
