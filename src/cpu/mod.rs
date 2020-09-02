@@ -52,8 +52,16 @@ impl Cpu {
                     let c = self.add_d8();
                     clock = Some(c);
                 },
-                Opcode::AddHl => {
-                    let c = self.add_hl();
+                Opcode::AddAHl => {
+                    let c = self.add_a_hl();
+                    clock = Some(c);
+                },
+                Opcode::AddHl16(r) => {
+                    let c = self.add_hl_16(r);
+                    clock = Some(c);
+                },
+                Opcode::AddHl16Sp => {
+                    let c = self.add_hl_16_sp();
                     clock = Some(c);
                 },
                 Opcode::And(r) => {

@@ -26,7 +26,7 @@ impl super::super::Cpu {
         self.registers.set_target_16(&CpuRegister16::HL, value);
 
         self.registers.f.set_carry(overflow);
-        self.registers.f.set_half_carry(super::is_half_carry(self.stack_pointer as u8, e as u8, false));
+        self.registers.f.set_half_carry(super::is_half_carry_8(self.stack_pointer as u8, e as u8, false));
         self.registers.f.set_subtraction(false);
         self.registers.f.set_zero(false);
         (2, 12)
