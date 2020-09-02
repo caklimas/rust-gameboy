@@ -30,6 +30,20 @@ impl super::super::Cpu {
         (1, 4)
     }
 
+    pub fn add_a_hl(&mut self) -> ClockCycle {
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
+        let result = self.add(target, false);
+        self.registers.a = result;
+        (1, 8)
+    }
+
+    pub fn add_d8(&mut self) -> ClockCycle {
+        let target = self.read_next_byte();
+        let result = self.add(target, false);
+        self.registers.a = result;
+        (2, 8)
+    }
+
     pub fn add_hl_16(&mut self, register: &CpuRegister16) -> ClockCycle {
         let hl_register = &CpuRegister16::HL;
         let hl_register_value = self.registers.get_target_16(hl_register);
@@ -56,19 +70,18 @@ impl super::super::Cpu {
 
         (1, 8)
     }
-
-    pub fn add_d8(&mut self) -> ClockCycle {
-        let target = self.read_next_byte();
-        let result = self.add(target, false);
-        self.registers.a = result;
-        (2, 8)
-    }
-
-    pub fn add_a_hl(&mut self) -> ClockCycle {
-        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
-        let result = self.add(target, false);
-        self.registers.a = result;
-        (1, 8)
+    
+    pub fn add_sp_e8(&mut self) -> ClockCycle {
+        let e = self.read_next_byte() as i8;
+        let (value, overflow) = self.stack_pointer.overflowing_add(e as u16);
+        
+        self.registers.f.set_carry(overflow);
+        self.registers.f.set_half_carry(super::is_half_carry_8(self.stack_pointer as u8, e as u8, false));
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(false);
+        
+        self.stack_pointer = value;
+        (2, 16)
     }
 
     pub fn and_a(&mut self, register: &CpuRegister) -> ClockCycle {

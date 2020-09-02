@@ -7,6 +7,7 @@ pub enum Opcode {
     AddAHl,
     AddHl16(CpuRegister16),
     AddHl16Sp,
+    AddSpE8,
     And(CpuRegister),
     AndD8,
     AndHl,
