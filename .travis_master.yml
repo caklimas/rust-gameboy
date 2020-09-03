@@ -72,3 +72,6 @@ jobs:
     allow_failures:
         - rust: nightly
     fast_finish: true
+
+branches:
+    only: master
