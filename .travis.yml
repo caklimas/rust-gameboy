@@ -1,3 +1,4 @@
+
 language: rust
 cache: cargo
 
@@ -9,7 +10,3 @@ jobs:
     allow_failures:
         - rust: nightly
     fast_finish: true
-
-branches:
-    except:
-        - master
