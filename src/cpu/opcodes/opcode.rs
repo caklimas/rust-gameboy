@@ -13,6 +13,7 @@ pub enum Opcode {
     AndHl,
     Call,
     CallCc(Condition),
+    Cb,
     Ccf,
     Cp(CpuRegister),
     CpD8,

@@ -1,4 +1,7 @@
 pub mod arithmetic;
+pub mod cb_opcode;
+pub mod cb_opcode_table;
+pub mod cb_opcodes;
 pub mod jump;
 pub mod load;
 pub mod opcode;
@@ -95,6 +98,107 @@ impl super::Cpu {
         self.stack_pointer -= 2;
     }
 
+    fn rl_8(&mut self, value: u8) -> u8 {
+        // C <- [7 <- 0] <- C
+        let carry = self.registers.f.carry();
+        let bit_7 = value & 0b1000_0000;
+
+        let shifted = value << 1;
+        let result = if carry {
+            shifted | 0b1
+        } else {
+            shifted & !0b1
+        };
+
+        self.registers.f.set_carry(bit_7 > 0);
+        self.registers.f.set_half_carry(false);
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(result == 0);
+
+        result
+    }
+
+    fn rlc_8(&mut self, value: u8) -> u8 {
+        // C <- [7 <- 0] <- [7]
+        let bit_7 = value & 0b1000_0000;
+        
+        let shifted = value << 1;
+        let result = if bit_7 > 0 {
+            shifted | 0b1
+        } else {
+            shifted & !0b1
+        };
+        
+        self.registers.f.set_carry(bit_7 > 0);
+        self.registers.f.set_half_carry(false);
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(result == 0);
+        result
+    }
+
+    fn rr_8(&mut self, value: u8) -> u8 {
+        // C -> [7 -> 0] -> C
+        let bit_0 = value & 0b1;
+        let carry = self.registers.f.carry();
+        
+        let shifted = value >> 1;
+        let result = if carry {
+            shifted | 0b1000_0000
+        } else {
+            shifted & !0b1000_0000
+        };
+        
+        self.registers.f.set_carry(bit_0 > 0);
+        self.registers.f.set_half_carry(false);
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(result == 0);
+        result
+    }
+
+    fn rrc_8(&mut self, value: u8) -> u8 {
+        // [0] -> [7 -> 0] -> C
+        let bit_0 = value & 0b1;
+        
+        let shifted = value >> 1;
+        let result = if bit_0 > 0 {
+            shifted | 0b1000_0000
+        } else {
+            shifted & !0b1000_0000
+        };
+        
+        self.registers.f.set_carry(bit_0 > 0);
+        self.registers.f.set_half_carry(false);
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(result == 0);
+        result
+    }
+
+    fn sla_8(&mut self, value: u8) -> u8 {
+        // C <- [7 <- 0] <- 0
+        let bit_7 = value & 0b1000_0000;
+        let result = value << 1;
+
+        self.registers.f.set_carry(bit_7 > 0);
+        self.registers.f.set_half_carry(false);
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(result == 0);
+
+        result
+    }
+
+    fn sra_8(&mut self, value: u8) -> u8 {
+        // [7] -> [7 -> 0] -> C
+        let bit_0 = value & 0b1;
+        let result = value >> 1;
+
+        self.registers.f.set_carry(bit_0 > 0);
+        self.registers.f.set_half_carry(false);
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(result == 0);
+
+        result
+    }
+ 
     fn sub(&mut self, target: u8, include_carry: bool) -> u8 {
         let carry = if include_carry && self.registers.f.carry() { 1 } else { 0 };
         let (result, overflow) = self.registers.a.overflowing_sub(target);
