@@ -11,5 +11,5 @@ jobs:
     fast_finish: true
 
 branches:
-  except:
-    master
+    except:
+        - master
