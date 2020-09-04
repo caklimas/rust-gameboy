@@ -1,4 +1,4 @@
-name: Rust PR
+name: Unit Tests
 
 on:
   pull_request:
