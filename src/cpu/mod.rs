@@ -266,7 +266,7 @@ impl Cpu {
                     Some(self.rrc_a())
                 },
                 Opcode::Rst(v) => {
-                    Some(self.rst(v.clone()))
+                    Some(self.rst(*v))
                 },
                 Opcode::Sbc(r) => {
                     Some(self.sbc_a(r))
@@ -311,16 +311,16 @@ impl Cpu {
         let o = &CB_OPCODE_TABLE[self.opcode];
         match o {
             CbOpcode::BitNSetHl(b) => {
-                self.bit_n_set_hl(b.clone())
+                self.bit_n_set_hl(*b)
             },
             CbOpcode::BitNSetR8(r, b) => {
-                self.bit_n_set_r8(r, b.clone())
+                self.bit_n_set_r8(r, *b)
             },
             CbOpcode::ResHl(b) => {
-                self.res_hl(b.clone())
+                self.res_hl(*b)
             },
             CbOpcode::ResR8(r, b) => {
-                self.res_r8(r, b.clone())
+                self.res_r8(r, *b)
             },
             CbOpcode::RlHl => {
                 self.rl_hl()
@@ -347,10 +347,10 @@ impl Cpu {
                 self.rrc_r8(r)
             },
             CbOpcode::SetHl(b) => {
-                self.set_hl(b.clone())
+                self.set_hl(*b)
             },
             CbOpcode::SetR8(r, b) => {
-                self.set_r8(r, b.clone())
+                self.set_r8(r, *b)
             },
             CbOpcode::SlaHl => {
                 self.sla_hl()
