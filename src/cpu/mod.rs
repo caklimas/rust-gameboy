@@ -59,289 +59,219 @@ impl Cpu {
         if let Some(ref o) = OPCODE_TABLE[self.opcode] {
             match o {
                 Opcode::Adc(r) => {
-                    let c = self.adc_a(r);
-                    Some(c)
+                    Some(self.adc_a(r))
                 },
                 Opcode::AdcD8 => {
-                    let c = self.adc_d8();
-                    Some(c)
+                    Some(self.adc_d8())
                 },
                 Opcode::AdcHl => {
-                    let c = self.adc_hl();
-                    Some(c)
+                    Some(self.adc_hl())
                 },
                 Opcode::Add(r) => {
-                    let c = self.add_a(r);
-                    Some(c)
+                    Some(self.add_a(r))
                 },
                 Opcode::AddD8 => {
-                    let c = self.add_d8();
-                    Some(c)
+                    Some(self.add_d8())
                 },
                 Opcode::AddAHl => {
-                    let c = self.add_a_hl();
-                    Some(c)
+                    Some(self.add_a_hl())
                 },
                 Opcode::AddHl16(r) => {
-                    let c = self.add_hl_16(r);
-                    Some(c)
+                    Some(self.add_hl_16(r))
                 },
                 Opcode::AddHl16Sp => {
-                    let c = self.add_hl_16_sp();
-                    Some(c)
+                    Some(self.add_hl_16_sp())
                 },
                 Opcode::AddSpE8 => {
-                    let c = self.add_sp_e8();
-                    Some(c)
+                    Some(self.add_sp_e8())
                 },
                 Opcode::And(r) => {
-                    let c = self.and_a(r);
-                    Some(c)
+                    Some(self.and_a(r))
                 },
                 Opcode::AndD8 => {
-                    let c = self.and_d8();
-                    Some(c)
+                    Some(self.and_d8())
                 },
                 Opcode::AndHl => {
-                    let c = self.and_hl();
-                    Some(c)
+                    Some(self.and_hl())
                 },
                 Opcode::Call => {
-                    let c = self.call();
-                    Some(c)
+                    Some(self.call())
                 },
                 Opcode::CallCc(condition) => {
-                    let c = self.call_cc(condition);
-                    Some(c)
+                    Some(self.call_cc(condition))
                 },
                 Opcode::Cb => {
                     self.cb_opcode = true;
                     Some((1, 4))
                 },
                 Opcode::Ccf => {
-                    let c = self.ccf();
-                    Some(c)
+                    Some(self.ccf())
                 },
                 Opcode::Cp(r) => {
-                    let c = self.cp_a(r);
-                    Some(c)
+                    Some(self.cp_a(r))
                 },
                 Opcode::CpD8 => {
-                    let c = self.cp_d8();
-                    Some(c)
+                    Some(self.cp_d8())
                 },
                 Opcode::CpHl => {
-                    let c = self.cp_hl();
-                    Some(c)
+                    Some(self.cp_hl())
                 },
                 Opcode::Cpl => {
-                    let c = self.cpl();
-                    Some(c)
+                    Some(self.cpl())
                 },
                 Opcode::DecHl => {
-                    let c = self.dec_hl();
-                    Some(c)
+                    Some(self.dec_hl())
                 },
                 Opcode::DecR(r) => {
-                    let c = self.dec_r(r);
-                    Some(c)
+                    Some(self.dec_r(r))
                 },
                 Opcode::DecSp => {
-                    let c = self.dec_sp();
-                    Some(c)
+                    Some(self.dec_sp())
                 },
                 Opcode::Dec16(r) => {
-                    let c = self.dec_16(r);
-                    Some(c)
+                    Some(self.dec_16(r))
                 },
                 Opcode::Ei => {
-                    let c = self.ei();
-                    Some(c)
+                    Some(self.ei())
                 },
                 Opcode::IncHl => {
-                    let c = self.inc_hl();
-                    Some(c)
+                    Some(self.inc_hl())
                 },
                 Opcode::IncR(r) => {
-                    let c = self.inc_r(r);
-                    Some(c)
+                    Some(self.inc_r(r))
                 },
                 Opcode::IncSp => {
-                    let c = self.inc_sp();
-                    Some(c)
+                    Some(self.inc_sp())
                 },
                 Opcode::Inc16(r) => {
-                    let c = self.inc_16(r);
-                    Some(c)
+                    Some(self.inc_16(r))
                 },
                 Opcode::Jp => {
-                    let c = self.jp();
-                    Some(c)
+                    Some(self.jp())
                 },
                 Opcode::JpCc(condition) => {
-                    let c = self.jp_cc(condition);
-                    Some(c)
+                    Some(self.jp_cc(condition))
                 },
                 Opcode::JpHl => {
-                    let c = self.jp_hl();
-                    Some(c)
+                    Some(self.jp_hl())
                 },
                 Opcode::Jr => {
-                    let c = self.jr();
-                    Some(c)
+                    Some(self.jr())
                 },
                 Opcode::JrCc(condition) => {
-                    let c = self.jr_cc(condition);
-                    Some(c)
+                    Some(self.jr_cc(condition))
                 },
                 Opcode::Ld(dest, src) => {
-                    let c = self.ld(dest, src);
-                    Some(c)
+                    Some(self.ld(dest, src))
                 },
                 Opcode::LdA8A => {
-                    let c = self.ld_a8_a();
-                    Some(c)
+                    Some(self.ld_a8_a())
                 },
                 Opcode::LdAA8 => {
-                    let c = self.ld_a_a8();
-                    Some(c)
+                    Some(self.ld_a_a8())
                 },
                 Opcode::LdA16A => {
-                    let c = self.ld_a16_a();
-                    Some(c)
+                    Some(self.ld_a16_a())
                 },
                 Opcode::LdAA16 => {
-                    let c = self.ld_a_a16();
-                    Some(c)
+                    Some(self.ld_a_a16())
                 },
                 Opcode::LdAC => {
-                    let c = self.ld_a_c();
-                    Some(c)
+                    Some(self.ld_a_c())
                 },
                 Opcode::LdCA => {
-                    let c = self.ld_c_a();
-                    Some(c)
+                    Some(self.ld_c_a())
                 },
                 Opcode::LdD8(r) => {
-                    let c = self.ld_d8(r);
-                    Some(c)
+                    Some(self.ld_d8(r))
                 },
                 Opcode::LdHlD8 => {
-                    let c = self.ld_hl_d8();
-                    Some(c)
+                    Some(self.ld_hl_d8())
                 },
                 Opcode::LdHlA(increment) => {
-                    let c = self.ld_hl_a(increment);
-                    Some(c)
+                    Some(self.ld_hl_a(increment))
 
                 },
                 Opcode::LdAHl(increment) => {
-                    let c = self.ld_a_hl(increment);
-                    Some(c)
+                    Some(self.ld_a_hl(increment))
                 },
                 Opcode::LdA16Sp => {
-                    let c = self.ld_a16_sp();
-                    Some(c)
+                    Some(self.ld_a16_sp())
                 },
                 Opcode::Ld16R(r16, r) => {
-                    let c = self.ld_16_r(r16, r);
-                    Some(c)
+                    Some(self.ld_16_r(r16, r))
                 },
                 Opcode::LdR16(r, r16) => {
-                    let c = self.ld_r_16(r, r16);
-                    Some(c)
+                    Some(self.ld_r_16(r, r16))
                 },
                 Opcode::LdR16D16(r) => {
-                    let c = self.ld_r16_d16(r);
-                    Some(c)
+                    Some(self.ld_r16_d16(r))
                 },
                 Opcode::LdSpD16 => {
-                    let c = self.ld_sp_d16();
-                    Some(c)
+                    Some(self.ld_sp_d16())
                 },
                 Opcode::LdSpE8 => {
-                    let c = self.ld_sp_e8();
-                    Some(c)
+                    Some(self.ld_sp_e8())
                 },
                 Opcode::LdSpHl => {
-                    let c = self.ld_sp_hl();
-                    Some(c)
+                    Some(self.ld_sp_hl())
                 },
                 Opcode::Or(r) => {
-                    let c = self.or_a(r);
-                    Some(c)
+                    Some(self.or_a(r))
                 },
                 Opcode::OrD8 => {
-                    let c = self.or_d8();
-                    Some(c)
+                    Some(self.or_d8())
                 },
                 Opcode::OrHl => {
-                    let c = self.or_hl();
-                    Some(c)
+                    Some(self.or_hl())
                 },
                 Opcode::Pop(r) => {
-                    let c = self.pop(r);
-                    Some(c)
+                    Some(self.pop(r))
                 },
                 Opcode::Push(r) => {
-                    let c = self.push(r);
-                    Some(c)
+                    Some(self.push(r))
                 },
                 Opcode::Ret => {
-                    let c = self.ret();
-                    Some(c)
+                    Some(self.ret())
                 },
                 Opcode::RetCc(condition) => {
-                    let c = self.ret_cc(condition);
-                    Some(c)
+                    Some(self.ret_cc(condition))
                 },
                 Opcode::RetI => {
-                    let c = self.ret_i();
-                    Some(c)
+                    Some(self.ret_i())
                 },
                 Opcode::Rst(v) => {
-                    let c = self.rst(v.clone());
-                    Some(c)
+                    Some(self.rst(v.clone()))
                 },
                 Opcode::Sbc(r) => {
-                    let c = self.sbc_a(r);
-                    Some(c)
+                    Some(self.sbc_a(r))
                 },
                 Opcode::SbcD8 => {
-                    let c = self.sbc_d8();
-                    Some(c)
+                    Some(self.sbc_d8())
                 },
                 Opcode::SbcHl => {
-                    let c = self.sbc_hl();
-                    Some(c)
+                    Some(self.sbc_hl())
                 },
                 Opcode::Scf => {
-                    let c = self.scf();
-                    Some(c)
+                    Some(self.scf())
                 },
                 Opcode::Sub(r) => {
-                    let c = self.sub_a(r);
-                    Some(c)
+                    Some(self.sub_a(r))
                 },
                 Opcode::SubD8 => {
-                    let c = self.sub_d8();
-                    Some(c)
+                    Some(self.sub_d8())
                 },
                 Opcode::SubHl => {
-                    let c = self.sub_hl();
-                    Some(c)
+                    Some(self.sub_hl())
                 },
                 Opcode::XOr(r) => {
-                    let c = self.xor_a(r);
-                    Some(c)
+                    Some(self.xor_a(r))
                 },
                 Opcode::XOrD8 => {
-                    let c = self.xor_d8();
-                    Some(c)
+                    Some(self.xor_d8())
                 },
                 Opcode::XOrHl => {
-                    let c = self.xor_hl();
-                    Some(c)
+                    Some(self.xor_hl())
                 }
             }
         } else {
@@ -352,53 +282,71 @@ impl Cpu {
     fn execute_cb_opcode(&mut self) -> ClockCycle {
         let o = &CB_OPCODE_TABLE[self.opcode];
         match o {
+            CbOpcode::BitNSetHl(b) => {
+                self.bit_n_set_hl(b.clone())
+            },
+            CbOpcode::BitNSetR8(r, b) => {
+                self.bit_n_set_r8(r, b.clone())
+            },
+            CbOpcode::ResHl(b) => {
+                self.res_hl(b.clone())
+            },
+            CbOpcode::ResR8(r, b) => {
+                self.res_r8(r, b.clone())
+            },
             CbOpcode::RlHl => {
-                let c = self.rl_hl();
-                c
+                self.rl_hl()
             },
             CbOpcode::RlR8(r) => {
-                let c = self.rl_r8(r);
-                c
+                self.rl_r8(r)
             },
             CbOpcode::RlcHl => {
-                let c = self.rlc_hl();
-                c
+                self.rlc_hl()
             },
             CbOpcode::RlcR8(r) => {
-                let c = self.rlc_r8(r);
-                c
+                self.rlc_r8(r)
             },
             CbOpcode::RrHl => {
-                let c = self.rr_hl();
-                c
+                self.rr_hl()
             },
             CbOpcode::RrR8(r) => {
-                let c = self.rr_r8(r);
-                c
+                self.rr_r8(r)
             },
             CbOpcode::RrcHl => {
-                let c = self.rrc_hl();
-                c
+                self.rrc_hl()
             },
             CbOpcode::RrcR8(r) => {
-                let c = self.rrc_r8(r);
-                c
+                self.rrc_r8(r)
+            },
+            CbOpcode::SetHl(b) => {
+                self.set_hl(b.clone())
+            },
+            CbOpcode::SetR8(r, b) => {
+                self.set_r8(r, b.clone())
             },
             CbOpcode::SlaHl => {
-                let c = self.sla_hl();
-                c
+                self.sla_hl()
             },
             CbOpcode::SlaR8(r) => {
-                let c = self.sla_r8(r);
-                c
+                self.sla_r8(r)
             },
             CbOpcode::SraHl => {
-                let c = self.sra_hl();
-                c
+                self.sra_hl()
             },
             CbOpcode::SraR8(r) => {
-                let c = self.sra_r8(r);
-                c
+                self.sra_r8(r)
+            },
+            CbOpcode::SrlHl => {
+                self.srl_hl()
+            },
+            CbOpcode::SrlR8(r) => {
+                self.srl_r8(r)
+            },
+            CbOpcode::SwapHl => {
+                self.swap_hl()
+            },
+            CbOpcode::SwapR8(r) => {
+                self.swap_r8(r)
             },
             CbOpcode::Unknown => {
                 panic!("Unrecognized cb opcode");

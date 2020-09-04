@@ -3,6 +3,83 @@ use super::super::opcode::{CpuRegister, CpuRegister16};
 use super::super::super::super::addresses::video_ram::VIDEO_RAM_LOWER;
 
 #[test]
+fn bit_n_set_hl_test() {
+    let address = VIDEO_RAM_LOWER;
+    let data = 0b0010_0000;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.set_target_16(&CpuRegister16::HL, address);
+    cpu.mmu.write_byte(address, data);
+
+    cpu.bit_n_set_hl(6);
+
+    assert_eq!(true, cpu.registers.f.zero());
+}
+
+#[test]
+fn bit_n_set_r8_test() {
+    let value = 0b0010_0000;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = value;
+
+    cpu.bit_n_set_r8(&CpuRegister::A, 6);
+
+    assert_eq!(true, cpu.registers.f.zero());
+}
+
+#[test]
+fn bit_n_set_test() {
+    let value = 0b0100_0000;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.f.set_half_carry(false);
+
+    cpu.bit_n_set(6, value);
+
+    assert_eq!(true, cpu.registers.f.half_carry());
+    assert_eq!(false, cpu.registers.f.subtraction());
+    assert_eq!(false, cpu.registers.f.zero());
+
+    let value = 0b0000_0010;
+    cpu.bit_n_set(6, value);
+
+    assert_eq!(true, cpu.registers.f.zero());
+}
+
+#[test]
+fn res_hl_test() {
+    let value = 0b1110_0000;
+    let address = VIDEO_RAM_LOWER;
+    let register = &CpuRegister16::HL;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.set_target_16(register, address);
+    cpu.mmu.write_byte(address, value);
+
+    cpu.res_hl(5);
+
+    assert_eq!(0b1100_0000, cpu.mmu.read_byte(address));
+}
+
+#[test]
+fn res_r8_test() {
+    let value = 0b1110_0000;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = value;
+
+    cpu.res_r8(&CpuRegister::A, 5);
+
+    assert_eq!(0b1100_0000, cpu.registers.a);
+}
+
+#[test]
+fn res_8_test() {
+    let value = 0b1110_0000;
+    let cpu: Cpu = Default::default();
+
+    let result = cpu.res_8(value, 5);
+
+    assert_eq!(0b1100_0000, result);
+}
+
+#[test]
 fn rl_hl_test() {
     let data = 0b1000_1100;
     let register = &CpuRegister16::HL;
@@ -199,6 +276,41 @@ fn rrc_8_test() {
 }
 
 #[test]
+fn set_hl_test() {
+    let value = 0b1100_0000;
+    let address = VIDEO_RAM_LOWER;
+    let register = &CpuRegister16::HL;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.set_target_16(register, address);
+    cpu.mmu.write_byte(address, value);
+
+    cpu.set_hl(5);
+
+    assert_eq!(0b1110_0000, cpu.mmu.read_byte(address));
+}
+
+#[test]
+fn set_r8_test() {
+    let value = 0b1100_0000;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = value;
+
+    cpu.set_r8(&CpuRegister::A, 5);
+
+    assert_eq!(0b1110_0000, cpu.registers.a);
+}
+
+#[test]
+fn set_8_test() {
+    let value = 0b1100_0000;
+    let cpu: Cpu = Default::default();
+
+    let result = cpu.set_8(value, 5);
+
+    assert_eq!(0b1110_0000, result);
+}
+
+#[test]
 fn sla_hl_test() {
     let data = 0b1000_1100;
     let register = &CpuRegister16::HL;
@@ -242,6 +354,30 @@ fn sla_8_test() {
 }
 
 #[test]
+fn sra_hl_test() {
+    let data = 0b1000_0001;
+    let register = &CpuRegister16::HL;
+    let mut cpu: Cpu = Default::default();
+    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
+    cpu.registers.set_target_16(register, VIDEO_RAM_LOWER);
+
+    cpu.sra_hl();
+
+    assert_eq!(0b1100_0000, cpu.mmu.read_byte(VIDEO_RAM_LOWER));
+}
+
+#[test]
+fn sra_r8_test() {
+    let register = &CpuRegister::A;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 0b1000_0001;
+
+    cpu.sra_r8(register);
+
+    assert_eq!(0b1100_0000, cpu.registers.a);
+}
+
+#[test]
 fn sra_8_test() {
     let mut cpu: Cpu = Default::default();
     let value = 0b1000_0001;
@@ -252,10 +388,93 @@ fn sra_8_test() {
     assert_eq!(false, cpu.registers.f.half_carry());
     assert_eq!(false, cpu.registers.f.subtraction());
     assert_eq!(false, cpu.registers.f.zero());
-    assert_eq!(0b0100_0000, result);
+    assert_eq!(0b1100_0000, result);
 
     let value = 0;
     cpu.sra_8(value);
+
+    assert_eq!(true, cpu.registers.f.zero());
+}
+
+#[test]
+fn srl_hl_test() {
+    let data = 0b1000_0001;
+    let register = &CpuRegister16::HL;
+    let mut cpu: Cpu = Default::default();
+    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
+    cpu.registers.set_target_16(register, VIDEO_RAM_LOWER);
+
+    cpu.srl_hl();
+
+    assert_eq!(0b0100_0000, cpu.mmu.read_byte(VIDEO_RAM_LOWER));
+}
+
+#[test]
+fn srl_r8_test() {
+    let register = &CpuRegister::A;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 0b1000_0001;
+
+    cpu.srl_r8(register);
+
+    assert_eq!(0b0100_0000, cpu.registers.a);
+}
+
+#[test]
+fn srl_8_test() {
+    let mut cpu: Cpu = Default::default();
+    let value = 0b1000_0001;
+
+    let result = cpu.srl_8(value);
+
+    assert_eq!(true, cpu.registers.f.carry());
+    assert_eq!(false, cpu.registers.f.half_carry());
+    assert_eq!(false, cpu.registers.f.subtraction());
+    assert_eq!(false, cpu.registers.f.zero());
+    assert_eq!(0b0100_0000, result);
+
+    let value = 0;
+    cpu.srl_8(value);
+
+    assert_eq!(true, cpu.registers.f.zero());
+}
+
+#[test]
+fn swap_hl_test() {
+    let address = VIDEO_RAM_LOWER;
+    let data = 0b0100_1000;
+    let register = &CpuRegister16::HL;
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.set_target_16(register, address);
+    cpu.mmu.write_byte(address, data);
+
+    cpu.swap_hl();
+
+    assert_eq!(0b1000_0100, cpu.mmu.read_byte(address));
+}
+
+#[test]
+fn swap_r8_test() {
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 0b0100_1000;
+
+    cpu.swap_r8(&CpuRegister::A);
+
+    assert_eq!(0b1000_0100, cpu.registers.a);
+}
+
+#[test]
+fn swap_test() {
+    let mut cpu: Cpu = Default::default();
+    let value = 0b0100_1000;
+
+    let result = cpu.swap(value);
+
+    assert_eq!(false, cpu.registers.f.zero());
+    assert_eq!(0b1000_0100, result);
+
+    let value = 0;
+    cpu.swap(value);
 
     assert_eq!(true, cpu.registers.f.zero());
 }

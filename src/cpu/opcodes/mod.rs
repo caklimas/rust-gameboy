@@ -43,6 +43,13 @@ impl super::Cpu {
         result
     }
 
+    fn bit_n_set(&mut self, bit_n: u8, value: u8) {
+        let result = value & (1 << bit_n);
+        self.registers.f.set_half_carry(true);
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(result == 0);
+    }
+
     fn dec_8(&mut self, target: u8) -> u8 {
         let result = target.wrapping_sub(1);
         self.registers.f.set_half_carry(is_half_carry_8(target, 1, true));
@@ -96,6 +103,10 @@ impl super::Cpu {
     fn push_stack(&mut self, value: u16) {
         self.mmu.write_word(self.stack_pointer, value);
         self.stack_pointer -= 2;
+    }
+
+    fn res_8(&self, value: u8, bit_n: u8) -> u8 {
+        value & !(1 << bit_n)
     }
 
     fn rl_8(&mut self, value: u8) -> u8 {
@@ -173,6 +184,10 @@ impl super::Cpu {
         result
     }
 
+    fn set_8(&self, value: u8, bit_n: u8) -> u8 {
+        value | (1 << bit_n)
+    }
+
     fn sla_8(&mut self, value: u8) -> u8 {
         // C <- [7 <- 0] <- 0
         let bit_7 = value & 0b1000_0000;
@@ -188,6 +203,25 @@ impl super::Cpu {
 
     fn sra_8(&mut self, value: u8) -> u8 {
         // [7] -> [7 -> 0] -> C
+        let bit_7 = value & 0b1000_0000;
+        let bit_0 = value & 0b1;
+        let shifted = value >> 1;
+        let result = if bit_7 > 0 {
+            shifted | bit_7
+        } else {
+            shifted & !bit_7
+        };
+
+        self.registers.f.set_carry(bit_0 > 0);
+        self.registers.f.set_half_carry(false);
+        self.registers.f.set_subtraction(false);
+        self.registers.f.set_zero(result == 0);
+
+        result
+    }
+
+    fn srl_8(&mut self, value: u8) -> u8 {
+        // 0 -> [7 -> 0] -> C
         let bit_0 = value & 0b1;
         let result = value >> 1;
 
@@ -209,6 +243,16 @@ impl super::Cpu {
         self.registers.f.set_zero(result == 0);
 
         result_2
+    }
+
+    fn swap(&mut self, value: u8) -> u8 {
+        let high = value & 0xF0;
+        let low = value & 0x0F;
+        let result = (low << 4) | (high >> 4);
+
+        self.registers.f.set_zero(result == 0);
+
+        result
     }
 
     fn xor(&mut self, target: u8) -> u8 {
