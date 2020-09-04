@@ -1,4 +1,4 @@
 # rust-gameboy
 Gameboy emulator written in Rust
 
-[![Build Status](https://travis-ci.com/caklimas/rust-gameboy.svg?branch=master)](https://travis-ci.com/caklimas/rust-gameboy.svg?branch=master)
+[![Actions Status](https://github.com/caklimas/rust-gameboy/workflows/Rust/badge.svg)](https://github.com/caklimas/rust-gameboy/actions)
