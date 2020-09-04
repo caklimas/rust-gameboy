@@ -395,6 +395,49 @@ fn cpl_test() {
 }
 
 #[test]
+fn daa_test() {
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 0b0000_1010;
+
+    cpu.daa();
+
+    assert_eq!(0b0001_0000, cpu.registers.a);
+}
+
+#[test]
+fn daa_add_test() {
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 7;
+    cpu.registers.b = 9;
+    cpu.add_a(&CpuRegister::B);
+
+    cpu.daa();
+
+    assert_eq!(0b0001_0110, cpu.registers.a);
+
+    cpu.registers.a = 0b0001_1001; // 19
+    cpu.registers.b = 0b0010_1000; // 28
+    cpu.add_a(&CpuRegister::B);
+
+    cpu.daa();
+
+    assert_eq!(0b0100_0111, cpu.registers.a);
+}
+
+#[test]
+fn daa_sub_test() {
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 0b0100_0111; // 47
+    cpu.registers.b = 0b0010_1000; // 28
+    cpu.sub_a(&CpuRegister::B);
+    cpu.registers.f.set_subtraction(true);
+
+    cpu.daa();
+
+    assert_eq!(0b0001_1001, cpu.registers.a);
+}
+
+#[test]
 fn dec_hl_test() {
     let mut cpu: Cpu = Default::default();
     let target = 5;

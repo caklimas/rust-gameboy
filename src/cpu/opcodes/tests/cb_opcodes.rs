@@ -80,6 +80,18 @@ fn res_8_test() {
 }
 
 #[test]
+fn rl_a_test() {
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 0b1000_1100;
+    cpu.registers.f.set_zero(true);
+
+    cpu.rl_a();
+
+    assert_eq!(0b0001_1000, cpu.registers.a);
+    assert_eq!(false, cpu.registers.f.zero());
+}
+
+#[test]
 fn rl_hl_test() {
     let data = 0b1000_1100;
     let register = &CpuRegister16::HL;
@@ -127,6 +139,18 @@ fn rl_8_test() {
     let value = 0;
     cpu.rl_8(value);
     assert_eq!(true, cpu.registers.f.zero());
+}
+
+#[test]
+fn rlc_a_test() {
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 0b1000_1100;
+    cpu.registers.f.set_zero(true);
+
+    cpu.rlc_a();
+
+    assert_eq!(0b0001_1001, cpu.registers.a);
+    assert_eq!(false, cpu.registers.f.zero());
 }
 
 #[test]
@@ -178,6 +202,18 @@ fn rlc_8_test() {
 }
 
 #[test]
+fn rr_a_test() {
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 0b1000_1100;
+    cpu.registers.f.set_zero(true);
+
+    cpu.rr_a();
+
+    assert_eq!(0b0100_0110, cpu.registers.a);
+    assert_eq!(false, cpu.registers.f.zero());
+}
+
+#[test]
 fn rr_hl_test() {
     let data = 0b1000_1100;
     let register = &CpuRegister16::HL;
@@ -225,6 +261,18 @@ fn rr_8_test() {
     let value = 0;
     cpu.rr_8(value);
     assert_eq!(true, cpu.registers.f.zero());
+}
+
+#[test]
+fn rrc_a_test() {
+    let mut cpu: Cpu = Default::default();
+    cpu.registers.a = 0b1000_1100;
+    cpu.registers.f.set_zero(true);
+
+    cpu.rrc_a();
+
+    assert_eq!(0b0100_0110, cpu.registers.a);
+    assert_eq!(false, cpu.registers.f.zero());
 }
 
 #[test]
