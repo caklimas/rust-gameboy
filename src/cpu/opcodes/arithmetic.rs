@@ -167,11 +167,6 @@ impl super::super::Cpu {
         (1, 8)
     }
 
-    pub fn ei(&mut self) -> ClockCycle {
-        self.interrupt_master_enable = true;
-        (1, 4)
-    }
-
     pub fn inc_hl(&mut self) -> ClockCycle {
         let address = self.registers.get_target_16(&CpuRegister16::HL);
         let target = self.mmu.read_byte(address);

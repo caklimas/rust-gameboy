@@ -19,6 +19,7 @@ use opcodes::{
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cpu {
     cb_opcode: bool,
+    halted: bool,
     index_registers: index_registers::IndexRegisters,
     interrupt_master_enable: bool,
     interrupt_page_address: u8,
@@ -28,6 +29,7 @@ pub struct Cpu {
     program_counter: u16,
     registers: registers::Registers,
     stack_pointer: u16,
+    stopped: bool,
     system_clock: u16
 }
 
@@ -101,8 +103,7 @@ impl Cpu {
                     Some(self.call_cc(condition))
                 },
                 Opcode::Cb => {
-                    self.cb_opcode = true;
-                    Some((1, 4))
+                    Some(self.prefix_cb())
                 },
                 Opcode::Ccf => {
                     Some(self.ccf())
@@ -131,8 +132,14 @@ impl Cpu {
                 Opcode::Dec16(r) => {
                     Some(self.dec_16(r))
                 },
+                Opcode::Di => {
+                    Some(self.di())
+                },
                 Opcode::Ei => {
                     Some(self.ei())
+                },
+                Opcode::Halt => {
+                    Some(self.halt())
                 },
                 Opcode::IncHl => {
                     Some(self.inc_hl())
@@ -216,6 +223,9 @@ impl Cpu {
                 Opcode::LdSpHl => {
                     Some(self.ld_sp_hl())
                 },
+                Opcode::Nop => {
+                    Some(self.nop())
+                },
                 Opcode::Or(r) => {
                     Some(self.or_a(r))
                 },
@@ -254,6 +264,9 @@ impl Cpu {
                 },
                 Opcode::Scf => {
                     Some(self.scf())
+                },
+                Opcode::Stop => {
+                    Some(self.stop())
                 },
                 Opcode::Sub(r) => {
                     Some(self.sub_a(r))

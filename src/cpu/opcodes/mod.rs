@@ -4,6 +4,7 @@ pub mod cb_opcode_table;
 pub mod cb_opcodes;
 pub mod jump;
 pub mod load;
+pub mod misc;
 pub mod opcode;
 pub mod opcode_table;
 pub mod stack;
