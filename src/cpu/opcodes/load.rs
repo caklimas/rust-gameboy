@@ -67,7 +67,7 @@ impl super::super::Cpu {
         let address = self.registers.get_target_16(&CpuRegister16::HL);
         self.mmu.write_byte(address, data);
 
-        if increment.clone() {
+        if *increment {
             self.registers.set_target_16(&CpuRegister16::HL, address + 1);
         } else {
             self.registers.set_target_16(&CpuRegister16::HL, address - 1);
@@ -81,7 +81,7 @@ impl super::super::Cpu {
         let value = self.mmu.read_byte(address);
         self.registers.set_target(&CpuRegister::A, value);
 
-        if increment.clone() {
+        if *increment {
             self.registers.set_target_16(&CpuRegister16::HL, address + 1);
         } else {
             self.registers.set_target_16(&CpuRegister16::HL, address - 1);
