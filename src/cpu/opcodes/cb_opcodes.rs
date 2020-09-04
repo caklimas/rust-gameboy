@@ -35,6 +35,14 @@ impl super::super::Cpu {
         (2, 8)
     }
 
+    pub fn rl_a(&mut self) -> ClockCycle {
+        let register_value = self.registers.a;
+        self.registers.a =  self.rl_8(register_value);
+        self.registers.f.set_zero(false);
+
+        (2, 8)
+    }
+
     pub fn rl_hl(&mut self) -> ClockCycle {
         let address = self.registers.get_target_16(&CpuRegister16::HL);
         let value = self.mmu.read_byte(address);
@@ -53,6 +61,14 @@ impl super::super::Cpu {
         (2, 8)
     }
 
+    pub fn rlc_a(&mut self) -> ClockCycle {
+        let register_value = self.registers.a;
+        self.registers.a = self.rlc_8(register_value);
+        self.registers.f.set_zero(false);
+
+        (1, 4)
+    }
+
     pub fn rlc_hl(&mut self) -> ClockCycle {
         let address = self.registers.get_target_16(&CpuRegister16::HL);
         let value = self.mmu.read_byte(address);
@@ -63,11 +79,19 @@ impl super::super::Cpu {
         (2, 16)
     }
 
-    pub fn rlc_r8(&mut self, register: &CpuRegister ) -> ClockCycle {
+    pub fn rlc_r8(&mut self, register: &CpuRegister) -> ClockCycle {
         let register_value = self.registers.get_target(register);
         let new_value = self.rlc_8(register_value);
-
         self.registers.set_target(register, new_value);
+        
+        (2, 8)
+    }
+
+    pub fn rr_a(&mut self) -> ClockCycle {
+        let register_value = self.registers.a;
+        self.registers.a =  self.rr_8(register_value);
+        self.registers.f.set_zero(false);
+
         (2, 8)
     }
 
@@ -81,11 +105,19 @@ impl super::super::Cpu {
         (2, 16)
     }
     
-    pub fn rr_r8(&mut self, register: &CpuRegister ) -> ClockCycle {
+    pub fn rr_r8(&mut self, register: &CpuRegister) -> ClockCycle {
         let register_value = self.registers.get_target(register);
         let new_value = self.rr_8(register_value);
 
         self.registers.set_target(register, new_value);
+        (2, 8)
+    }
+
+    pub fn rrc_a(&mut self) -> ClockCycle {
+        let register_value = self.registers.a;
+        self.registers.a = self.rrc_8(register_value);
+        self.registers.f.set_zero(false);
+
         (2, 8)
     }
 

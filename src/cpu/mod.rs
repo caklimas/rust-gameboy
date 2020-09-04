@@ -120,6 +120,9 @@ impl Cpu {
                 Opcode::Cpl => {
                     Some(self.cpl())
                 },
+                Opcode::Daa => {
+                    Some(self.daa())
+                },
                 Opcode::DecHl => {
                     Some(self.dec_hl())
                 },
@@ -249,6 +252,18 @@ impl Cpu {
                 },
                 Opcode::RetI => {
                     Some(self.ret_i())
+                },
+                Opcode::Rla => {
+                    Some(self.rl_a())
+                },
+                Opcode::Rlca => {
+                    Some(self.rlc_a())
+                },
+                Opcode::Rra => {
+                    Some(self.rr_a())
+                },
+                Opcode::Rrca => {
+                    Some(self.rrc_a())
                 },
                 Opcode::Rst(v) => {
                     Some(self.rst(v.clone()))

@@ -137,6 +137,37 @@ impl super::super::Cpu {
         (1, 4)
     }
 
+    pub fn daa(&mut self) -> ClockCycle {
+        // When this instruction is executed, the A register is BCD corrected using the contents of the flags. 
+        // The exact process is the following: if the least significant four bits of A contain a non-BCD digit 
+        // (i. e. it is greater than 9) or the H flag is set, then $06 is added to the register. 
+        // Then the four most significant bits are checked. 
+        // If this more significant digit also happens to be greater than 9 or the C flag is set, then $60 is added.
+        let mut correction = 0;
+        let value = self.registers.a;
+        let lsb = value & 0xF;
+        if self.registers.f.half_carry() || lsb > 0x9 {
+            correction |= 0x06;
+        }
+
+        if self.registers.f.carry() || value > 0x99 {
+            correction |= 0x60;
+            self.registers.f.set_carry(true);
+        } else {
+            self.registers.f.set_carry(false);
+        }
+
+        if self.registers.f.subtraction() {
+            self.registers.a = self.registers.a.wrapping_sub(correction);
+        } else {
+            self.registers.a = self.registers.a.wrapping_add(correction);
+        }
+
+        self.registers.f.set_zero(self.registers.a == 0);
+
+        (1, 4)
+    }
+
     pub fn dec_hl(&mut self) -> ClockCycle {
         let address = self.registers.get_target_16(&CpuRegister16::HL);
         let target = self.mmu.read_byte(address);
