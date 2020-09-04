@@ -463,16 +463,6 @@ fn dec_8_test() {
 }
 
 #[test]
-fn ei_test() {
-    let mut cpu: Cpu = Default::default();
-    cpu.interrupt_master_enable = false;
-
-    cpu.ei();
-
-    assert_eq!(true, cpu.interrupt_master_enable);
-}
-
-#[test]
 fn inc_hl_test() {
     let mut cpu: Cpu = Default::default();
     let target = 5;
