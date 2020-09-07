@@ -1,6 +1,6 @@
 [package]
-name = "rust-gameboy"
-version = "0.1.0"
+name = "caklimas-rust-gameboy"
+version = "0.1.2"
 authors = ["caklimas <caklimas@gmail.com>"]
 edition = "2018"
 
