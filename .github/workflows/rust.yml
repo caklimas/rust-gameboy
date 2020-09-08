@@ -1,7 +1,7 @@
-name: Unit Tests
+name: Deployment
 
 on:
-  pull_request:
+  push:
     branches: [ master ]
 
 env:
@@ -19,6 +19,9 @@ jobs:
     - name: Install wasm-pack
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
     - run: wasm-pack build
+    - run: rm pkg/caklimas_rust_gameboy.js
+    - run: rm pkg/caklimas_rust_gameboy_bg.d.ts
+    - run: mv pkg/caklimas_rust_gameboy_bg.js pkg/caklimas_rust_gameboy.js
     - run: wasm-pack pack
     - name: Publish to npm
       uses: JS-DevTools/npm-publish@v1
