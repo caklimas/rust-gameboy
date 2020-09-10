@@ -40,7 +40,7 @@ impl super::super::Cpu {
         self.registers.a =  self.rl_8(register_value);
         self.registers.f.set_zero(false);
 
-        (2, 8)
+        (1, 4)
     }
 
     pub fn rl_hl(&mut self) -> ClockCycle {

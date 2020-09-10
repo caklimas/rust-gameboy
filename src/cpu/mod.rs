@@ -19,6 +19,7 @@ use opcodes::{
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cpu {
     cb_opcode: bool,
+    cycles: u8,
     halted: bool,
     index_registers: index_registers::IndexRegisters,
     interrupt_master_enable: bool,
@@ -30,20 +31,28 @@ pub struct Cpu {
     registers: registers::Registers,
     stack_pointer: u16,
     stopped: bool,
-    system_clock: u16
+    system_clock: u32
 }
 
 impl Cpu {
     pub fn clock(&mut self) {
-        let clock = if self.cb_opcode {
-            Some(self.execute_cb_opcode())
-        } else {
-            self.execute_opcode()
-        };
+        if self.cycles != 0 {
+            self.cycles -= 1;
+            return;
+        }
 
-        if let Some(ref c) = clock {
-            self.program_counter += c.0;
-            self.system_clock += c.1;
+        self.opcode = self.mmu.read_byte(self.program_counter) as usize;
+        let mut clock_cycle = self.execute_opcode();
+        if self.cb_opcode {
+            self.cb_opcode = false;
+            self.opcode = self.read_next_byte() as usize;
+            clock_cycle = Some(self.execute_cb_opcode());
+        }
+
+        if let Some(ref c) = clock_cycle {
+            self.program_counter += c.0 as u16;
+            self.system_clock += c.1 as u32;
+            self.cycles += c.1;
         } else {
             self.program_counter += 1;
         }

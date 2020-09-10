@@ -317,11 +317,12 @@ fn cp_a_test() {
 
 #[test]
 fn cp_d8_test() {
-    let mut data = 0;
+    let mut data = 0x31;
     let mut cpu: Cpu = Default::default();
+    cpu.program_counter = VIDEO_RAM_LOWER - 1;
     cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
-    cpu.registers.a = 0;
+    cpu.registers.a = 0x31;
 
     cpu.cp_d8();
 
@@ -333,7 +334,7 @@ fn cp_d8_test() {
     data = 0b0001_1110;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
-    cpu.cp_hl();
+    cpu.cp_d8();
 
     assert_eq!(true, cpu.registers.f.half_carry());
     assert_eq!(false, cpu.registers.f.carry());
@@ -353,7 +354,7 @@ fn cp_hl_test() {
     let mut cpu: Cpu = Default::default();
     cpu.program_counter = VIDEO_RAM_LOWER - 1;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
-    cpu.registers.a = 0;
+    cpu.registers.a = 0x31;
 
     cpu.cp_hl();
 

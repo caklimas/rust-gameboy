@@ -81,6 +81,7 @@ pub enum Opcode {
     XOrHl
 }
 
+#[derive(Debug)]
 pub enum CpuRegister {
     A,
     B,
@@ -91,6 +92,7 @@ pub enum CpuRegister {
     L
 }
 
+#[derive(Debug)]
 pub enum CpuRegister16 {
     AF,
     BC,
@@ -98,6 +100,7 @@ pub enum CpuRegister16 {
     HL
 }
 
+#[derive(Debug)]
 pub enum Condition {
     Z, // Execute if Z is set.
     NZ, // Execute if Z is not set.

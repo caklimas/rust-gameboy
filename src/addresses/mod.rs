@@ -1,3 +1,4 @@
+pub mod boot_rom;
 pub mod cartridge;
 pub mod high_ram;
 pub mod interrupt_enable;
