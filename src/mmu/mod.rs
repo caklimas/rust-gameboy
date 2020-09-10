@@ -1,6 +1,7 @@
+pub mod boot_rom;
 pub mod high_ram;
-pub mod memory;
 pub mod memory_sizes;
+pub mod ram;
 pub mod work_ram;
 pub mod video_ram;
 
@@ -8,14 +9,12 @@ pub mod video_ram;
 mod tests;
 
 use serde::{Serialize, Deserialize};
-use super::addresses::high_ram::*;
-use super::addresses::video_ram::*;
+use super::addresses::boot_rom::*;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct MemoryManagementUnit {
-    high_ram: high_ram::HighRam,
-    video_ram: video_ram::VideoRam,
-    work_ram: work_ram::WorkRam
+    boot_rom: boot_rom::BootRom,
+    ram: ram::Ram
 }
 
 impl MemoryManagementUnit {
@@ -28,12 +27,8 @@ impl MemoryManagementUnit {
 
     pub fn read_byte(&self, address: u16) -> u8 {
         match address {
-            VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.read(address),
-            HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.read(address),
-            _ => {
-                println!("Invalid address 0x{:4X}", address);
-                0
-            }
+            BOOT_ROM_LOWER..=BOOT_ROM_UPPER => self.boot_rom.read(address),
+            _ => self.ram.read(address)
         }
     }
 
@@ -47,9 +42,8 @@ impl MemoryManagementUnit {
 
     pub fn write_byte(&mut self, address: u16, data: u8) {
         match address {
-            VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
-            HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.write(address, data),
-            _ => println!("Invalid address 0x{:4X}", address)
+            BOOT_ROM_LOWER..=BOOT_ROM_UPPER => self.boot_rom.write(address, data),
+            _ => self.ram.write(address, data)
         }
     }
 }

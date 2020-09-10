@@ -8,6 +8,7 @@ extern crate serde_big_array;
 
 pub mod addresses;
 pub mod cpu;
+pub mod gameboy;
 pub mod mmu;
 
 #[wasm_bindgen]

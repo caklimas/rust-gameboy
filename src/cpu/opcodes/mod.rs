@@ -14,7 +14,7 @@ mod tests;
 
 use opcode::{Condition};
 
-pub type ClockCycle = (u16, u16);
+pub type ClockCycle = (u8, u8);
 
 const HALF_CARRY_8: u8 = 0x10;
 const HALF_CARRY_16: u16 = 0x1000;
