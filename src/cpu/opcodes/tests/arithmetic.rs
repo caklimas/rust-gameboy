@@ -20,7 +20,7 @@ fn adc_a_test() {
 fn adc_d8_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     let a = 1;
@@ -122,7 +122,7 @@ fn add_hl_16_sp_test() {
 fn add_d8_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     let a = 1;
@@ -153,7 +153,7 @@ fn add_sp_e8_test() {
     let mut data = 5;
     let address = VIDEO_RAM_LOWER;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = address - 1;
+    cpu.program_counter = address;
     cpu.mmu.write_byte(address, data);
 
     cpu.add_sp_e8();
@@ -165,6 +165,7 @@ fn add_sp_e8_test() {
     assert_eq!(false, cpu.registers.f.zero());
 
     cpu.stack_pointer = 0xFFFF - 1;
+    cpu.program_counter = address;
 
     cpu.add_sp_e8();
 
@@ -173,6 +174,7 @@ fn add_sp_e8_test() {
     data = 1;
     cpu.stack_pointer = 0b1111;
     cpu.mmu.write_byte(address, data);
+    cpu.program_counter = address;
 
     cpu.add_sp_e8();
 
@@ -224,7 +226,7 @@ fn and_a_test() {
 fn and_d8_test() {
     let data = 4;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     let a = 5;
@@ -319,8 +321,7 @@ fn cp_a_test() {
 fn cp_d8_test() {
     let mut data = 0x31;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
-    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
     cpu.registers.a = 0x31;
 
@@ -332,6 +333,7 @@ fn cp_d8_test() {
 
     cpu.registers.a = 0b1010_0100;
     data = 0b0001_1110;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     cpu.cp_d8();
@@ -352,9 +354,10 @@ fn cp_d8_test() {
 fn cp_hl_test() {
     let mut data = 0;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
-    cpu.registers.a = 0x31;
+    cpu.registers.a = 0;
 
     cpu.cp_hl();
 
@@ -366,7 +369,7 @@ fn cp_hl_test() {
     data = 0b0001_1110;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
-    cpu.cp_d8();
+    cpu.cp_hl();
 
     assert_eq!(true, cpu.registers.f.half_carry());
     assert_eq!(false, cpu.registers.f.carry());
@@ -543,14 +546,14 @@ fn inc_sp_test() {
 
 #[test]
 fn inc_16_test() {
+    let register = &CpuRegister16::BC;
     let mut cpu: Cpu = Default::default();
     let data = 5;
-    cpu.registers.set_target_16(&CpuRegister16::BC, VIDEO_RAM_LOWER);
-    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
+    cpu.registers.set_target_16(register, data);
 
     cpu.inc_16(&CpuRegister16::BC);
 
-    assert_eq!(data + 1, cpu.mmu.read_byte(VIDEO_RAM_LOWER));
+    assert_eq!(data + 1, cpu.registers.get_target_16(register));
 }
 
 #[test]
@@ -591,7 +594,7 @@ fn or_a_test() {
 fn or_d8_test() {
     let data = 4;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     let a = 5;
@@ -658,7 +661,7 @@ fn sbc_a_test() {
 fn sbc_d8_test() {
     let data = 4;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     let a = 5;
@@ -719,7 +722,7 @@ fn sub_a_test() {
 fn sub_d8_test() {
     let data = 4;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     let a = 5;
@@ -790,7 +793,7 @@ fn xor_a_test() {
 fn xor_d8_test() {
     let data = 4;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     let a = 5;

@@ -20,7 +20,9 @@ jobs:
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
     - run: wasm-pack build
     - run: rm pkg/caklimas_rust_gameboy.js
+      continue-on-error: true
     - run: rm pkg/caklimas_rust_gameboy_bg.d.ts
+      continue-on-error: true
     - run: mv pkg/caklimas_rust_gameboy_bg.js pkg/caklimas_rust_gameboy.js
     - run: wasm-pack pack
     - name: Publish to npm

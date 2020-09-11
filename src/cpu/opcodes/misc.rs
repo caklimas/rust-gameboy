@@ -1,33 +1,31 @@
-use super::ClockCycle;
-
 impl super::super::Cpu {
-    pub fn ei(&mut self) -> ClockCycle {
+    pub fn ei(&mut self) -> u16 {
         self.interrupt_master_enable = true;
-        (1, 4)
+        4
     }
 
-    pub fn di(&mut self) -> ClockCycle {
+    pub fn di(&mut self) -> u16 {
         self.interrupt_master_enable = false;
-        (1, 4)
+        4
     }
 
-    pub fn halt(&mut self) -> ClockCycle {
+    pub fn halt(&mut self) -> u16 {
         self.halted = true;
-        (1, 4)
+        4
     }
 
-    pub fn nop(&self) -> ClockCycle {
-        (1, 4)
+    pub fn nop(&self) -> u16 {
+        4
     }
 
-    pub fn prefix_cb(&mut self) -> ClockCycle {
+    pub fn prefix_cb(&mut self) -> u16 {
         self.cb_opcode = true;
-        (1, 4)
+        4
     }
 
-    pub fn stop(&mut self) -> ClockCycle {
+    pub fn stop(&mut self) -> u16 {
         println!("Stop");
         self.stopped = true;
-        (2, 4)
+        4
     }
 }

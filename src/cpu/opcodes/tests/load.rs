@@ -25,7 +25,7 @@ fn ld_a8_a_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, (HIGH_RAM_LOWER - LD_ADDRESS_LOWER) as u8);
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.registers.a = data;
 
     cpu.ld_a8_a();
@@ -39,7 +39,7 @@ fn ld_a_a8_test() {
     let mut cpu: Cpu = Default::default();
     cpu.mmu.write_byte(HIGH_RAM_LOWER, data);
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, (HIGH_RAM_LOWER - LD_ADDRESS_LOWER) as u8);
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
 
     cpu.ld_a_a8();
 
@@ -51,7 +51,7 @@ fn ld_a16_a_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
     cpu.mmu.write_word(VIDEO_RAM_LOWER, HIGH_RAM_LOWER);
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.registers.a = data;
 
     cpu.ld_a16_a();
@@ -65,7 +65,7 @@ fn ld_a_a16_test() {
     let mut cpu: Cpu = Default::default();
     cpu.mmu.write_word(VIDEO_RAM_LOWER, HIGH_RAM_LOWER);
     cpu.mmu.write_byte(HIGH_RAM_LOWER, data);
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     
     cpu.ld_a_a16();
 
@@ -100,7 +100,7 @@ fn ld_c_a_test() {
 fn ld_d8_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     cpu.ld_d8(&CpuRegister::B);
@@ -112,7 +112,7 @@ fn ld_d8_test() {
 fn ld_hl_d8_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
     cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER + 1);
 
