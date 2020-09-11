@@ -4,37 +4,41 @@ use super::super::super::super::addresses::video_ram::VIDEO_RAM_LOWER;
 
 #[test]
 fn call_test() {
-    let data = VIDEO_RAM_LOWER + 1;
+    let data = VIDEO_RAM_LOWER;
     let new_data = 0xFEED;
+    let pc = VIDEO_RAM_LOWER + 4;
     let mut cpu: Cpu = Default::default();
-    cpu.stack_pointer = VIDEO_RAM_LOWER;
-    cpu.program_counter = data;
-    cpu.mmu.write_word(data + 1, new_data);
+    cpu.mmu.write_word(pc, new_data);
+    cpu.stack_pointer = data;
+    cpu.program_counter = pc;
 
     cpu.call();
 
-    assert_eq!(data, cpu.mmu.read_word(VIDEO_RAM_LOWER));
+    assert_eq!(pc + 2, cpu.mmu.read_word(data));
     assert_eq!(new_data, cpu.program_counter);
 }
 
 #[test]
 fn call_cc_test() {
-    let data = VIDEO_RAM_LOWER + 1;
+    let data = VIDEO_RAM_LOWER;
     let new_data = 0xFEED;
+    let pc = VIDEO_RAM_LOWER + 4;
     let mut cpu: Cpu = Default::default();
-    cpu.stack_pointer = VIDEO_RAM_LOWER;
-    cpu.program_counter = data;
-    cpu.mmu.write_word(data + 1, new_data);
+    cpu.mmu.write_word(pc, new_data);
+    cpu.stack_pointer = data;
+    cpu.program_counter = pc;
 
     // Condition is false
     cpu.call_cc(&Condition::Z);
 
-    assert_eq!(data, cpu.program_counter);
+    assert_eq!(pc + 2, cpu.program_counter);
+
+    cpu.program_counter = pc;
 
     // Condition is true
     cpu.call_cc(&Condition::NZ);
 
-    assert_eq!(data, cpu.mmu.read_word(VIDEO_RAM_LOWER));
+    assert_eq!(pc + 2, cpu.mmu.read_word(data));
     assert_eq!(new_data, cpu.program_counter);
 }
 
@@ -42,7 +46,7 @@ fn call_cc_test() {
 fn jp_test() {
     let data = 0xBEEF;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_word(VIDEO_RAM_LOWER, data);
 
     cpu.jp();
@@ -54,13 +58,14 @@ fn jp_test() {
 fn jp_cc_test() {
     let data = 0xBEEF;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_word(VIDEO_RAM_LOWER, data);
 
     cpu.jp_cc(&Condition::Z);
 
     assert_ne!(data, cpu.program_counter);
 
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.jp_cc(&Condition::NZ);
 
     assert_eq!(data, cpu.program_counter);
@@ -81,31 +86,32 @@ fn jp_hl_test() {
 #[test]
 fn jr_test() {
     let data = 5;
-    let pc = VIDEO_RAM_LOWER - 1;
+    let pc = VIDEO_RAM_LOWER;
     let mut cpu: Cpu = Default::default();
     cpu.program_counter = pc;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     cpu.jr();
 
-    assert_eq!(pc + (data as u16), cpu.program_counter);
+    assert_eq!(pc + 1 + (data as u16), cpu.program_counter);
 }
 
 #[test]
 fn jr_cc_test() {
     let data = 5;
-    let pc = VIDEO_RAM_LOWER - 1;
+    let pc = VIDEO_RAM_LOWER;
     let mut cpu: Cpu = Default::default();
     cpu.program_counter = pc;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     cpu.jr_cc(&Condition::Z);
 
-    assert_ne!(pc + (data as u16), cpu.program_counter);
+    assert_ne!(pc + 1 + (data as u16), cpu.program_counter);
 
+    cpu.program_counter = pc;
     cpu.jr_cc(&Condition::NZ);
 
-    assert_eq!(pc + (data as u16), cpu.program_counter);
+    assert_eq!(pc + 1 + (data as u16), cpu.program_counter);
 }
 
 #[test]
@@ -133,14 +139,14 @@ fn ret_cc_test() {
     let clock = cpu.ret_cc(&Condition::Z);
 
     assert_eq!(original_stack_value, cpu.stack_pointer);
-    assert_eq!((1, 8), clock);
+    assert_eq!(8, clock);
 
     cpu.registers.f.set_zero(true);
     let clock = cpu.ret_cc(&Condition::Z);
 
     assert_eq!(VIDEO_RAM_LOWER, cpu.stack_pointer);
     assert_eq!(data, cpu.program_counter);
-    assert_eq!((1, 20), clock);
+    assert_eq!(20, clock);
 }
 
 #[test]

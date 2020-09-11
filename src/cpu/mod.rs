@@ -9,7 +9,6 @@ mod tests;
 use serde::{Serialize, Deserialize};
 use super::mmu::MemoryManagementUnit;
 use opcodes::{
-    ClockCycle,
     cb_opcode::CbOpcode,
     cb_opcode_table::CB_OPCODE_TABLE,
     opcode::Opcode,
@@ -31,7 +30,8 @@ pub struct Cpu {
     registers: registers::Registers,
     stack_pointer: u16,
     stopped: bool,
-    system_clock: u32
+    system_clock: u32,
+    previous_pc: u16
 }
 
 impl Cpu {
@@ -41,32 +41,34 @@ impl Cpu {
             return;
         }
 
-        self.opcode = self.mmu.read_byte(self.program_counter) as usize;
+        self.previous_pc = self.program_counter;
+        self.opcode = self.read_byte() as usize;
         let mut clock_cycle = self.execute_opcode();
         if self.cb_opcode {
             self.cb_opcode = false;
-            self.opcode = self.read_next_byte() as usize;
+            self.opcode = self.read_byte() as usize;
             clock_cycle = Some(self.execute_cb_opcode());
         }
 
         if let Some(ref c) = clock_cycle {
-            self.program_counter += c.0 as u16;
-            self.system_clock += c.1 as u32;
-            self.cycles += c.1;
-        } else {
-            self.program_counter += 1;
+            self.system_clock = self.system_clock.wrapping_add(*c as u32);
+            self.cycles += *c as u8;
         }
     }
 
-    pub fn read_next_byte(&self) -> u8 {
-        self.mmu.read_byte(self.program_counter + 1)
+    pub fn read_byte(&mut self) -> u8 {
+        let data = self.mmu.read_byte(self.program_counter);
+        self.program_counter += 1;
+        data
     }
 
-    pub fn read_next_word(&self) -> u16 {
-        self.mmu.read_word(self.program_counter + 1)
+    pub fn read_word(&mut self) -> u16 {
+        let data = self.mmu.read_word(self.program_counter);
+        self.program_counter += 2;
+        data
     }
 
-    fn execute_opcode(&mut self) -> Option<ClockCycle> {
+    fn execute_opcode(&mut self) -> Option<u16> {
         if let Some(ref o) = OPCODE_TABLE[self.opcode] {
             match o {
                 Opcode::Adc(r) => {
@@ -316,7 +318,7 @@ impl Cpu {
         }
     }
 
-    fn execute_cb_opcode(&mut self) -> ClockCycle {
+    fn execute_cb_opcode(&mut self) -> u16 {
         let o = &CB_OPCODE_TABLE[self.opcode];
         match o {
             CbOpcode::BitNSetHl(b) => {

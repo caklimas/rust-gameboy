@@ -14,8 +14,6 @@ mod tests;
 
 use opcode::{Condition};
 
-pub type ClockCycle = (u8, u8);
-
 const HALF_CARRY_8: u8 = 0x10;
 const HALF_CARRY_16: u16 = 0x1000;
 const LOWER_NIBBLE_8: u8 = 0xF;
@@ -241,7 +239,7 @@ impl super::Cpu {
         self.registers.f.set_carry(overflow | overflow_2);
         self.registers.f.set_half_carry(is_half_carry_8(self.registers.a, target - carry, false));
         self.registers.f.set_subtraction(true);
-        self.registers.f.set_zero(result == 0);
+        self.registers.f.set_zero(result_2 == 0);
 
         result_2
     }

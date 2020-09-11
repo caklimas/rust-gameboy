@@ -9,7 +9,7 @@ fn ld_a16_sp_test() {
     let address = VIDEO_RAM_LOWER + 5;
     let mut cpu: Cpu = Default::default();
     cpu.mmu.write_word(pc_address, address);
-    cpu.program_counter = pc_address - 1;
+    cpu.program_counter = pc_address;
     cpu.stack_pointer = data;
 
     cpu.ld_a16_sp();
@@ -22,7 +22,7 @@ fn ld_r16_d16_test() {
     let register = &CpuRegister16::BC;
     let data = 0xBEEF;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_word(VIDEO_RAM_LOWER, data);
 
     cpu.ld_r16_d16(register);
@@ -34,7 +34,7 @@ fn ld_r16_d16_test() {
 fn ld_sp_d16_test() {
     let data = 0xBEEF;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = VIDEO_RAM_LOWER - 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_word(VIDEO_RAM_LOWER, data);
 
     cpu.ld_sp_d16();
@@ -47,8 +47,8 @@ fn ld_sp_e8_test() {
     let mut data = 5;
     let address = VIDEO_RAM_LOWER;
     let mut cpu: Cpu = Default::default();
-    cpu.program_counter = address - 1;
-    cpu.mmu.write_byte(address, data);
+    cpu.program_counter = address;
+    cpu.mmu.write_byte(cpu.program_counter, data);
 
     cpu.ld_sp_e8();
 
@@ -60,13 +60,14 @@ fn ld_sp_e8_test() {
 
     cpu.stack_pointer = 0xFFFF - 1;
 
+    cpu.program_counter = address;
     cpu.ld_sp_e8();
 
     assert_eq!(true, cpu.registers.f.carry());
 
     data = 62;
     cpu.stack_pointer = 34;
-    cpu.mmu.write_byte(address, data);
+    cpu.mmu.write_byte(cpu.program_counter, data);
 
     cpu.ld_sp_e8();
 
