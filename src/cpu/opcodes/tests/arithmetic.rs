@@ -343,9 +343,10 @@ fn cp_d8_test() {
 
     cpu.registers.a = 0;
     data = 1;
+    cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
-    cpu.cp_hl();
+    cpu.cp_d8();
 
     assert_eq!(true, cpu.registers.f.carry());
 }

@@ -1,18 +1,23 @@
+use super::super::super::addresses::work_ram::WORK_RAM_ECHO_LOWER;
 use super::super::memory_sizes::KILOBYTES_8;
 use super::super::work_ram::WorkRam;
 
 #[test]
 fn read_test() {
-    let address = 5;
+    let address_offset = 5;
     let data = 5;
     let mut work_ram: WorkRam = Default::default();
-    work_ram.write(address, data);
+    work_ram.write(address_offset, data);
 
-    let actual = work_ram.read(address);
+    let actual = work_ram.read(address_offset);
     assert_eq!(data, actual);
 
     // Testing masking
-    let address = KILOBYTES_8 + address;
+    let address = KILOBYTES_8 + address_offset;
+    let actual = work_ram.read(address);
+    assert_eq!(data, actual);
+
+    let address = WORK_RAM_ECHO_LOWER + address_offset;
     let actual = work_ram.read(address);
     assert_eq!(data, actual);
 }

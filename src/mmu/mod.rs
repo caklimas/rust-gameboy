@@ -10,14 +10,27 @@ mod tests;
 
 use serde::{Serialize, Deserialize};
 use super::addresses::boot_rom::*;
+use super::addresses::cartridge::*;
+use super::cartridge::Cartridge;
 
 #[derive(Serialize, Deserialize, Default)]
-pub struct MemoryManagementUnit {
+pub struct Mmu {
     boot_rom: boot_rom::BootRom,
-    ram: ram::Ram
+    cartridge: Option<Cartridge>,
+    ram: ram::Ram,
+    running_boot_rom: bool
 }
 
-impl MemoryManagementUnit {
+impl Mmu {
+    pub fn new(cartridge: Cartridge) -> Self {
+        Mmu {
+            boot_rom: Default::default(),
+            cartridge: Some(cartridge),
+            ram: Default::default(),
+            running_boot_rom: false
+        }
+    }
+    
     pub fn read_word(&self, address: u16) -> u16 {
         let low = self.read_byte(address) as u16;
         let high = self.read_byte(address + 1) as u16;
@@ -26,8 +39,10 @@ impl MemoryManagementUnit {
     }
 
     pub fn read_byte(&self, address: u16) -> u8 {
-        match address {
-            BOOT_ROM_LOWER..=BOOT_ROM_UPPER => self.boot_rom.read(address),
+        match (address, self.running_boot_rom) {
+            (BOOT_ROM_LOWER..=BOOT_ROM_UPPER, true) => self.boot_rom.read(address),
+            (CART_ROM_LOWER..=CART_ROM_UPPER, _) => self.read_mbc_rom(address),
+            (CART_EXTERNAL_RAM_LOWER..=CART_EXTERNAL_RAM_UPPER, _) => self.read_mbc_ram(address),
             _ => self.ram.read(address)
         }
     }
@@ -41,9 +56,47 @@ impl MemoryManagementUnit {
     }
 
     pub fn write_byte(&mut self, address: u16, data: u8) {
-        match address {
-            BOOT_ROM_LOWER..=BOOT_ROM_UPPER => self.boot_rom.write(address, data),
+        match (address, self.running_boot_rom) {
+            (BOOT_ROM_LOWER..=BOOT_ROM_UPPER, true) => self.boot_rom.write(address, data),
+            (CART_ROM_LOWER..=CART_ROM_UPPER, _) => self.write_mbc_rom(address, data),
+            (CART_EXTERNAL_RAM_LOWER..=CART_EXTERNAL_RAM_UPPER, _) => self.write_mbc_ram(address, data),
             _ => self.ram.write(address, data)
+        }
+    }
+
+    fn read_mbc_ram(&self, address: u16) -> u8 {
+        if let Some(ref c) = self.cartridge {
+            if let Some(ref m) = c.mbc {
+                return m.read_ram(address);
+            }
+        }
+
+        0
+    }
+
+    fn read_mbc_rom(&self, address: u16) -> u8 {
+        if let Some(ref c) = self.cartridge {
+            if let Some(ref m) = c.mbc {
+                return m.read_rom(address);
+            }
+        }
+
+        0
+    }
+
+    fn write_mbc_ram(&mut self, address: u16, data: u8) {
+        if let Some(ref mut c) = self.cartridge {
+            if let Some(ref mut m) = c.mbc {
+                m.write_ram(address, data);
+            }
+        }
+    }
+
+    fn write_mbc_rom(&mut self, address: u16, data: u8) {
+        if let Some(ref mut c) = self.cartridge {
+            if let Some(ref mut m) = c.mbc {
+                m.write_rom(address, data);
+            }
         }
     }
 }
