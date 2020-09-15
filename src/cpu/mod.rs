@@ -7,7 +7,8 @@ pub mod registers;
 mod tests;
 
 use serde::{Serialize, Deserialize};
-use super::mmu::MemoryManagementUnit;
+use super::cartridge::Cartridge;
+use super::mmu::Mmu;
 use opcodes::{
     cb_opcode::CbOpcode,
     cb_opcode_table::CB_OPCODE_TABLE,
@@ -24,17 +25,25 @@ pub struct Cpu {
     interrupt_master_enable: bool,
     interrupt_page_address: u8,
     memory_refresh: u8,
-    mmu: MemoryManagementUnit,
+    mmu: Mmu,
     opcode: usize,
     program_counter: u16,
     registers: registers::Registers,
     stack_pointer: u16,
     stopped: bool,
     system_clock: u32,
-    previous_pc: u16
+    previous_pc: u16,
+    counter: u8
 }
 
 impl Cpu {
+    pub fn new(cartridge: Cartridge) -> Self {
+        let mut cpu: Cpu = Default::default();
+        cpu.mmu = Mmu::new(cartridge);
+        cpu.program_counter = 0x0100;
+        cpu
+    }
+
     pub fn clock(&mut self) {
         if self.cycles != 0 {
             self.cycles -= 1;
@@ -43,6 +52,11 @@ impl Cpu {
 
         self.previous_pc = self.program_counter;
         self.opcode = self.read_byte() as usize;
+        if self.counter < 10 {
+            println!("Opcode: {}, pc: {}", self.opcode, self.program_counter);
+            self.counter += 1;
+        }
+
         let mut clock_cycle = self.execute_opcode();
         if self.cb_opcode {
             self.cb_opcode = false;

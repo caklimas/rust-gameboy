@@ -7,13 +7,14 @@ extern crate bitfield;
 extern crate serde_big_array;
 
 pub mod addresses;
+pub mod cartridge;
 pub mod cpu;
 pub mod gameboy;
+pub mod mbc;
 pub mod mmu;
 
 #[wasm_bindgen]
-pub fn run() -> u8 {
-    let mut cpu: cpu::Cpu = Default::default();
-    cpu.clock();
-    42
+pub fn run(bytes: Vec<u8>) -> u8 {
+    let mut gameboy = gameboy::Gameboy::new(bytes);
+    gameboy.run()
 }

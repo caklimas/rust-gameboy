@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
 use super::memory_sizes::{KILOBYTES_8};
+use super::super::addresses::work_ram::WORK_RAM_ECHO_LOWER;
 
 big_array! { BigArray; }
 
@@ -21,7 +22,13 @@ impl WorkRam {
     }
 
     fn get_masked_address(&self, address: u16) -> usize {
-        (address % KILOBYTES_8) as usize
+        let masked_address = if address >= WORK_RAM_ECHO_LOWER {
+            address - 0x2000
+        } else {
+            address
+        };
+
+        (masked_address % KILOBYTES_8) as usize
     }
 }
 
