@@ -2,6 +2,7 @@ pub mod boot_rom;
 pub mod high_ram;
 pub mod memory_sizes;
 pub mod ram;
+pub mod serial_data_transfer;
 pub mod work_ram;
 pub mod video_ram;
 
@@ -27,8 +28,12 @@ impl Mmu {
             boot_rom: Default::default(),
             cartridge: Some(cartridge),
             ram: Default::default(),
-            running_boot_rom: false
+            running_boot_rom: true
         }
+    }
+
+    pub fn finish_running_boot_rom(&mut self) {
+        self.running_boot_rom = false;
     }
     
     pub fn read_word(&self, address: u16) -> u16 {
