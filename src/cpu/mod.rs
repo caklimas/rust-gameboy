@@ -16,6 +16,8 @@ use opcodes::{
     opcode_table::OPCODE_TABLE
 };
 
+const PROGRAM_START: u16 = 0x0100;
+
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cpu {
     cb_opcode: bool,
@@ -32,7 +34,6 @@ pub struct Cpu {
     stack_pointer: u16,
     stopped: bool,
     system_clock: u32,
-    previous_pc: u16,
     counter: u8
 }
 
@@ -40,7 +41,6 @@ impl Cpu {
     pub fn new(cartridge: Cartridge) -> Self {
         let mut cpu: Cpu = Default::default();
         cpu.mmu = Mmu::new(cartridge);
-        cpu.program_counter = 0x0100;
         cpu
     }
 
@@ -50,11 +50,9 @@ impl Cpu {
             return;
         }
 
-        self.previous_pc = self.program_counter;
         self.opcode = self.read_byte() as usize;
-        if self.counter < 10 {
-            println!("Opcode: {}, pc: {}", self.opcode, self.program_counter);
-            self.counter += 1;
+        if self.program_counter == PROGRAM_START {
+            self.mmu.finish_running_boot_rom();
         }
 
         let mut clock_cycle = self.execute_opcode();
