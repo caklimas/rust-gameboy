@@ -69,7 +69,7 @@ fn target_16_test() {
     registers.set_target_16(&CpuRegister16::DE, de);
     registers.set_target_16(&CpuRegister16::HL, hl);
 
-    assert_eq!(af, registers.get_target_16(&CpuRegister16::AF));
+    assert_eq!(af & 0xF0, registers.get_target_16(&CpuRegister16::AF));
     assert_eq!(bc, registers.get_target_16(&CpuRegister16::BC));
     assert_eq!(de, registers.get_target_16(&CpuRegister16::DE));
     assert_eq!(hl, registers.get_target_16(&CpuRegister16::HL));

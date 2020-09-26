@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use super::memory_sizes::{KILOBYTES_8};
+use super::super::memory_sizes::{KILOBYTES_8};
 
 big_array! { BigArray; }
 

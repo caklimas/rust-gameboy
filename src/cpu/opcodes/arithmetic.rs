@@ -57,14 +57,14 @@ impl super::super::Cpu {
         8
     }
 
-    pub fn add_hl_16_sp(&mut self) -> u16 {
-        let hl_register = &CpuRegister16::HL;
-        let hl_register_value = self.registers.get_target_16(hl_register);
-        let (result, overflow) = hl_register_value.overflowing_add(self.stack_pointer);
-        self.registers.set_target_16(hl_register, result);
+    pub fn add_hl_sp(&mut self) -> u16 {
+        let register = &CpuRegister16::HL;
+        let value = self.registers.get_target_16(register);
+        let (result, overflow) = value.overflowing_add(self.stack_pointer);
+        self.registers.set_target_16(register, result);
 
         self.registers.f.set_carry(overflow);
-        self.registers.f.set_half_carry(super::is_half_carry_16(hl_register_value, self.stack_pointer));
+        self.registers.f.set_half_carry(super::is_half_carry_16(value, self.stack_pointer));
         self.registers.f.set_subtraction(false);
 
         8
@@ -72,10 +72,10 @@ impl super::super::Cpu {
     
     pub fn add_sp_e8(&mut self) -> u16 {
         let e = self.read_byte() as i8;
-        let (value, overflow) = self.stack_pointer.overflowing_add(e as u16);
+        let value = self.stack_pointer.wrapping_add(e as u16);
         
-        self.registers.f.set_carry(overflow);
-        self.registers.f.set_half_carry(super::is_half_carry_8(self.stack_pointer as u8, e as u8, false));
+        self.registers.f.set_carry(super::is_overflow_8(self.stack_pointer as u16, e as u16));
+        self.registers.f.set_half_carry(super::is_half_carry_8(self.stack_pointer as u8, e as u8, false, 0));
         self.registers.f.set_subtraction(false);
         self.registers.f.set_zero(false);
         
@@ -142,26 +142,23 @@ impl super::super::Cpu {
         // (i. e. it is greater than 9) or the H flag is set, then $06 is added to the register. 
         // Then the four most significant bits are checked. 
         // If this more significant digit also happens to be greater than 9 or the C flag is set, then $60 is added.
-        let mut correction = 0;
-        let value = self.registers.a;
-        let lsb = value & 0xF;
-        if self.registers.f.half_carry() || lsb > 0x9 {
+        let mut value = self.registers.a;
+        let mut correction = if self.registers.f.carry() { 0x60 } else { 0x00 };
+        if self.registers.f.half_carry() {
             correction |= 0x06;
         }
 
-        if self.registers.f.carry() || value > 0x99 {
-            correction |= 0x60;
-            self.registers.f.set_carry(true);
-        } else {
-            self.registers.f.set_carry(false);
-        }
-
         if self.registers.f.subtraction() {
-            self.registers.a = self.registers.a.wrapping_sub(correction);
+            value = value.wrapping_sub(correction);
         } else {
-            self.registers.a = self.registers.a.wrapping_add(correction);
+            if value & 0x0F > 0x09 { correction |= 0x06; };
+            if value > 0x99 { correction |= 0x60; };
+            value = value.wrapping_add(correction);
         }
 
+        self.registers.a = value;
+        self.registers.f.set_carry(correction >= 0x60);
+        self.registers.f.set_half_carry(false);
         self.registers.f.set_zero(self.registers.a == 0);
 
         4
@@ -183,17 +180,14 @@ impl super::super::Cpu {
     }
 
     pub fn dec_sp(&mut self) -> u16 {
-        let target = self.mmu.read_byte(self.stack_pointer);
-        let data = target.wrapping_sub(1);
-        self.mmu.write_byte(self.stack_pointer, data);
+        self.stack_pointer = self.stack_pointer.wrapping_sub(1);
         8
     }
 
     pub fn dec_16(&mut self, register: &CpuRegister16) -> u16 {
-        let address = self.registers.get_target_16(register);
-        let target = self.mmu.read_byte(address);
-        let data = target.wrapping_sub(1);
-        self.mmu.write_byte(address, data);
+        let target = self.registers.get_target_16(register);
+        let value = target.wrapping_sub(1);
+        self.registers.set_target_16(register, value);
         8
     }
 
@@ -213,9 +207,7 @@ impl super::super::Cpu {
     }
 
     pub fn inc_sp(&mut self) -> u16 {
-        let target = self.mmu.read_byte(self.stack_pointer);
-        let data = target.wrapping_add(1);
-        self.mmu.write_byte(self.stack_pointer, data);
+        self.stack_pointer = self.stack_pointer.wrapping_add(1);
         8
     }
 

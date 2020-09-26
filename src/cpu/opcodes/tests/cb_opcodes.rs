@@ -1,6 +1,6 @@
-use super::super::super::Cpu;
-use super::super::opcode::{CpuRegister, CpuRegister16};
-use super::super::super::super::addresses::video_ram::VIDEO_RAM_LOWER;
+use crate::cpu::Cpu;
+use crate::cpu::opcodes::opcode::{CpuRegister, CpuRegister16};
+use crate::addresses::gpu::video_ram::VIDEO_RAM_LOWER;
 
 #[test]
 fn bit_n_set_hl_test() {
@@ -505,10 +505,22 @@ fn swap_hl_test() {
 fn swap_r8_test() {
     let mut cpu: Cpu = Default::default();
     cpu.registers.a = 0b0100_1000;
+    cpu.registers.f.set_carry(true);
+    cpu.registers.f.set_half_carry(true);
+    cpu.registers.f.set_subtraction(true);
 
     cpu.swap_r8(&CpuRegister::A);
 
     assert_eq!(0b1000_0100, cpu.registers.a);
+    assert_eq!(false, cpu.registers.f.carry());
+    assert_eq!(false, cpu.registers.f.half_carry());
+    assert_eq!(false, cpu.registers.f.subtraction());
+    assert_eq!(false, cpu.registers.f.zero());
+
+    cpu.registers.a = 0;
+    cpu.swap_r8(&CpuRegister::A);
+
+    assert_eq!(true, cpu.registers.f.zero());
 }
 
 #[test]

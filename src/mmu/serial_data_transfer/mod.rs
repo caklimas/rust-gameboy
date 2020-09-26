@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use super::super::addresses::serial_data_transfer::*;
+use crate::addresses::serial_data_transfer::*;
 
 pub mod serial_transfer_control;
 
@@ -20,7 +20,10 @@ impl SerialDataTransfer {
 
     pub fn write(&mut self, address: u16, data: u8) {
         match address {
-            SERIAL_TRANSFER_DATA => self.data = data,
+            SERIAL_TRANSFER_DATA => {
+                print!("{}", data as char);
+                self.data = data;
+            },
             SERIAL_TRANSFER_CONTROL => self.control.set(data),
             _ => panic!("Invalid serial data address: 0x{:4X}", address)
         }

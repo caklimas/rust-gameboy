@@ -1,6 +1,6 @@
 use super::super::super::Cpu;
 use super::super::opcode::{CpuRegister, CpuRegister16};
-use super::super::super::super::addresses::video_ram::VIDEO_RAM_LOWER;
+use crate::addresses::gpu::video_ram::VIDEO_RAM_LOWER;
 
 #[test]
 fn adc_a_test() {
@@ -91,7 +91,7 @@ fn add_hl_16_test() {
 }
 
 #[test]
-fn add_hl_16_sp_test() {
+fn add_hl_sp_test() {
     let hl_data = 5;
     let sp_data = 5;
     let mut cpu: Cpu = Default::default();
@@ -99,7 +99,7 @@ fn add_hl_16_sp_test() {
     cpu.registers.set_target_16(&CpuRegister16::HL, hl_data);
     cpu.stack_pointer = sp_data;
 
-    cpu.add_hl_16_sp();
+    cpu.add_hl_sp();
 
     assert_eq!(hl_data + sp_data, cpu.registers.get_target_16(&CpuRegister16::HL));
     assert_eq!(false, cpu.registers.f.carry());
@@ -108,12 +108,12 @@ fn add_hl_16_sp_test() {
 
     cpu.registers.set_target_16(&CpuRegister16::HL, 0xFFFF);
     cpu.stack_pointer = 1;
-    cpu.add_hl_16_sp();
+    cpu.add_hl_sp();
 
     assert_eq!(true, cpu.registers.f.carry());
 
     cpu.registers.set_target_16(&CpuRegister16::HL, 0b1111_1111_1111);
-    cpu.add_hl_16_sp();
+    cpu.add_hl_sp();
 
     assert_eq!(true, cpu.registers.f.half_carry());
 }
@@ -468,25 +468,23 @@ fn dec_r_test() {
 #[test]
 fn dec_sp_test() {
     let mut cpu: Cpu = Default::default();
-    let data = 5;
     cpu.stack_pointer = VIDEO_RAM_LOWER;
-    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     cpu.dec_sp();
 
-    assert_eq!(data .wrapping_sub(1), cpu.mmu.read_byte(VIDEO_RAM_LOWER));
+    assert_eq!(VIDEO_RAM_LOWER - 1, cpu.stack_pointer);
 }
 
 #[test]
 fn dec_16_test() {
+    let register = &CpuRegister16::BC;
     let mut cpu: Cpu = Default::default();
     let data = 5;
-    cpu.registers.set_target_16(&CpuRegister16::BC, VIDEO_RAM_LOWER);
-    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
+    cpu.registers.set_target_16(register, data);
 
     cpu.dec_16(&CpuRegister16::BC);
 
-    assert_eq!(data .wrapping_sub(1), cpu.mmu.read_byte(VIDEO_RAM_LOWER));
+    assert_eq!(data - 1, cpu.registers.get_target_16(register));
 }
 
 #[test]
@@ -536,13 +534,11 @@ fn inc_r_test() {
 #[test]
 fn inc_sp_test() {
     let mut cpu: Cpu = Default::default();
-    let data = 5;
     cpu.stack_pointer = VIDEO_RAM_LOWER;
-    cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     cpu.inc_sp();
 
-    assert_eq!(data + 1, cpu.mmu.read_byte(VIDEO_RAM_LOWER));
+    assert_eq!(VIDEO_RAM_LOWER + 1, cpu.stack_pointer);
 }
 
 #[test]

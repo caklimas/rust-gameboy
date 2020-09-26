@@ -1,6 +1,6 @@
 use super::super::super::Cpu;
 use super::super::opcode::{CpuRegister16};
-use super::super::super::super::addresses::video_ram::VIDEO_RAM_LOWER;
+use crate::addresses::gpu::video_ram::VIDEO_RAM_LOWER;
 
 #[test]
 fn ld_a16_sp_test() {
@@ -50,7 +50,7 @@ fn ld_sp_e8_test() {
     cpu.program_counter = address;
     cpu.mmu.write_byte(cpu.program_counter, data);
 
-    cpu.ld_sp_e8();
+    cpu.ld_hl_sp_e8();
 
     assert_eq!(data as u16, cpu.registers.get_target_16(&CpuRegister16::HL));
     assert_eq!(false, cpu.registers.f.carry());
@@ -61,7 +61,7 @@ fn ld_sp_e8_test() {
     cpu.stack_pointer = 0xFFFF - 1;
 
     cpu.program_counter = address;
-    cpu.ld_sp_e8();
+    cpu.ld_hl_sp_e8();
 
     assert_eq!(true, cpu.registers.f.carry());
 
@@ -69,7 +69,7 @@ fn ld_sp_e8_test() {
     cpu.stack_pointer = 34;
     cpu.mmu.write_byte(cpu.program_counter, data);
 
-    cpu.ld_sp_e8();
+    cpu.ld_hl_sp_e8();
 
     assert_eq!(true, cpu.registers.f.half_carry());
 }
@@ -78,15 +78,12 @@ fn ld_sp_e8_test() {
 fn ld_sp_hl_test() {
     let register = &CpuRegister16::HL;
     let data = 5;
-    let address = VIDEO_RAM_LOWER;
     let mut cpu: Cpu = Default::default();
-    cpu.registers.set_target_16(register, address);
-    cpu.stack_pointer = address + 1;
-    cpu.mmu.write_byte(address, data);
+    cpu.registers.set_target_16(register, data);
 
     cpu.ld_sp_hl();
 
-    assert_eq!(data, cpu.mmu.read_byte(address + 1));
+    assert_eq!(data, cpu.stack_pointer);
 }
 
 #[test]
@@ -100,7 +97,7 @@ fn pop_test() {
     cpu.pop(&CpuRegister16::AF);
 
     assert_eq!(address, cpu.stack_pointer);
-    assert_eq!(cpu.mmu.read_word(address), cpu.registers.get_target_16(&CpuRegister16::AF));
+    assert_eq!(cpu.mmu.read_word(VIDEO_RAM_LOWER), cpu.registers.get_target_16(&CpuRegister16::AF));
 }
 
 #[test]
@@ -108,11 +105,11 @@ fn pop_stack_test() {
     let data = 0xBEEF;
     let mut cpu: Cpu = Default::default();
     cpu.mmu.write_word(VIDEO_RAM_LOWER, data);
-    cpu.stack_pointer = VIDEO_RAM_LOWER - 2;
+    cpu.stack_pointer = VIDEO_RAM_LOWER;
 
     let value = cpu.pop_stack();
 
-    assert_eq!(VIDEO_RAM_LOWER, cpu.stack_pointer);
+    assert_eq!(VIDEO_RAM_LOWER + 2, cpu.stack_pointer);
     assert_eq!(data, value);
 }
 
@@ -127,17 +124,17 @@ fn push_test() {
     cpu.push(&CpuRegister16::BC);
 
     assert_eq!(VIDEO_RAM_LOWER, cpu.stack_pointer);
-    assert_eq!(cpu.registers.get_target_16(&CpuRegister16::BC), cpu.mmu.read_word(address));
+    assert_eq!(cpu.registers.get_target_16(&CpuRegister16::BC), cpu.mmu.read_word(address - 2));
 }
 
 #[test]
 fn push_stack_test() {
     let data = 0xBEEF;
     let mut cpu: Cpu = Default::default();
-    cpu.stack_pointer = VIDEO_RAM_LOWER;
+    cpu.stack_pointer = VIDEO_RAM_LOWER + 2;
 
     cpu.push_stack(data);
 
-    assert_eq!(VIDEO_RAM_LOWER - 2, cpu.stack_pointer);
+    assert_eq!(VIDEO_RAM_LOWER, cpu.stack_pointer);
     assert_eq!(data, cpu.mmu.read_word(VIDEO_RAM_LOWER));
 }

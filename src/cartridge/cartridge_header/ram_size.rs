@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use crate::mmu::memory_sizes::*;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[allow(non_camel_case_types)]
@@ -27,11 +28,11 @@ impl RamSize {
     pub fn get_size(&self) -> usize {
         match self {
             RamSize::None => 0,
-            RamSize::Kilobytes_2 => 0x0800,
-            RamSize::Kilobytes_8 => 0x2000,
-            RamSize::Kilibytes_32 => 0x8000,
-            RamSize::Kilobytes_128 => 0x20000,
-            RamSize::Kilobytes_64 => 0x10000
+            RamSize::Kilobytes_2 => KILOBYTES_2 as usize,
+            RamSize::Kilobytes_8 => KILOBYTES_8 as usize,
+            RamSize::Kilibytes_32 => KILOBYTES_32 as usize,
+            RamSize::Kilobytes_64 => KILOBYTES_64,
+            RamSize::Kilobytes_128 => KILOBYTES_128
         }
     }
 }
