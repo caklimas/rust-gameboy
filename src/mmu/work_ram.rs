@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 use super::memory_sizes::{KILOBYTES_8};
-use super::super::addresses::work_ram::WORK_RAM_ECHO_LOWER;
+use crate::addresses::work_ram::WORK_RAM_ECHO_LOWER;
 
 big_array! { BigArray; }
 

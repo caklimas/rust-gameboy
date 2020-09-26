@@ -1,9 +1,9 @@
 use super::super::super::Cpu;
 use super::super::opcode::{CpuRegister, CpuRegister16};
-use super::super::super::super::addresses::{
+use crate::addresses::{
+    gpu::video_ram::VIDEO_RAM_LOWER,
     high_ram::HIGH_RAM_LOWER,
-    ld_opcode::LD_ADDRESS_LOWER,
-    video_ram::VIDEO_RAM_LOWER
+    ld_opcode::LD_ADDRESS_LOWER
 };
 
 #[test]

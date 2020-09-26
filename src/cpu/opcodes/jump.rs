@@ -31,8 +31,7 @@ impl super::super::Cpu {
     }
 
     pub fn jp_hl(&mut self) -> u16 {
-        let address = self.registers.get_target_16(&CpuRegister16::HL);
-        self.program_counter = self.mmu.read_word(address);
+        self.program_counter = self.registers.get_target_16(&CpuRegister16::HL);
         4
     }
 

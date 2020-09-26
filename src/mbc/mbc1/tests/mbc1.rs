@@ -1,8 +1,8 @@
 use super::super::{ENABLE_RAM, Mbc, Mbc1};
 use super::super::banking_mode::BankingMode;
-use super::super::addresses::*;
-use super::super::super::super::mmu::memory_sizes::{KILOBYTES_8, KILOBYTES_16};
-use super::super::super::super::cartridge::cartridge_header::{CartridgeHeader, RAM_SIZE_INDEX};
+use crate::addresses::mbc::mbc1::*;
+use crate::mmu::memory_sizes::{KILOBYTES_8, KILOBYTES_16};
+use crate::cartridge::cartridge_header::{CartridgeHeader, RAM_SIZE_INDEX};
 
 #[test]
 fn read_ram_test() {

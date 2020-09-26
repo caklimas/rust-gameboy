@@ -1,4 +1,4 @@
-use super::super::super::addresses::ld_opcode::LD_ADDRESS_LOWER;
+use crate::addresses::ld_opcode::LD_ADDRESS_LOWER;
 use super::opcode::{CpuRegister, CpuRegister16};
 
 impl super::super::Cpu {
@@ -15,7 +15,7 @@ impl super::super::Cpu {
     }
 
     pub fn ld_a_a8(&mut self) -> u16 {
-        let address = LD_ADDRESS_LOWER + (self.read_byte() as u16);
+        let address = LD_ADDRESS_LOWER | (self.read_byte() as u16);
         let value = self.mmu.read_byte(address);
         self.registers.set_target(&CpuRegister::A, value);
         12
@@ -61,10 +61,10 @@ impl super::super::Cpu {
         12
     }
 
-    pub fn ld_hl_a(&mut self, increment: &bool) -> u16 {
-        let data = self.registers.get_target(&CpuRegister::A);
+    pub fn ld_a_hl(&mut self, increment: &bool) -> u16 {
         let address = self.registers.get_target_16(&CpuRegister16::HL);
-        self.mmu.write_byte(address, data);
+        let value = self.mmu.read_byte(address);
+        self.registers.set_target(&CpuRegister::A, value);
 
         if *increment {
             self.registers.set_target_16(&CpuRegister16::HL, address + 1);
@@ -75,10 +75,10 @@ impl super::super::Cpu {
         8
     }
 
-    pub fn ld_a_hl(&mut self, increment: &bool) -> u16 {
+    pub fn ld_hl_a(&mut self, increment: &bool) -> u16 {
+        let data = self.registers.get_target(&CpuRegister::A);
         let address = self.registers.get_target_16(&CpuRegister16::HL);
-        let value = self.mmu.read_byte(address);
-        self.registers.set_target(&CpuRegister::A, value);
+        self.mmu.write_byte(address, data);
 
         if *increment {
             self.registers.set_target_16(&CpuRegister16::HL, address + 1);

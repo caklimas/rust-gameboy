@@ -1,4 +1,4 @@
-use super::super::super::addresses::work_ram::WORK_RAM_ECHO_LOWER;
+use crate::addresses::work_ram::WORK_RAM_ECHO_LOWER;
 use super::super::memory_sizes::KILOBYTES_8;
 use super::super::work_ram::WorkRam;
 

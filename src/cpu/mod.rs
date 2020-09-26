@@ -12,7 +12,7 @@ use super::mmu::Mmu;
 use opcodes::{
     cb_opcode::CbOpcode,
     cb_opcode_table::CB_OPCODE_TABLE,
-    opcode::Opcode,
+    opcode::{CpuRegister16, Opcode},
     opcode_table::OPCODE_TABLE
 };
 
@@ -41,6 +41,7 @@ impl Cpu {
     pub fn new(cartridge: Cartridge) -> Self {
         let mut cpu: Cpu = Default::default();
         cpu.mmu = Mmu::new(cartridge);
+        cpu.program_start();
         cpu
     }
 
@@ -50,18 +51,7 @@ impl Cpu {
             return;
         }
 
-        self.opcode = self.read_byte() as usize;
-        if self.program_counter == PROGRAM_START {
-            self.mmu.finish_running_boot_rom();
-        }
-
-        let mut clock_cycle = self.execute_opcode();
-        if self.cb_opcode {
-            self.cb_opcode = false;
-            self.opcode = self.read_byte() as usize;
-            clock_cycle = Some(self.execute_cb_opcode());
-        }
-
+        let clock_cycle = self.execute();
         if let Some(ref c) = clock_cycle {
             self.system_clock = self.system_clock.wrapping_add(*c as u32);
             self.cycles += *c as u8;
@@ -78,6 +68,26 @@ impl Cpu {
         let data = self.mmu.read_word(self.program_counter);
         self.program_counter += 2;
         data
+    }
+
+    fn execute(&mut self) -> Option<u16> {
+        if self.halted {
+            return Some(self.nop());
+        }
+
+        self.opcode = self.read_byte() as usize;
+        if self.program_counter == PROGRAM_START {
+            self.mmu.finish_running_boot_rom();
+        }
+
+        let mut clock_cycle = self.execute_opcode();
+        if self.cb_opcode {
+            self.cb_opcode = false;
+            self.opcode = self.read_byte() as usize;
+            clock_cycle = Some(self.execute_cb_opcode());
+        }
+
+        clock_cycle
     }
 
     fn execute_opcode(&mut self) -> Option<u16> {
@@ -104,8 +114,8 @@ impl Cpu {
                 Opcode::AddHl16(r) => {
                     Some(self.add_hl_16(r))
                 },
-                Opcode::AddHl16Sp => {
-                    Some(self.add_hl_16_sp())
+                Opcode::AddHlSp => {
+                    Some(self.add_hl_sp())
                 },
                 Opcode::AddSpE8 => {
                     Some(self.add_sp_e8())
@@ -223,7 +233,6 @@ impl Cpu {
                 },
                 Opcode::LdHlA(increment) => {
                     Some(self.ld_hl_a(increment))
-
                 },
                 Opcode::LdAHl(increment) => {
                     Some(self.ld_a_hl(increment))
@@ -243,8 +252,8 @@ impl Cpu {
                 Opcode::LdSpD16 => {
                     Some(self.ld_sp_d16())
                 },
-                Opcode::LdSpE8 => {
-                    Some(self.ld_sp_e8())
+                Opcode::LdHlSpE8 => {
+                    Some(self.ld_hl_sp_e8())
                 },
                 Opcode::LdSpHl => {
                     Some(self.ld_sp_hl())
@@ -403,5 +412,14 @@ impl Cpu {
                 panic!("Unrecognized cb opcode");
             }
         }
+    }
+
+    fn program_start(&mut self) {
+        self.program_counter = PROGRAM_START;
+        self.stack_pointer = 0xFFFE;
+        self.registers.set_target_16(&CpuRegister16::AF, 0x01B0);
+        self.registers.set_target_16(&CpuRegister16::BC, 0x0013);
+        self.registers.set_target_16(&CpuRegister16::DE, 0x00D8);
+        self.registers.set_target_16(&CpuRegister16::HL, 0x014D);
     }
 }

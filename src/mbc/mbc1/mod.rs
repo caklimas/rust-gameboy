@@ -4,10 +4,10 @@ pub mod banking_mode;
 #[cfg(test)]
 mod tests;
 
-use super::super::cartridge::cartridge_header::CartridgeHeader;
-use super::super::mmu::memory_sizes::{KILOBYTES_8, KILOBYTES_16};
+use crate::cartridge::cartridge_header::CartridgeHeader;
+use crate::mmu::memory_sizes::{KILOBYTES_8, KILOBYTES_16};
 use super::Mbc;
-use addresses::*;
+use crate::addresses::mbc::mbc1::*;
 use banking_mode::BankingMode;
 
 pub const ENABLE_RAM: u8 = 0x0A;
