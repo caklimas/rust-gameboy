@@ -1,6 +1,7 @@
 pub mod boot_rom;
 pub mod gpu;
 pub mod high_ram;
+pub mod interrupts;
 pub mod memory_sizes;
 pub mod ram;
 pub mod serial_data_transfer;
@@ -16,18 +17,18 @@ use super::cartridge::Cartridge;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Mmu {
+    pub ram: ram::Ram,
     boot_rom: boot_rom::BootRom,
     cartridge: Option<Cartridge>,
-    ram: ram::Ram,
     running_boot_rom: bool
 }
 
 impl Mmu {
     pub fn new(cartridge: Cartridge) -> Self {
         let mut mmu = Mmu {
+            ram: Default::default(),
             boot_rom: Default::default(),
             cartridge: Some(cartridge),
-            ram: Default::default(),
             running_boot_rom: false
         };
 

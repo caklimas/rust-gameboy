@@ -7,15 +7,16 @@ use crate::addresses::gpu::video_ram::*;
 use crate::addresses::work_ram::*;
 use super::gpu;
 use super::high_ram;
+use super::interrupts::Interrupt;
 use super::serial_data_transfer::SerialDataTransfer;
 use super::work_ram;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Ram {
+    pub interrupt_enable: Interrupt,
+    pub interrupt_flag: Interrupt,
     gpu: gpu::Gpu, 
     high_ram: high_ram::HighRam,
-    interrupt_enable: u8,
-    interrupt_flag: u8,
     serial_data_transfer: SerialDataTransfer,
     work_ram: work_ram::WorkRam
 }
@@ -26,9 +27,9 @@ impl Ram {
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.gpu.read(address),
             WORK_RAM_LOWER..=WORK_RAM_UPPER => self.work_ram.read(address),
             SERIAL_TRANSFER_DATA..=SERIAL_TRANSFER_CONTROL => self.serial_data_transfer.read(address),
-            INTERRUPT_FLAG => self.interrupt_flag,
+            INTERRUPT_FLAG => self.interrupt_flag.get(),
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.read(address),
-            INTERRUPT_ENABLE => self.interrupt_enable,
+            INTERRUPT_ENABLE => self.interrupt_enable.get(),
             _ => {
                 // println!("Invalid address 0x{:4X}", address);
                 0
@@ -41,9 +42,9 @@ impl Ram {
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.gpu.write(address, data),
             WORK_RAM_LOWER..=WORK_RAM_UPPER => self.work_ram.write(address, data),
             SERIAL_TRANSFER_DATA..=SERIAL_TRANSFER_CONTROL => self.serial_data_transfer.write(address, data),
-            INTERRUPT_FLAG => self.interrupt_flag = data,
+            INTERRUPT_FLAG => self.interrupt_flag.set(data),
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.write(address, data),
-            INTERRUPT_ENABLE => self.interrupt_enable = data,
+            INTERRUPT_ENABLE => self.interrupt_enable.set(data),
             _ => () // println!("Invalid address 0x{:4X}", address)
         }
     }

@@ -7,8 +7,9 @@ pub mod registers;
 mod tests;
 
 use serde::{Serialize, Deserialize};
-use super::cartridge::Cartridge;
-use super::mmu::Mmu;
+use crate::cartridge::Cartridge;
+use crate::mmu::Mmu;
+use crate::mmu::interrupts::Interrupt;
 use opcodes::{
     cb_opcode::CbOpcode,
     cb_opcode_table::CB_OPCODE_TABLE,
@@ -51,10 +52,14 @@ impl Cpu {
             return;
         }
 
+        if let Some(c) = self.handle_interrupts() {
+            self.update_cycles(c);
+            return;
+        }
+
         let clock_cycle = self.execute();
         if let Some(ref c) = clock_cycle {
-            self.system_clock = self.system_clock.wrapping_add(*c as u32);
-            self.cycles += *c as u8;
+            self.update_cycles(*c);
         }
     }
 
@@ -414,6 +419,46 @@ impl Cpu {
         }
     }
 
+    fn handle_interrupts(&mut self) -> Option<u16> {
+        if !self.interrupt_master_enable && !self.halted {
+            return None;
+        }
+
+        let interrupt = Interrupt(self.mmu.ram.interrupt_enable.get() & self.mmu.ram.interrupt_flag.get());
+        if interrupt.get() == 0 {
+            return None;
+        }
+
+        self.halted = false;
+        if !self.interrupt_master_enable {
+            return None;
+        }
+
+        self.interrupt_master_enable = false;
+        self.handle_interrupt(interrupt)
+    }
+
+    fn handle_interrupt(&mut self, interrupt: Interrupt) -> Option<u16> {
+        if interrupt.v_blank() {
+            self.mmu.ram.interrupt_flag.set_v_blank(false);
+            Some(self.rst(0x0040))
+        } else if interrupt.lcd_stat() {
+            self.mmu.ram.interrupt_flag.set_lcd_stat(false);
+            Some(self.rst(0x0048))
+        } else if interrupt.timer() {
+            self.mmu.ram.interrupt_flag.set_timer(false);
+            Some(self.rst(0x0050))
+        } else if interrupt.serial() {
+            self.mmu.ram.interrupt_flag.set_serial(false);
+            Some(self.rst(0x0058))
+        } else if interrupt.joypad() {
+            self.mmu.ram.interrupt_flag.set_joypad(false);
+            Some(self.rst(0x0060))
+        } else {
+            None
+        }
+    }
+
     fn program_start(&mut self) {
         self.program_counter = PROGRAM_START;
         self.stack_pointer = 0xFFFE;
@@ -421,5 +466,10 @@ impl Cpu {
         self.registers.set_target_16(&CpuRegister16::BC, 0x0013);
         self.registers.set_target_16(&CpuRegister16::DE, 0x00D8);
         self.registers.set_target_16(&CpuRegister16::HL, 0x014D);
+    }
+
+    fn update_cycles(&mut self, cycles: u16) {
+        self.system_clock = self.system_clock.wrapping_add(cycles as u32);
+        self.cycles += cycles as u8;
     }
 }
