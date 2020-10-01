@@ -7,4 +7,5 @@ pub mod io_ports;
 pub mod ld_opcode;
 pub mod mbc;
 pub mod serial_data_transfer;
+pub mod timer;
 pub mod work_ram;
