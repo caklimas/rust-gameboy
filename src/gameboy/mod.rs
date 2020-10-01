@@ -17,8 +17,9 @@ impl Gameboy {
         }
     }
 
-    pub fn run(&mut self) -> u8 {
-        self.cpu.clock();
-        42
+    pub fn run(&mut self) {
+        loop {
+            self.cpu.clock();
+        }
     }
 }

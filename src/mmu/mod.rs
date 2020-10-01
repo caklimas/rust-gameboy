@@ -39,6 +39,10 @@ impl Mmu {
         mmu
     }
 
+    pub fn clock(&mut self, cycles: u16) {
+        self.ram.clock(cycles)
+    }
+
     pub fn finish_running_boot_rom(&mut self) {
         self.running_boot_rom = false;
     }
