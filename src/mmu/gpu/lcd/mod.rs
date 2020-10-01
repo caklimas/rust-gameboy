@@ -4,6 +4,7 @@ use crate::addresses::gpu::lcd::*;
 pub mod bg_color;
 pub mod bg_palette_data;
 pub mod lcd_control;
+pub mod lcd_mode;
 
 #[cfg(test)]
 mod tests;

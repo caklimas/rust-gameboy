@@ -22,6 +22,11 @@ pub struct Ram {
 }
 
 impl Ram {
+    pub fn clock(&mut self, cycles: u16) {
+        let gpu_cycles = cycles; 
+        self.gpu.clock(gpu_cycles);
+    }
+
     pub fn read(&self, address: u16) -> u8 {
         match address {
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.gpu.read(address),

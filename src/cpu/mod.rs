@@ -8,6 +8,7 @@ mod tests;
 
 use serde::{Serialize, Deserialize};
 use crate::cartridge::Cartridge;
+use crate::constants::cpu::PROGRAM_START;
 use crate::mmu::Mmu;
 use crate::mmu::interrupts::Interrupt;
 use opcodes::{
@@ -17,12 +18,9 @@ use opcodes::{
     opcode_table::OPCODE_TABLE
 };
 
-const PROGRAM_START: u16 = 0x0100;
-
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cpu {
     cb_opcode: bool,
-    cycles: u8,
     halted: bool,
     index_registers: index_registers::IndexRegisters,
     interrupt_master_enable: bool,
@@ -34,7 +32,6 @@ pub struct Cpu {
     registers: registers::Registers,
     stack_pointer: u16,
     stopped: bool,
-    system_clock: u32,
     counter: u8
 }
 
@@ -47,19 +44,13 @@ impl Cpu {
     }
 
     pub fn clock(&mut self) {
-        if self.cycles != 0 {
-            self.cycles -= 1;
-            return;
-        }
-
         if let Some(c) = self.handle_interrupts() {
-            self.update_cycles(c);
+            self.mmu.clock(c);
             return;
         }
 
-        let clock_cycle = self.execute();
-        if let Some(ref c) = clock_cycle {
-            self.update_cycles(*c);
+        if let Some(c) = self.execute() {
+            self.mmu.clock(c);
         }
     }
 
@@ -466,10 +457,5 @@ impl Cpu {
         self.registers.set_target_16(&CpuRegister16::BC, 0x0013);
         self.registers.set_target_16(&CpuRegister16::DE, 0x00D8);
         self.registers.set_target_16(&CpuRegister16::HL, 0x014D);
-    }
-
-    fn update_cycles(&mut self, cycles: u16) {
-        self.system_clock = self.system_clock.wrapping_add(cycles as u32);
-        self.cycles += cycles as u8;
     }
 }
