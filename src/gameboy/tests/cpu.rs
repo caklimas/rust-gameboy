@@ -19,8 +19,8 @@ Passed:
 #[test]
 fn test() {
     let directory = std::env::current_dir().expect("Can't get current directory");
-    let path = directory.join("src/gameboy/tests/roms/11-op a,(hl).gb");
+    let path = directory.join("src/gameboy/tests/roms/02-interrupts.gb");
     let bytes = fs::read(path).expect("Error reading file");
     let mut gameboy = Gameboy::new(bytes);
-    gameboy.run();
+    // gameboy.run();
 }

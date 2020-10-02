@@ -19,14 +19,14 @@ impl Gameboy {
     }
 
     pub fn run(&mut self) {
-        let waitticks = ((CPU_REFRESH_RATE as f64) / 1000.0 * 16.0).round() as u32;
+        let wait_ticks = ((CPU_REFRESH_RATE as f64) / 1000.0 * 16.0).round() as u32;
         let mut ticks = 0;
         loop {
-            while ticks < waitticks {
+            while ticks < wait_ticks {
                 ticks += self.cpu.clock() as u32;
             }
     
-            ticks -= waitticks;
+            ticks -= wait_ticks;
         }
     }
 }
