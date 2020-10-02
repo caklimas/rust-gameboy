@@ -5,7 +5,7 @@ pub enum LcdMode {
     HorizontalBlank = 0,
     VerticalBlank = 1,
     SearchingOam = 2,
-    TransferringDriver = 3
+    Drawing = 3
 }
 
 impl Default for LcdMode {

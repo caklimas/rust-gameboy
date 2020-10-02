@@ -1,5 +1,4 @@
 use serde::{Serialize, Deserialize};
-use crate::constants::cpu::CPU_REFRESH_RATE;
 
 bitfield! {
     #[derive(Serialize, Deserialize, Default)]
