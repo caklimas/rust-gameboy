@@ -43,15 +43,18 @@ impl Cpu {
         cpu
     }
 
-    pub fn clock(&mut self) {
+    pub fn clock(&mut self) -> u16 {
         if let Some(c) = self.handle_interrupts() {
             self.mmu.clock(c);
-            return;
+            return c;
         }
 
         if let Some(c) = self.execute() {
             self.mmu.clock(c);
+            return c;
         }
+
+        0
     }
 
     pub fn read_byte(&mut self) -> u8 {
