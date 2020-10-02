@@ -5,6 +5,7 @@ pub mod interrupts;
 pub mod memory_sizes;
 pub mod ram;
 pub mod serial_data_transfer;
+pub mod timer;
 pub mod work_ram;
 
 #[cfg(test)]
