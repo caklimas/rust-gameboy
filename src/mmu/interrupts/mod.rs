@@ -1,3 +1,5 @@
+pub mod lcd_interrupt;
+
 use serde::{Serialize, Deserialize};
 
 bitfield!{

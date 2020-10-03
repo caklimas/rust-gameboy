@@ -9,6 +9,7 @@ pub mod lcd_mode;
 pub mod lcd_status;
 
 use lcd_mode::LcdMode;
+use super::super::interrupts::lcd_interrupt::LcdInterruptResult;
 
 #[cfg(test)]
 mod tests;
@@ -27,9 +28,10 @@ pub struct Lcd {
 }
 
 impl Lcd {
-    pub fn clock(&mut self, cycles: u16) {
+    pub fn clock(&mut self, cycles: u16) -> LcdInterruptResult {
+        let result = LcdInterruptResult::new();
         if !self.control.lcd_display_enable() {
-            return;
+            return result;
         }
 
         self.mode_clock += cycles;
@@ -70,13 +72,17 @@ impl Lcd {
                 }
             }
         }
+
+        result
     }
 
     pub fn read(&self, address: u16) -> u8 {
         match address {
             LCD_CONTROL => self.control.get(),
+            LCD_STATUS => self.status.0,
             LCD_SCROLL_Y => self.scroll_y,
             LCD_LY => self.line_number,
+            LCD_LYC => self.lyc,
             LCD_BG_PALETTE_DATA => self.bg_palette_data.into_u8(),
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
@@ -88,6 +94,7 @@ impl Lcd {
             LCD_STATUS => self.set_status(data),
             LCD_SCROLL_Y => self.scroll_y = data,
             LCD_LY => (), // readonly
+            LCD_LYC => self.lyc = data,
             LCD_BG_PALETTE_DATA => self.bg_palette_data = bg_palette_data::BgPaletteData::from_u8(data),
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
@@ -103,7 +110,7 @@ impl Lcd {
     }
 
     fn set_status(&mut self, data: u8) {
-        self.status.set_line_coincidence(self.line_number == self.lyc0);
         self.status.set(data);        
+        self.status.set_line_coincidence(self.line_number == self.lyc);
     }
 }

@@ -27,14 +27,8 @@ pub struct Ram {
 impl Ram {
     pub fn clock(&mut self, cycles: u16) {
         let gpu_cycles = cycles; 
-
-        self.timer.clock(cycles);
-        if self.timer.interrupt_requested {
-            self.interrupt_flag.set_timer(true);
-            self.timer.interrupt_requested = false;
-        }
-
-        self.gpu.clock(gpu_cycles);
+        self.clock_timer(gpu_cycles);
+        self.clock_gpu(gpu_cycles);
     }
 
     pub fn read(&self, address: u16) -> u8 {
@@ -63,6 +57,20 @@ impl Ram {
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.write(address, data),
             INTERRUPT_ENABLE => self.interrupt_enable.set(data),
             _ => () // println!("Invalid address 0x{:4X}", address)
+        }
+    }
+
+    fn clock_gpu(&mut self, cycles: u16) {
+        let result = self.gpu.clock(cycles);
+        self.interrupt_flag.set_lcd_stat(result.lcd_stat);
+        self.interrupt_flag.set_v_blank(result.vertical_blank);
+    }
+
+    fn clock_timer(&mut self, cycles: u16) {
+        self.timer.clock(cycles);
+        if self.timer.interrupt_requested {
+            self.interrupt_flag.set_timer(true);
+            self.timer.interrupt_requested = false;
         }
     }
 }

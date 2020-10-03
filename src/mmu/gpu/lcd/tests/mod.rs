@@ -3,7 +3,7 @@ use super::bg_palette_data::BgPaletteData;
 use super::Lcd;
 
 #[test]
-pub fn read_bg_palette_test() {
+fn read_bg_palette_test() {
     let data = 0b1100_1001;
     let mut lcd: Lcd = Default::default();
     lcd.bg_palette_data = BgPaletteData::from_u8(data);
@@ -14,7 +14,29 @@ pub fn read_bg_palette_test() {
 }
 
 #[test]
-pub fn read_control_test() {
+fn read_ly_test() {
+    let data = 0b1100_1001;
+    let mut lcd: Lcd = Default::default();
+    lcd.line_number = data;
+
+    let result = lcd.read(LCD_LY);
+
+    assert_eq!(data, result);
+}
+
+#[test]
+fn read_lyc_test() {
+    let data = 0b1100_1001;
+    let mut lcd: Lcd = Default::default();
+    lcd.lyc = data;
+
+    let result = lcd.read(LCD_LYC);
+
+    assert_eq!(data, result);
+}
+
+#[test]
+fn read_control_test() {
     let data = 5;
     let mut lcd: Lcd = Default::default();
     lcd.control.set(data);
@@ -25,7 +47,7 @@ pub fn read_control_test() {
 }
 
 #[test]
-pub fn read_scroll_y_test() {
+fn read_scroll_y_test() {
     let data = 5;
     let mut lcd: Lcd = Default::default();
     lcd.scroll_y = data;
@@ -36,7 +58,19 @@ pub fn read_scroll_y_test() {
 }
 
 #[test]
-pub fn write_bg_palette_test() {
+fn read_status_test() {
+    let data = 0b0111_1000;
+    let mut lcd: Lcd = Default::default();
+    lcd.status.set(data);
+
+    let result = lcd.read(LCD_STATUS);
+
+    assert_eq!(data, result);
+    assert_eq!(false, lcd.status.line_coincidence());
+}
+
+#[test]
+fn write_bg_palette_test() {
     let data = 0b1100_1001;
     let mut lcd: Lcd = Default::default();
 
@@ -46,7 +80,27 @@ pub fn write_bg_palette_test() {
 }
 
 #[test]
-pub fn write_scroll_y_test() {
+fn write_ly_test() {
+    let data = 0b1100_1001;
+    let mut lcd: Lcd = Default::default();
+
+    lcd.write(LCD_LY, data);
+
+    assert_ne!(data, lcd.line_number);
+}
+
+#[test]
+fn write_lyc_test() {
+    let data = 0b1100_1001;
+    let mut lcd: Lcd = Default::default();
+
+    lcd.write(LCD_LYC, data);
+
+    assert_eq!(data, lcd.lyc);
+}
+
+#[test]
+fn write_scroll_y_test() {
     let data = 5;
     let mut lcd: Lcd = Default::default();
 
@@ -56,11 +110,30 @@ pub fn write_scroll_y_test() {
 }
 
 #[test]
-pub fn write_control_test() {
+fn write_control_test() {
     let data = 5;
     let mut lcd: Lcd = Default::default();
 
     lcd.write(LCD_CONTROL, data);
 
     assert_eq!(data, lcd.control.get());
+}
+
+#[test]
+fn write_status_test() {
+    let data = 0b0111_1000;
+    let mut lcd: Lcd = Default::default();
+    lcd.lyc = 1;
+    lcd.line_number = lcd.lyc + 2;
+
+    lcd.write(LCD_STATUS, data);
+
+    assert_eq!(data, lcd.status.get());
+    assert_eq!(false, lcd.status.line_coincidence());
+
+    lcd.lyc = 2;
+    lcd.line_number = lcd.lyc;
+    lcd.write(LCD_STATUS, data);
+
+    assert_eq!(true, lcd.status.line_coincidence());
 }

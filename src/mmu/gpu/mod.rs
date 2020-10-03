@@ -6,6 +6,7 @@ mod tests;
 
 use crate::addresses::gpu::lcd::*;
 use crate::addresses::gpu::video_ram::*;
+use super::interrupts::lcd_interrupt::LcdInterruptResult;
 use lcd::Lcd;
 use serde::{Serialize, Deserialize};
 
@@ -16,8 +17,8 @@ pub struct Gpu {
 }
 
 impl Gpu {
-    pub fn clock(&mut self, cycles: u16) {
-        self.lcd.clock(cycles);
+    pub fn clock(&mut self, cycles: u16) -> LcdInterruptResult {
+        self.lcd.clock(cycles)
     }
 
     pub fn read(&self, address: u16) -> u8 {
