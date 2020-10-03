@@ -12,9 +12,9 @@ pub struct Gameboy {
 }
 
 impl Gameboy {
-    pub fn new(bytes: Vec<u8>) -> Self {
+    pub fn new(bytes: Vec<u8>, run_boot_rom: bool) -> Self {
         Gameboy {
-            cpu: cpu::Cpu::new(Cartridge::new(bytes))
+            cpu: cpu::Cpu::new(Cartridge::new(bytes), run_boot_rom)
         }
     }
 

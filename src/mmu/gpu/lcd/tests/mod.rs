@@ -47,6 +47,17 @@ fn read_control_test() {
 }
 
 #[test]
+fn read_scroll_x_test() {
+    let data = 5;
+    let mut lcd: Lcd = Default::default();
+    lcd.scroll_x = data;
+
+    let result = lcd.read(LCD_SCROLL_X);
+
+    assert_eq!(data, result);
+}
+
+#[test]
 fn read_scroll_y_test() {
     let data = 5;
     let mut lcd: Lcd = Default::default();
@@ -97,6 +108,16 @@ fn write_lyc_test() {
     lcd.write(LCD_LYC, data);
 
     assert_eq!(data, lcd.lyc);
+}
+
+#[test]
+fn write_scroll_x_test() {
+    let data = 5;
+    let mut lcd: Lcd = Default::default();
+
+    lcd.write(LCD_SCROLL_X, data);
+
+    assert_eq!(data, lcd.scroll_x);
 }
 
 #[test]

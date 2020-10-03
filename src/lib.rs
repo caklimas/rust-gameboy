@@ -16,7 +16,7 @@ pub mod mmu;
 
 #[wasm_bindgen]
 pub fn run(bytes: Vec<u8>) -> u8 {
-    let mut gameboy = gameboy::Gameboy::new(bytes);
+    let mut gameboy = gameboy::Gameboy::new(bytes, false);
     gameboy.run();
     42
 }

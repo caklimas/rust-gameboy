@@ -36,9 +36,9 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    pub fn new(cartridge: Cartridge) -> Self {
+    pub fn new(cartridge: Cartridge, run_boot_rom: bool) -> Self {
         let mut cpu: Cpu = Default::default();
-        cpu.mmu = Mmu::new(cartridge);
+        cpu.mmu = Mmu::new(cartridge, run_boot_rom);
         cpu.program_start();
         cpu
     }

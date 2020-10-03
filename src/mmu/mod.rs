@@ -21,19 +21,19 @@ pub struct Mmu {
     pub ram: ram::Ram,
     boot_rom: boot_rom::BootRom,
     cartridge: Option<Cartridge>,
-    running_boot_rom: bool
+    run_boot_rom: bool
 }
 
 impl Mmu {
-    pub fn new(cartridge: Cartridge) -> Self {
+    pub fn new(cartridge: Cartridge, run_boot_rom: bool) -> Self {
         let mut mmu = Mmu {
             ram: Default::default(),
             boot_rom: Default::default(),
             cartridge: Some(cartridge),
-            running_boot_rom: false
+            run_boot_rom
         };
 
-        if !mmu.running_boot_rom {
+        if !mmu.run_boot_rom {
             mmu.program_start();
         }
 
@@ -45,7 +45,7 @@ impl Mmu {
     }
 
     pub fn finish_running_boot_rom(&mut self) {
-        self.running_boot_rom = false;
+        self.run_boot_rom = false;
     }
     
     pub fn read_word(&self, address: u16) -> u16 {
@@ -56,7 +56,7 @@ impl Mmu {
     }
 
     pub fn read_byte(&self, address: u16) -> u8 {
-        match (address, self.running_boot_rom) {
+        match (address, self.run_boot_rom) {
             (BOOT_ROM_LOWER..=BOOT_ROM_UPPER, true) => self.boot_rom.read(address),
             (CART_ROM_LOWER..=CART_ROM_UPPER, _) => self.read_mbc_rom(address),
             (CART_EXTERNAL_RAM_LOWER..=CART_EXTERNAL_RAM_UPPER, _) => self.read_mbc_ram(address),
@@ -73,7 +73,7 @@ impl Mmu {
     }
 
     pub fn write_byte(&mut self, address: u16, data: u8) {
-        match (address, self.running_boot_rom) {
+        match (address, self.run_boot_rom) {
             (BOOT_ROM_LOWER..=BOOT_ROM_UPPER, true) => self.boot_rom.write(address, data),
             (CART_ROM_LOWER..=CART_ROM_UPPER, _) => self.write_mbc_rom(address, data),
             (CART_EXTERNAL_RAM_LOWER..=CART_EXTERNAL_RAM_UPPER, _) => self.write_mbc_ram(address, data),

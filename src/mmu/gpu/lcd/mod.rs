@@ -23,6 +23,7 @@ pub struct Lcd {
     lyc: u8,
     mode: LcdMode,
     mode_clock: u16,
+    scroll_x: u8,
     scroll_y: u8,
     status: lcd_status::LcdStatus
 }
@@ -81,6 +82,7 @@ impl Lcd {
             LCD_CONTROL => self.control.get(),
             LCD_STATUS => self.status.0,
             LCD_SCROLL_Y => self.scroll_y,
+            LCD_SCROLL_X => self.scroll_x,
             LCD_LY => self.line_number,
             LCD_LYC => self.lyc,
             LCD_BG_PALETTE_DATA => self.bg_palette_data.into_u8(),
@@ -93,6 +95,7 @@ impl Lcd {
             LCD_CONTROL => self.control.set(data),
             LCD_STATUS => self.set_status(data),
             LCD_SCROLL_Y => self.scroll_y = data,
+            LCD_SCROLL_X => self.scroll_x = data,
             LCD_LY => (), // readonly
             LCD_LYC => self.lyc = data,
             LCD_BG_PALETTE_DATA => self.bg_palette_data = bg_palette_data::BgPaletteData::from_u8(data),

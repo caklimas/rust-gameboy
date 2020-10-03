@@ -3,6 +3,7 @@ use serde::{Serialize, Deserialize};
 use crate::addresses::high_ram::*;
 use crate::addresses::interrupt_enable::*;
 use crate::addresses::serial_data_transfer::*;
+use crate::addresses::gpu::lcd::*;
 use crate::addresses::gpu::video_ram::*;
 use crate::addresses::timer::*;
 use crate::addresses::work_ram::*;
@@ -38,6 +39,7 @@ impl Ram {
             SERIAL_TRANSFER_DATA..=SERIAL_TRANSFER_CONTROL => self.serial_data_transfer.read(address),
             DIVIDER_REGISTER..=TIMER_CONTROL => self.timer.read(address),
             INTERRUPT_FLAG => self.interrupt_flag.get(),
+            LCD_CONTROL..=LCD_BG_PALETTE_DATA => self.gpu.read(address),
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.read(address),
             INTERRUPT_ENABLE => self.interrupt_enable.get(),
             _ => {
@@ -54,6 +56,7 @@ impl Ram {
             SERIAL_TRANSFER_DATA..=SERIAL_TRANSFER_CONTROL => self.serial_data_transfer.write(address, data),
             DIVIDER_REGISTER..=TIMER_CONTROL => self.timer.write(address, data),
             INTERRUPT_FLAG => self.interrupt_flag.set(data),
+            LCD_CONTROL..=LCD_BG_PALETTE_DATA => self.gpu.write(address, data),
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.write(address, data),
             INTERRUPT_ENABLE => self.interrupt_enable.set(data),
             _ => () // println!("Invalid address 0x{:4X}", address)
