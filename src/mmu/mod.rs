@@ -14,12 +14,14 @@ mod tests;
 use serde::{Serialize, Deserialize};
 use crate::addresses::boot_rom::*;
 use crate::addresses::cartridge::*;
-use super::cartridge::Cartridge;
+use crate::cartridge::Cartridge;
+use crate::constants::boot_rom::*;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Mmu {
     pub ram: ram::Ram,
     boot_rom: boot_rom::BootRom,
+    boot_rom_finished: bool,
     cartridge: Option<Cartridge>,
     run_boot_rom: bool
 }
@@ -29,6 +31,7 @@ impl Mmu {
         let mut mmu = Mmu {
             ram: Default::default(),
             boot_rom: Default::default(),
+            boot_rom_finished: !run_boot_rom,
             cartridge: Some(cartridge),
             run_boot_rom
         };
@@ -45,6 +48,10 @@ impl Mmu {
     }
 
     pub fn finish_running_boot_rom(&mut self) {
+        if !self.boot_rom_finished {
+            panic!("Boot rom didn't finish correctly");
+        }
+
         self.run_boot_rom = false;
     }
     
@@ -77,6 +84,7 @@ impl Mmu {
             (BOOT_ROM_LOWER..=BOOT_ROM_UPPER, true) => self.boot_rom.write(address, data),
             (CART_ROM_LOWER..=CART_ROM_UPPER, _) => self.write_mbc_rom(address, data),
             (CART_EXTERNAL_RAM_LOWER..=CART_EXTERNAL_RAM_UPPER, _) => self.write_mbc_ram(address, data),
+            (BOOT_ROM_FINISHED, _) => self.boot_rom_finished = data == BOOT_ROM_FINISHED_VALUE,
             _ => self.ram.write(address, data)
         }
     }
