@@ -11,6 +11,7 @@ pub mod cartridge;
 pub mod constants;
 pub mod cpu;
 pub mod gameboy;
+pub mod gpu;
 pub mod mbc;
 pub mod mmu;
 

@@ -1,21 +1,21 @@
 use serde::{Serialize, Deserialize};
-use super::bg_color::BackgroundColor;
+use super::palette::Palette;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct BgPaletteData {
-    color_0: BackgroundColor,
-    color_1: BackgroundColor,
-    color_2: BackgroundColor,
-    color_3: BackgroundColor
+    color_0: Palette,
+    color_1: Palette,
+    color_2: Palette,
+    color_3: Palette
 }
 
 impl BgPaletteData {
     pub fn from_u8(value: u8) -> Self {
         BgPaletteData {
-            color_0: BackgroundColor::from_u8(value & 0b11),
-            color_1: BackgroundColor::from_u8((value >> 2) & 0b11),
-            color_2: BackgroundColor::from_u8((value >> 4) & 0b11),
-            color_3: BackgroundColor::from_u8((value >> 6) & 0b11)
+            color_0: Palette::from_u8(value & 0b11),
+            color_1: Palette::from_u8((value >> 2) & 0b11),
+            color_2: Palette::from_u8((value >> 4) & 0b11),
+            color_3: Palette::from_u8((value >> 6) & 0b11)
         }
     }
 

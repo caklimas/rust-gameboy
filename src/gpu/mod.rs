@@ -6,7 +6,7 @@ mod tests;
 
 use crate::addresses::gpu::lcd::*;
 use crate::addresses::gpu::video_ram::*;
-use super::interrupts::lcd_interrupt::LcdInterruptResult;
+use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
 use lcd::Lcd;
 use serde::{Serialize, Deserialize};
 
@@ -23,7 +23,7 @@ impl Gpu {
 
     pub fn read(&self, address: u16) -> u8 {
         match address {
-            LCD_CONTROL..=LCD_BG_PALETTE_DATA => self.lcd.read(address),
+            LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.lcd.read(address),
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.read(address),
             _ => panic!("Invalid GPU address 0x{:4X}", address)
         }
@@ -31,7 +31,7 @@ impl Gpu {
 
     pub fn write(&mut self, address: u16, data: u8) {
         match address {
-            LCD_CONTROL..=LCD_BG_PALETTE_DATA => self.lcd.write(address, data),
+            LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.lcd.write(address, data),
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
             _ => panic!("Invalid GPU address 0x{:4X}", address)
         }

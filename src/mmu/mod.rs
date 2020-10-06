@@ -1,5 +1,4 @@
 pub mod boot_rom;
-pub mod gpu;
 pub mod high_ram;
 pub mod interrupts;
 pub mod memory_sizes;

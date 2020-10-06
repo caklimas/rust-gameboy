@@ -2,14 +2,15 @@ use serde::{Serialize, Deserialize};
 use crate::addresses::gpu::lcd::*;
 use crate::constants::gpu::*;
 
-pub mod bg_color;
 pub mod bg_palette_data;
 pub mod lcd_control;
 pub mod lcd_mode;
 pub mod lcd_status;
+pub mod obj_palette_data;
+pub mod palette;
 
 use lcd_mode::LcdMode;
-use super::super::interrupts::lcd_interrupt::LcdInterruptResult;
+use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
 
 #[cfg(test)]
 mod tests;
@@ -23,9 +24,13 @@ pub struct Lcd {
     lyc: u8,
     mode: LcdMode,
     mode_clock: u16,
+    obj_palette_0_data: obj_palette_data::ObjPaletteData,
+    obj_palette_1_data: obj_palette_data::ObjPaletteData,
     scroll_x: u8,
     scroll_y: u8,
-    status: lcd_status::LcdStatus
+    status: lcd_status::LcdStatus,
+    window_x: u8,
+    window_y: u8
 }
 
 impl Lcd {
@@ -86,6 +91,10 @@ impl Lcd {
             LCD_LY => self.line_number,
             LCD_LYC => self.lyc,
             LCD_BG_PALETTE_DATA => self.bg_palette_data.into_u8(),
+            LCD_OBJ_0_PALETTE_DATA => self.obj_palette_0_data.into_u8(),
+            LCD_OBJ_1_PALETTE_DATA => self.obj_palette_1_data.into_u8(),
+            LCD_WINDOW_Y => self.window_y,
+            LCD_WINDOW_X => self.window_x,
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
     }
@@ -99,6 +108,10 @@ impl Lcd {
             LCD_LY => (), // readonly
             LCD_LYC => self.lyc = data,
             LCD_BG_PALETTE_DATA => self.bg_palette_data = bg_palette_data::BgPaletteData::from_u8(data),
+            LCD_OBJ_0_PALETTE_DATA => self.obj_palette_0_data = obj_palette_data::ObjPaletteData::from_u8(data),
+            LCD_OBJ_1_PALETTE_DATA => self.obj_palette_1_data = obj_palette_data::ObjPaletteData::from_u8(data),
+            LCD_WINDOW_Y => self.window_y = data,
+            LCD_WINDOW_X => self.window_x = data,
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
     }

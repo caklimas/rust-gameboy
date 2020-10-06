@@ -1,6 +1,7 @@
 use crate::addresses::gpu::lcd::*;
 use super::bg_palette_data::BgPaletteData;
 use super::Lcd;
+use super::obj_palette_data::ObjPaletteData;
 
 #[test]
 fn read_bg_palette_test() {
@@ -9,6 +10,17 @@ fn read_bg_palette_test() {
     lcd.bg_palette_data = BgPaletteData::from_u8(data);
 
     let result = lcd.read(LCD_BG_PALETTE_DATA);
+
+    assert_eq!(data, result);
+}
+
+#[test]
+fn read_control_test() {
+    let data = 5;
+    let mut lcd: Lcd = Default::default();
+    lcd.control.set(data);
+
+    let result = lcd.read(LCD_CONTROL);
 
     assert_eq!(data, result);
 }
@@ -36,12 +48,23 @@ fn read_lyc_test() {
 }
 
 #[test]
-fn read_control_test() {
-    let data = 5;
+fn read_obj_palette_0_test() {
+    let data = 0b1100_1000;
     let mut lcd: Lcd = Default::default();
-    lcd.control.set(data);
+    lcd.obj_palette_0_data = ObjPaletteData::from_u8(data);
 
-    let result = lcd.read(LCD_CONTROL);
+    let result = lcd.read(LCD_OBJ_0_PALETTE_DATA);
+
+    assert_eq!(data, result);
+}
+
+#[test]
+fn read_obj_palette_1_test() {
+    let data = 0b1100_1000;
+    let mut lcd: Lcd = Default::default();
+    lcd.obj_palette_1_data = ObjPaletteData::from_u8(data);
+
+    let result = lcd.read(LCD_OBJ_1_PALETTE_DATA);
 
     assert_eq!(data, result);
 }
@@ -81,6 +104,28 @@ fn read_status_test() {
 }
 
 #[test]
+fn read_window_x_test() {
+    let data = 5;
+    let mut lcd: Lcd = Default::default();
+    lcd.window_x = data;
+
+    let result = lcd.read(LCD_WINDOW_X);
+
+    assert_eq!(data, result);
+}
+
+#[test]
+fn read_window_y_test() {
+    let data = 5;
+    let mut lcd: Lcd = Default::default();
+    lcd.window_y = data;
+
+    let result = lcd.read(LCD_WINDOW_Y);
+
+    assert_eq!(data, result);
+}
+
+#[test]
 fn write_bg_palette_test() {
     let data = 0b1100_1001;
     let mut lcd: Lcd = Default::default();
@@ -88,6 +133,16 @@ fn write_bg_palette_test() {
     lcd.write(LCD_BG_PALETTE_DATA, data);
 
     assert_eq!(lcd.bg_palette_data.into_u8(), data);
+}
+
+#[test]
+fn write_control_test() {
+    let data = 5;
+    let mut lcd: Lcd = Default::default();
+
+    lcd.write(LCD_CONTROL, data);
+
+    assert_eq!(data, lcd.control.get());
 }
 
 #[test]
@@ -111,6 +166,26 @@ fn write_lyc_test() {
 }
 
 #[test]
+fn write_obj_palette_0_test() {
+    let data = 0b1100_1000;
+    let mut lcd: Lcd = Default::default();
+
+    lcd.write(LCD_OBJ_0_PALETTE_DATA, data);
+
+    assert_eq!(lcd.obj_palette_0_data.into_u8(), data);
+}
+
+#[test]
+fn write_obj_palette_1_test() {
+    let data = 0b1101_1000;
+    let mut lcd: Lcd = Default::default();
+
+    lcd.write(LCD_OBJ_1_PALETTE_DATA, data);
+
+    assert_eq!(lcd.obj_palette_1_data.into_u8(), data);
+}
+
+#[test]
 fn write_scroll_x_test() {
     let data = 5;
     let mut lcd: Lcd = Default::default();
@@ -131,16 +206,6 @@ fn write_scroll_y_test() {
 }
 
 #[test]
-fn write_control_test() {
-    let data = 5;
-    let mut lcd: Lcd = Default::default();
-
-    lcd.write(LCD_CONTROL, data);
-
-    assert_eq!(data, lcd.control.get());
-}
-
-#[test]
 fn write_status_test() {
     let data = 0b0111_1000;
     let mut lcd: Lcd = Default::default();
@@ -157,4 +222,24 @@ fn write_status_test() {
     lcd.write(LCD_STATUS, data);
 
     assert_eq!(true, lcd.status.line_coincidence());
+}
+
+#[test]
+fn write_window_x_test() {
+    let data = 5;
+    let mut lcd: Lcd = Default::default();
+
+    lcd.write(LCD_WINDOW_X, data);
+
+    assert_eq!(data, lcd.window_x);
+}
+
+#[test]
+fn write_window_y_test() {
+    let data = 5;
+    let mut lcd: Lcd = Default::default();
+
+    lcd.write(LCD_WINDOW_Y, data);
+
+    assert_eq!(data, lcd.window_y);
 }
