@@ -117,6 +117,20 @@ impl Lcd {
     }
 
     fn render_scanline(&mut self) {
+        if self.control.background_enabled() {
+            self.render_background();
+        }
+
+        if self.control.sprite_enabled() {
+            self.render_sprites();
+        }
+    }
+
+    fn render_background(&mut self) {
+
+    }
+
+    fn render_sprites(&mut self) {
 
     }
 

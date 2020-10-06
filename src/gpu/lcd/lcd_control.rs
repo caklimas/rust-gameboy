@@ -5,8 +5,8 @@ bitfield! {
     pub struct LcdControl(u8);
     impl Debug;
 
-    pub bg_window_display_priority, set_bg_window_display_priority: 0;
-    pub sprite_display, set_sprite_display: 1;
+    pub background_enabled, set_background_enabled: 0;
+    pub sprite_enabled, set_sprite_enabled: 1;
     pub sprite_size, set_sprite_size: 2;
     pub bg_tile_map_display_select, set_bg_tile_map_display_select: 3;
     pub bg_window_tile_data_select, set_bg_window_tile_data_select: 4;
