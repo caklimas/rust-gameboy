@@ -111,7 +111,7 @@ impl Lcd {
             LCD_OBJ_0_PALETTE_DATA => self.obj_palette_0_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_OBJ_1_PALETTE_DATA => self.obj_palette_1_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_WINDOW_Y => self.window_y = data,
-            LCD_WINDOW_X => self.window_x = data,
+            LCD_WINDOW_X => self.window_x = data - WINDOW_X_OFFSET,
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
     }
