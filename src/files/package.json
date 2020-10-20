@@ -3,7 +3,7 @@
   "collaborators": [
     "caklimas <caklimas@gmail.com>"
   ],
-  "version": "0.1.7",
+  "version": "0.1.8",
   "files": [
     "caklimas_rust_gameboy_bg.wasm",
     "caklimas_rust_gameboy_bg.js",
