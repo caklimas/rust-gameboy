@@ -8,7 +8,8 @@
     "caklimas_rust_gameboy_bg.wasm",
     "caklimas_rust_gameboy_bg.js",
     "caklimas_rust_gameboy.js",
-    "caklimas_rust_gameboy.d.ts"
+    "caklimas_rust_gameboy.d.ts",
+    "caklimas_rust_gameboy_bg.d.ts"
   ],
   "module": "caklimas_rust_gameboy.js",
   "types": "caklimas_rust_gameboy.d.ts",

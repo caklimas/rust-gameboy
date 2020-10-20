@@ -18,12 +18,12 @@ jobs:
       run: cargo build --verbose
     - name: Install wasm-pack
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-    - run: wasm-pack build
-    - run: rm pkg/caklimas_rust_gameboy.js
-      continue-on-error: true
-    - run: rm pkg/caklimas_rust_gameboy_bg.d.ts
-      continue-on-error: true
-    - run: mv pkg/caklimas_rust_gameboy_bg.js pkg/caklimas_rust_gameboy.js
+    - name: Run wasm-pack build
+      run: wasm-pack build
+    - name: Remove package.json
+      run: rm pkg/package.json
+    - name: Move local package.json
+      run: mv src/files/package.json pkg
     - name: Publish to npm
       uses: JS-DevTools/npm-publish@v1
       with:
