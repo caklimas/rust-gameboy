@@ -20,5 +20,7 @@ jobs:
       run: cargo test --verbose
     - name: Run clippy
       run: cargo clippy
+    - name: Move package.json
+      run: mv src/files/package.json .
     - name: List files
       run: ls -R
