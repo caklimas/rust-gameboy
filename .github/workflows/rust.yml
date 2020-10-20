@@ -24,7 +24,6 @@ jobs:
     - run: rm pkg/caklimas_rust_gameboy_bg.d.ts
       continue-on-error: true
     - run: mv pkg/caklimas_rust_gameboy_bg.js pkg/caklimas_rust_gameboy.js
-    - run: wasm-pack pack
     - name: Publish to npm
       uses: JS-DevTools/npm-publish@v1
       with:
