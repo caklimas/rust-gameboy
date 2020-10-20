@@ -12,8 +12,7 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Gpu {
-    lcd: Lcd,
-    video_ram: video_ram::VideoRam
+    pub lcd: Lcd
 }
 
 impl Gpu {
@@ -23,16 +22,14 @@ impl Gpu {
 
     pub fn read(&self, address: u16) -> u8 {
         match address {
-            LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.lcd.read(address),
-            VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.read(address),
+            LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X | VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.lcd.read(address),
             _ => panic!("Invalid GPU address 0x{:4X}", address)
         }
     }
 
     pub fn write(&mut self, address: u16, data: u8) {
         match address {
-            LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.lcd.write(address, data),
-            VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
+            LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X | VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.lcd.write(address, data),
             _ => panic!("Invalid GPU address 0x{:4X}", address)
         }
     }

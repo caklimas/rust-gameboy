@@ -1,4 +1,6 @@
 use serde::{Serialize, Deserialize};
+use crate::constants::gpu::*;
+
 pub type Rgb = (u8, u8, u8);
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -22,10 +24,10 @@ impl Palette {
 
     pub fn into_rgb(&self) -> Rgb {
         match self {
-            Palette::White => (255, 255, 255),
-            Palette::LightGray => (192, 192, 192),
-            Palette::DarkGray => (96, 96, 96),
-            Palette::Black => (0, 0, 0)
+            Palette::White => RGB_WHITE,
+            Palette::LightGray => RGB_LIGHT_GRAY,
+            Palette::DarkGray => RGB_DARK_GRAY,
+            Palette::Black => RGB_BLACK
         }
     }
 
