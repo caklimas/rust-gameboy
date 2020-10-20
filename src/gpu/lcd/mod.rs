@@ -2,12 +2,15 @@ use serde::{Serialize, Deserialize};
 use crate::addresses::gpu::lcd::*;
 use crate::constants::gpu::*;
 
+pub mod background;
 pub mod bg_palette_data;
 pub mod lcd_control;
 pub mod lcd_mode;
 pub mod lcd_status;
 pub mod obj_palette_data;
 pub mod palette;
+pub mod screen;
+pub mod tile_data;
 
 use lcd_mode::LcdMode;
 use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
@@ -18,6 +21,7 @@ mod tests;
 #[derive(Serialize, Deserialize, Default)]
 pub struct Lcd {
     pub frame_complete: bool,
+    pub screen: screen::Screen,
     bg_palette_data: bg_palette_data::BgPaletteData,
     control: lcd_control::LcdControl,
     line_number: u8,
@@ -124,10 +128,6 @@ impl Lcd {
         if self.control.sprite_enabled() {
             self.render_sprites();
         }
-    }
-
-    fn render_background(&mut self) {
-
     }
 
     fn render_sprites(&mut self) {
