@@ -16,8 +16,17 @@ pub mod mbc;
 pub mod mmu;
 
 #[wasm_bindgen]
-pub fn run(bytes: Vec<u8>) -> u8 {
-    let mut gameboy = gameboy::Gameboy::new(bytes, false);
-    gameboy.run();
-    42
+pub fn run(bytes: Vec<u8>) {
+
+    if bytes.len() > 0 {
+        let mut gameboy = gameboy::Gameboy::new(bytes);
+        alert("Loaded file");
+    } else {
+        alert("This is a test");
+    }
+}
+
+#[wasm_bindgen]
+extern {
+    pub fn alert(s: &str);
 }
