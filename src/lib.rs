@@ -16,10 +16,13 @@ pub mod mmu;
 
 #[wasm_bindgen]
 pub fn run(bytes: Vec<u8>) {
-    let mut gameboy = gameboy::Gameboy::new(bytes);
-    alert("This is a test");
-    // gameboy.run();
-    
+
+    if bytes.len() > 0 {
+        let mut gameboy = gameboy::Gameboy::new(bytes);
+        alert("Loaded file");
+    } else {
+        alert("This is a test");
+    }
 }
 
 #[wasm_bindgen]
