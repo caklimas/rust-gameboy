@@ -5,27 +5,27 @@ use crate::gpu::lcd::palette::Rgb;
 
 #[derive(Serialize, Deserialize)]
 pub struct Screen {
-    pixels: Vec<Vec<Rgb>>
+    pixels: Vec<u8>
 }
 
 impl Screen {
     pub fn new() -> Self {
-        let mut pixels: Vec<Vec<Rgb>> = Vec::new();
-        for _ in 0..SCREEN_HEIGHT {
-            pixels.push(vec![RGB_WHITE; SCREEN_WIDTH as usize]);
-        }
-
+        let size = COLOR_PER_PIXEL * (SCREEN_HEIGHT * SCREEN_WIDTH) as usize;
         Screen {
-            pixels
+            pixels: vec![255; size]
         }
     }
 
     pub fn set_pixel(&mut self, y: u16, x: u16, color: Rgb) {
-        if y >= SCREEN_WIDTH || x >= SCREEN_HEIGHT {
+        if y >= SCREEN_HEIGHT || x >= SCREEN_WIDTH {
             return;
         }
 
-        self.pixels[y as usize][x as usize] = color;
+        let y_index = (SCREEN_WIDTH * y) as usize;
+        let x_index = y_index + ((x as usize) * COLOR_PER_PIXEL); // For RGB
+        self.pixels[x_index as usize] = color.0;
+        self.pixels[x_index + 1 as usize] = color.1;
+        self.pixels[x_index + 2 as usize] = color.2;
     }
 }
 

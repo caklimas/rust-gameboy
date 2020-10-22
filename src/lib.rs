@@ -19,7 +19,7 @@ pub mod mmu;
 pub fn run(bytes: Vec<u8>) {
 
     if bytes.len() > 0 {
-        let mut gameboy = gameboy::Gameboy::new(bytes);
+        let mut gameboy = gameboy::Gameboy::new(bytes, true);
         alert("Loaded file");
     } else {
         alert("This is a test");
@@ -29,4 +29,5 @@ pub fn run(bytes: Vec<u8>) {
 #[wasm_bindgen]
 extern {
     pub fn alert(s: &str);
+    pub fn draw(pixels: &[u8]);
 }

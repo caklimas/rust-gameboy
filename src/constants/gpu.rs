@@ -13,6 +13,7 @@ pub const HORIZONTAL_BLANK_CYCLES: u16 = 204;
 pub const WINDOW_X_OFFSET: u8 = 7;
 
 // Colors
+pub const COLOR_PER_PIXEL: usize = 3;
 pub const RGB_BLACK: Rgb = (0, 0, 0);
 pub const RGB_DARK_GRAY: Rgb = (96, 96, 96);
 pub const RGB_LIGHT_GRAY: Rgb = (192, 192, 192);

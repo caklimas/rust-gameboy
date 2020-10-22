@@ -57,6 +57,10 @@ impl Cpu {
         0
     }
 
+    pub fn frame_complete(&self) -> bool {
+        self.mmu.ram.gpu.lcd.frame_complete
+    }
+
     pub fn read_byte(&mut self) -> u8 {
         let data = self.mmu.read_byte(self.program_counter);
         self.program_counter += 1;

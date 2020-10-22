@@ -17,9 +17,9 @@ use super::work_ram;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Ram {
+    pub gpu: gpu::Gpu, 
     pub interrupt_enable: Interrupt,
     pub interrupt_flag: Interrupt,
-    gpu: gpu::Gpu, 
     high_ram: high_ram::HighRam,
     serial_data_transfer: SerialDataTransfer,
     timer: Timer,

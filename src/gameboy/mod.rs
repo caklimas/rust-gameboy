@@ -18,12 +18,18 @@ impl Gameboy {
         }
     }
 
-    pub fn run(&mut self) {
+    pub fn run(&mut self, draw: Option<&dyn Fn(&[u8])>) {
+
         let wait_ticks = ((CPU_REFRESH_RATE as f64) / 1000.0 * 16.0).round() as u32;
         let mut ticks = 0;
         loop {
             while ticks < wait_ticks {
                 ticks += self.cpu.clock() as u32;
+                if self.cpu.frame_complete() {
+                    if let Some(f) = draw {
+                        f(&[8]);
+                    }
+                }
             }
     
             ticks -= wait_ticks;
