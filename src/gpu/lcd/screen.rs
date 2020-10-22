@@ -16,6 +16,10 @@ impl Screen {
         }
     }
 
+    pub fn get_pixels(&self) -> &[u8] {
+        &self.pixels
+    }
+
     pub fn set_pixel(&mut self, y: u16, x: u16, color: Rgb) {
         if y >= SCREEN_HEIGHT || x >= SCREEN_WIDTH {
             return;

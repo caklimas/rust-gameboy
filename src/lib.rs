@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+use std::mem;
 
 #[macro_use]
 extern crate bitfield;
@@ -15,19 +16,20 @@ pub mod gpu;
 pub mod mbc;
 pub mod mmu;
 
+#[no_mangle]
 #[wasm_bindgen]
-pub fn run(bytes: Vec<u8>) {
-
-    if bytes.len() > 0 {
-        let mut gameboy = gameboy::Gameboy::new(bytes, true);
-        alert("Loaded file");
-    } else {
-        alert("This is a test");
-    }
+pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
+    let gameboy = gameboy::Gameboy::new(bytes, true);
+    let b = Box::new(gameboy); 
+    Box::into_raw(b)
 }
 
+#[no_mangle]
 #[wasm_bindgen]
-extern {
-    pub fn alert(s: &str);
-    pub fn draw(pixels: &[u8]);
+pub fn get_gameboy(gameboy: *mut gameboy::Gameboy) -> *mut gameboy::Gameboy {
+    unsafe {
+        let mut gb = Box::from_raw(gameboy);
+        gb.number += 1;
+        Box::into_raw(gb)
+    }
 }

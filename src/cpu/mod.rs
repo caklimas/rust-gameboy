@@ -61,6 +61,10 @@ impl Cpu {
         self.mmu.ram.gpu.lcd.frame_complete
     }
 
+    pub fn get_screen(&self) -> &[u8] {
+        self.mmu.ram.gpu.lcd.screen.get_pixels()
+    }
+
     pub fn read_byte(&mut self) -> u8 {
         let data = self.mmu.read_byte(self.program_counter);
         self.program_counter += 1;
