@@ -12,21 +12,21 @@ pub struct Gameboy {
 }
 
 impl Gameboy {
-    pub fn new(bytes: Vec<u8>) -> Self {
+    pub fn new(bytes: Vec<u8>, run_boot_rom: bool) -> Self {
         Gameboy {
-            cpu: cpu::Cpu::new(Cartridge::new(bytes))
+            cpu: cpu::Cpu::new(Cartridge::new(bytes), run_boot_rom)
         }
     }
 
-    pub fn run(&mut self) {
-        let wait_ticks = ((CPU_REFRESH_RATE as f64) / 1000.0 * 16.0).round() as u32;
-        let mut ticks = 0;
-        loop {
-            while ticks < wait_ticks {
-                ticks += self.cpu.clock() as u32;
-            }
-    
-            ticks -= wait_ticks;
-        }
+    pub fn clock(&mut self) -> u16 {
+        self.cpu.clock()
+    }
+
+    pub fn frame_complete(&mut self) -> bool {
+        self.cpu.frame_complete()
+    }
+
+    pub fn get_screen(&mut self) -> &[u8] {
+        self.cpu.get_screen()
     }
 }

@@ -36,10 +36,10 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    pub fn new(cartridge: Cartridge) -> Self {
+    pub fn new(cartridge: Cartridge, run_boot_rom: bool) -> Self {
         let mut cpu: Cpu = Default::default();
-        cpu.mmu = Mmu::new(cartridge);
-        cpu.program_start();
+        cpu.mmu = Mmu::new(cartridge, run_boot_rom);
+        cpu.program_start(run_boot_rom);
         cpu
     }
 
@@ -55,6 +55,14 @@ impl Cpu {
         }
 
         0
+    }
+
+    pub fn frame_complete(&self) -> bool {
+        self.mmu.ram.gpu.lcd.frame_complete
+    }
+
+    pub fn get_screen(&self) -> &[u8] {
+        self.mmu.ram.gpu.lcd.screen.get_pixels()
     }
 
     pub fn read_byte(&mut self) -> u8 {
@@ -74,11 +82,12 @@ impl Cpu {
             return Some(self.nop());
         }
 
-        self.opcode = self.read_byte() as usize;
         if self.program_counter == PROGRAM_START {
             self.mmu.finish_running_boot_rom();
         }
 
+        self.opcode = self.read_byte() as usize;
+        
         let mut clock_cycle = self.execute_opcode();
         if self.cb_opcode {
             self.cb_opcode = false;
@@ -453,7 +462,11 @@ impl Cpu {
         }
     }
 
-    fn program_start(&mut self) {
+    fn program_start(&mut self, run_boot_rom: bool) {
+        if run_boot_rom {
+            return;
+        }
+
         self.program_counter = PROGRAM_START;
         self.stack_pointer = 0xFFFE;
         self.registers.set_target_16(&CpuRegister16::AF, 0x01B0);
