@@ -29,7 +29,7 @@ pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
     unsafe {
-        let screen: Vec<u8>;
+        let mut screen: Vec<u8>;
         let mut gb = Box::from_raw(gameboy);
         'running: loop {
             gb.clock();
