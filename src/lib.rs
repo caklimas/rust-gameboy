@@ -26,10 +26,19 @@ pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
 
 #[no_mangle]
 #[wasm_bindgen]
-pub fn get_gameboy(gameboy: *mut gameboy::Gameboy) -> *mut gameboy::Gameboy {
+pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
     unsafe {
+        let screen: Vec<u8>;
         let mut gb = Box::from_raw(gameboy);
-        gb.number += 1;
-        Box::into_raw(gb)
+        'running: loop {
+            gb.clock();
+            if gb.frame_complete() {
+                screen = gb.get_screen().to_owned();
+                break 'running;
+            }
+        }
+
+        mem::forget(gb);
+        screen
     }
 }
