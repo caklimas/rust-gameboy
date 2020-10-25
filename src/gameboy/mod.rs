@@ -26,6 +26,10 @@ impl Gameboy {
         self.cpu.frame_complete()
     }
 
+    pub fn get_cycles(&mut self) -> u32 {
+        self.cpu.master_clock_cycles
+    }
+
     pub fn get_screen(&mut self) -> &[u8] {
         self.cpu.get_screen()
     }

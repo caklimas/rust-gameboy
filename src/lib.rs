@@ -34,6 +34,7 @@ pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
         'running: loop {
             gb.clock();
             if gb.frame_complete() {
+                log(&gb.get_cycles().to_string());
                 screen = gb.get_screen().to_owned();
                 break 'running;
             }
@@ -42,4 +43,10 @@ pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
         mem::forget(gb);
         screen
     }
+}
+
+#[wasm_bindgen]
+extern {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }
