@@ -1,10 +1,11 @@
-use serde::{Serialize, Deserialize};
-use crate::cartridge::Cartridge;
-use crate::constants::cpu::*;
-use crate::cpu;
+pub mod render;
 
 #[cfg(test)]
 mod tests;
+
+use serde::{Serialize, Deserialize};
+use crate::cartridge::Cartridge;
+use crate::cpu;
 
 #[derive(Serialize, Deserialize)]
 pub struct Gameboy {
