@@ -74,6 +74,7 @@ impl Lcd {
                 }
             },
             LcdMode::VerticalBlank => {
+                self.frame_complete = false;
                 if self.mode_clock >= MODE_CYCLES {
                     self.mode_clock = 0;
                     self.line_number += 1;

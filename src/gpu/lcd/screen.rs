@@ -25,6 +25,10 @@ impl Screen {
             return;
         }
 
+        // if color != RGB_WHITE {
+        //     let asd = 3;
+        // }
+
         let y_index = (SCREEN_WIDTH * y) as usize;
         let x_index = y_index + ((x as usize) * COLOR_PER_PIXEL); // For RGB
         self.pixels[x_index as usize] = color.0;
