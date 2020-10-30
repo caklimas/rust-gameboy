@@ -1,7 +1,6 @@
-use ggez::{Context, GameResult, nalgebra as na};
+use ggez::{Context, GameResult};
 use ggez::event;
-use ggez::graphics::{self, Color, DrawMode, DrawParam, FillOptions, Image, MeshBuilder};
-use ggez::timer;
+use ggez::graphics::{self, Color, DrawMode, DrawParam, FillOptions, MeshBuilder};
 
 use super::Gameboy;
 use crate::constants::gpu::*;
@@ -11,17 +10,19 @@ impl Gameboy {
     fn draw_screen(&mut self, ctx: &mut Context) {
         let mut builder = MeshBuilder::new();
         let screen = self.get_screen();
-        let mut coordinates = 0u16;
+        let mut coordinates = 0usize;
         for i in (0..screen.len()).step_by(COLOR_PER_PIXEL) {
             let r = screen[i];
             let g = screen[i + 1];
             let b = screen[i + 2];
             let color = Color::from_rgb(r, g, b);
+            let y_offset = (coordinates / (SCREEN_WIDTH as usize)) * PIXEL_SIZE;
+            let x_offset = (coordinates % (SCREEN_WIDTH as usize)) * PIXEL_SIZE;
             let rectangle = graphics::Rect::new(
-                (coordinates % SCREEN_WIDTH) as f32,
-                (coordinates / SCREEN_WIDTH) as f32,
-                1.0,
-                1.0
+                x_offset as f32,
+                y_offset as f32,
+                PIXEL_SIZE as f32,
+                PIXEL_SIZE as f32
             );
             builder.rectangle(DrawMode::Fill(FillOptions::DEFAULT), rectangle, color);
             coordinates += 1;
