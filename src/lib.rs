@@ -29,12 +29,11 @@ pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
     unsafe {
-        let mut screen: Vec<u8>;
+        let screen: Vec<u8>;
         let mut gb = Box::from_raw(gameboy);
         'running: loop {
             gb.clock();
             if gb.frame_complete() {
-                log(&gb.get_cycles().to_string());
                 screen = gb.get_screen().to_owned();
                 break 'running;
             }
@@ -43,10 +42,4 @@ pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
         mem::forget(gb);
         screen
     }
-}
-
-#[wasm_bindgen]
-extern {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
 }

@@ -1,3 +1,4 @@
+use crate::constants::gpu::*;
 use crate::constants::screen::*;
 use super::Lcd;
 use super::tile_data::TileData;
@@ -26,6 +27,7 @@ impl Lcd {
             let tile_location = self.get_tile_location(tile_address, &tile_data);
             let color_number = self.get_color_number(tile_location, x_position, y_position);
             let color = self.bg_palette_data.get_color(color_number);
+
             self.screen.set_pixel(self.line_number as u16, x, color)
         }
     }
@@ -34,7 +36,7 @@ impl Lcd {
         let line = ((y_position % 8) * 2) as u16; // vertical lines take up 2 bytes of memory
         let pixel_low = self.read(tile_location + line);
         let pixel_high = self.read(tile_location + line + 1);
-        let color_bit = (((x_position as i16) % 8) - 7) * -1;
+        let color_bit = (((x_position as i16) % 8) - (WINDOW_X_OFFSET as i16)) * -1;
         let color_low = (pixel_low >> color_bit) & 0b1;
         let color_high = (pixel_high >> color_bit) & 0b1;
         (color_high << 1) | color_low
