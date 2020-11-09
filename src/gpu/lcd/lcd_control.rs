@@ -32,6 +32,14 @@ impl LcdControl {
         }
     }
 
+    pub fn get_tile_map(&self) -> u16 {
+        if self.bg_tile_map_display_select() {
+            0x9C00
+        } else {
+            0x9800
+        }
+    }
+
     pub fn get_tile_data(&self) -> TileData {
         if self.bg_window_tile_data_select() {
             TileData::new(0x8000, true)

@@ -27,6 +27,25 @@ impl Lcd {
         }
     }
 
+    pub fn background(&mut self) {
+        let tile_map = self.control.get_tile_map();
+        let tile_data = self.control.get_tile_data();
+        for j in 0..256 {
+            let offset_y = self.line_number + self.scroll_y;
+            let offset_x = j + (self.scroll_x as u16);
+            let tile_number = self.get_tile_number(tile_map, offset_y as u16, offset_x as u16);
+
+            if tile_data.data == 0x8800 {
+                let address = tile_data.data + 0x800 + ((tile_number as i8) * 0x10) + (off
+                /*
+colorval = 
+(readFromMem(tiledata + 0x800 + ((int8_t)tilenr * 0x10) + (offY % 8 * 2)) >> (7 - (offX % 8)) & 0x1) + 
+((readFromMem(tiledata + 0x800 + ((int8_t)tilenr * 0x10) + (offY % 8 * 2) + 1) >> (7 - (offX % 8)) & 0x1) * 2);
+                */
+            }
+        }
+    }
+
     fn get_x_position(&mut self, pixel: u16, using_window: bool) -> u16 {
         let mut x_position = pixel + (self.scroll_x as u16);
         let window_x = self.window_x as u16;
@@ -48,6 +67,11 @@ impl Lcd {
         let color_low = (pixel_low >> color_bit) & 0b1;
         let color_high = (pixel_high >> color_bit) & 0b1;
         (color_high << 1) | color_low
+    }
+
+    fn get_tile_number(&self, tile_map: u16, offset_y: u16, offset_x: u16) -> u8 {
+        let address = tile_map + ((offset_y / PIXELS_PER_TILE * TILE_WIDTH) + (offset_x / PIXELS_PER_TILE));
+        self.read(address)
     }
 
     fn get_tile_location(&self, address: u16, tile_data: &TileData) -> u16 {
