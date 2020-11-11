@@ -11,7 +11,7 @@ pub mod lcd_status;
 pub mod obj_palette_data;
 pub mod palette;
 pub mod screen;
-pub mod tile_data;
+pub mod tile;
 
 use lcd_mode::LcdMode;
 use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
