@@ -1,22 +1,17 @@
 use crate::constants::gpu::*;
 use crate::constants::screen::*;
 use super::Lcd;
-use super::tile;
+use super::tile::*;
 
 impl Lcd {
     pub fn render_background(&mut self) {
         let using_window = self.control.window_display() && self.window_y <= self.line_number;
-        let tile_data = self.control.get_tile_data();
-        let display_address = self.control.get_display_address(using_window);
-        let y_position = self.get_y_position(using_window);
         for x in 0..SCREEN_WIDTH {
-            let tile_data = self.get_tile_data(y_position, x, using_window);
-            let tile_address = display_address + (tile_row as u16) + (tile_column as u16);
-            let tile_location = self.get_tile_location(tile_address, &tile_data);
-            let color_number = self.get_color_number(tile_location, x_position, y_position);
-            let color = self.bg_palette_data.get_color(color_number);
+            let tile_data = self.get_tile_data(x, using_window);
+            // let color_number = self.get_color_number(tile_location, x_position, y_position);
+            // let color = self.bg_palette_data.get_color(color_number);
 
-            self.screen.set_pixel(self.line_number as u16, x, color)
+            // self.screen.set_pixel(self.line_number as u16, x, color)
         }
     }
 
@@ -45,10 +40,10 @@ impl Lcd {
     }
 
     fn get_tile_location(&self, address: u16, tile_data: &TileData) -> u16 {
-        if tile_data.use_unsigned {
-            self.get_tile_location_u8(address, tile_data.data)
+        if tile_data.tile_base.use_unsigned {
+            self.get_tile_location_u8(address, tile_data.tile_base.address)
         } else {
-            self.get_tile_location_i8(address, tile_data.data)
+            self.get_tile_location_i8(address, tile_data.tile_base.address)
         }
     }
 

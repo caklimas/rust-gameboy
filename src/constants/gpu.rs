@@ -1,5 +1,5 @@
-use crate::gpu::lcd::palette::Rgb;
 
+use crate::gpu::lcd::palette::Rgb;
 pub const MAX_SCANLINE: u8 = 154;
 pub const VERTICAL_BLANK_SCANLINE_LOWER: u8 = 144;
 
