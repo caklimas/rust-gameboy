@@ -1,5 +1,4 @@
 use crate::addresses::gpu::lcd::*;
-use crate::constants::gpu::*;
 use super::bg_palette_data::BgPaletteData;
 use super::Lcd;
 use super::obj_palette_data::ObjPaletteData;
@@ -232,7 +231,7 @@ fn write_window_x_test() {
 
     lcd.write(LCD_WINDOW_X, data);
 
-    assert_eq!(data - WINDOW_X_OFFSET, lcd.window_x);
+    assert_eq!(data, lcd.window_x);
 }
 
 #[test]

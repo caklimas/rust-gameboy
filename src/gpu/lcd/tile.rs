@@ -1,3 +1,4 @@
+use crate::constants::gpu::*;
 use crate::constants::screen::*;
 use super::Lcd;
 
@@ -64,7 +65,7 @@ impl Lcd {
     }
 
     fn get_window_x(&self, x: u16) -> i32 {
-        - ((self.window_x as i32) - 7) + (x as i32)
+        - ((self.window_x as i32) - (WINDOW_X_OFFSET as i32)) + (x as i32)
     }
 
     fn get_window_y(&self) -> i32 {
