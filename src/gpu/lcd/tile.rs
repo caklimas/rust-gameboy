@@ -113,6 +113,20 @@ impl TileData {
             tile_y
         }
     }
+
+    pub fn get_tile_number_address(&self) -> u16 {
+        self.tile_map_base + (self.tile_y * TILE_WIDTH) + self.tile_x
+    }
+
+    pub fn get_tile_address(&self, tile_number: u8) -> u16 {
+        let tile_address = if self.tile_base.use_unsigned {
+            tile_number as u16
+        } else {
+            (tile_number as i8 as i16 + 128) as u16
+        };
+
+        (tile_address * 16) + (self.pixel_y * 2)
+    }
 }
 
 pub struct TileBase {
