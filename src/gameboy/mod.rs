@@ -1,10 +1,11 @@
-use serde::{Serialize, Deserialize};
-use crate::cartridge::Cartridge;
-use crate::constants::cpu::*;
-use crate::cpu;
+pub mod render;
 
 #[cfg(test)]
 mod tests;
+
+use serde::{Serialize, Deserialize};
+use crate::cartridge::Cartridge;
+use crate::cpu;
 
 #[derive(Serialize, Deserialize)]
 pub struct Gameboy {
@@ -24,6 +25,10 @@ impl Gameboy {
 
     pub fn frame_complete(&mut self) -> bool {
         self.cpu.frame_complete()
+    }
+
+    pub fn get_cycles(&mut self) -> u32 {
+        self.cpu.master_clock_cycles
     }
 
     pub fn get_screen(&mut self) -> &[u8] {

@@ -11,7 +11,7 @@ pub mod lcd_status;
 pub mod obj_palette_data;
 pub mod palette;
 pub mod screen;
-pub mod tile_data;
+pub mod tile;
 
 use lcd_mode::LcdMode;
 use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
@@ -58,13 +58,12 @@ impl Lcd {
                 if self.mode_clock >= DRAWING_CYCLES {
                     self.set_mode(LcdMode::HorizontalBlank);
                     self.render_scanline();
+                    self.line_number += 1;
                 }
             },
             LcdMode::HorizontalBlank => {
                 if self.mode_clock >= HORIZONTAL_BLANK_CYCLES {
-                    self.line_number += 1;
-
-                    if self.line_number == VERTICAL_BLANK_SCANLINE_LOWER - 1 {
+                    if self.line_number == VERTICAL_BLANK_SCANLINE_LOWER {
                         self.set_mode(LcdMode::VerticalBlank);
                         self.frame_complete = true;
                     } else {
@@ -74,6 +73,7 @@ impl Lcd {
                 }
             },
             LcdMode::VerticalBlank => {
+                self.frame_complete = false;
                 if self.mode_clock >= MODE_CYCLES {
                     self.mode_clock = 0;
                     self.line_number += 1;
@@ -119,7 +119,7 @@ impl Lcd {
             LCD_OBJ_0_PALETTE_DATA => self.obj_palette_0_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_OBJ_1_PALETTE_DATA => self.obj_palette_1_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_WINDOW_Y => self.window_y = data,
-            LCD_WINDOW_X => self.window_x = data - WINDOW_X_OFFSET,
+            LCD_WINDOW_X => self.window_x = data,
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
@@ -140,6 +140,10 @@ impl Lcd {
     }
 
     fn set_mode(&mut self, mode: LcdMode) {
+        if self.mode == mode {
+            return;
+        }
+
         self.mode_clock = 0;
         self.mode = mode;
     }

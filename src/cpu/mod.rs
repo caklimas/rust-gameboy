@@ -20,6 +20,7 @@ use opcodes::{
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cpu {
+    pub master_clock_cycles: u32,
     cb_opcode: bool,
     halted: bool,
     index_registers: index_registers::IndexRegisters,
@@ -31,8 +32,7 @@ pub struct Cpu {
     program_counter: u16,
     registers: registers::Registers,
     stack_pointer: u16,
-    stopped: bool,
-    counter: u8
+    stopped: bool
 }
 
 impl Cpu {
@@ -44,17 +44,17 @@ impl Cpu {
     }
 
     pub fn clock(&mut self) -> u16 {
+        let mut cycles = 0;
         if let Some(c) = self.handle_interrupts() {
             self.mmu.clock(c);
-            return c;
-        }
-
-        if let Some(c) = self.execute() {
+            cycles = c;
+        } else if let Some(c) = self.execute() {
             self.mmu.clock(c);
-            return c;
+            cycles = c;
         }
 
-        0
+        self.master_clock_cycles += cycles as u32;
+        cycles
     }
 
     pub fn frame_complete(&self) -> bool {

@@ -10,6 +10,6 @@ pub enum LcdMode {
 
 impl Default for LcdMode {
     fn default() -> Self {
-        LcdMode::HorizontalBlank
+        LcdMode::SearchingOam
     }
 }

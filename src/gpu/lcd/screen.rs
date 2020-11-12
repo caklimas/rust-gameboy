@@ -25,7 +25,7 @@ impl Screen {
             return;
         }
 
-        let y_index = (SCREEN_WIDTH * y) as usize;
+        let y_index = ((SCREEN_WIDTH * y ) as usize) * COLOR_PER_PIXEL;
         let x_index = y_index + ((x as usize) * COLOR_PER_PIXEL); // For RGB
         self.pixels[x_index as usize] = color.0;
         self.pixels[x_index + 1 as usize] = color.1;
