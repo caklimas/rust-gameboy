@@ -10,6 +10,7 @@ extern crate serde_big_array;
 pub mod addresses;
 pub mod cartridge;
 pub mod constants;
+pub mod controls;
 pub mod cpu;
 pub mod gameboy;
 pub mod gpu;
