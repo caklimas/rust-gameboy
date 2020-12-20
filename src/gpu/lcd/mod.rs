@@ -42,7 +42,7 @@ pub struct Lcd {
 
 impl Lcd {
     pub fn clock(&mut self, cycles: u16) -> LcdInterruptResult {
-        let result = LcdInterruptResult::new();
+        let mut result = LcdInterruptResult::new();
         if !self.control.lcd_display_enable() {
             return result;
         }
@@ -65,6 +65,7 @@ impl Lcd {
                 if self.mode_clock >= HORIZONTAL_BLANK_CYCLES {
                     if self.line_number == VERTICAL_BLANK_SCANLINE_LOWER {
                         self.set_mode(LcdMode::VerticalBlank);
+                        result.vertical_blank = true;
                         self.frame_complete = true;
                     } else {
                         self.set_mode(LcdMode::SearchingOam);
