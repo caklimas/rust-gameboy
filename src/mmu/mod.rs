@@ -58,6 +58,7 @@ impl Mmu {
             }
         }
 
+        self.ram.interrupt_flag.set_joypad(self.controls.interrupt);
         self.ram.clock(cycles)
     }
 
