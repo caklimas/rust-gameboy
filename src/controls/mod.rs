@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use crate::input::*;
 
 #[cfg(test)]
 mod tests;
@@ -29,9 +30,33 @@ impl Controls {
         value
     }
 
+    pub fn update_input(&mut self, input: &Input) {
+        self.button_keys = input.get_button_keys();
+        self.direction_keys = input.get_direction_keys();
+        self.update_controls();
+    }
+
     pub fn write_byte(&mut self, data: u8) {
         self.select_button_keys = (data & SELECT_BUTTON_BIT) == 0;
         self.select_direction_keys = (data & SELECT_DIRECTION_BIT) == 0;
+        self.update_controls();
+    }
+
+    fn update_controls(&mut self) {
+        let old_values = self.read_byte() & 0xF;
+        let mut new_values = 0xF;
+
+        if self.select_button_keys {
+            new_values &= self.button_keys;
+        }
+
+        if self.select_direction_keys {
+            new_values &= self.direction_keys;
+        }
+
+        if old_values == 0xF && new_values != 0xF {
+            self.interrupt = true;
+        }
     }
 }
 

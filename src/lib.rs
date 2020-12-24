@@ -34,7 +34,7 @@ pub fn clock_frame(gameboy: *mut gameboy::Gameboy, input: input::Input) -> Vec<u
         let screen: Vec<u8>;
         let mut gb = Box::from_raw(gameboy);
         'running: loop {
-            gb.clock();
+            gb.clock(&input);
             if gb.frame_complete() {
                 screen = gb.get_screen().to_owned();
                 break 'running;
