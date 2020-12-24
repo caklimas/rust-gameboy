@@ -14,7 +14,13 @@ pub struct Input {
     pub select: bool
 }
 
+#[wasm_bindgen]
 impl Input {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Default::default()
+    }
+
     pub fn get_button_keys(&self) -> u8 {
         let mut button_keys = 0;
         if !self.a {
