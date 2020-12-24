@@ -14,6 +14,7 @@ pub mod controls;
 pub mod cpu;
 pub mod gameboy;
 pub mod gpu;
+pub mod input;
 pub mod mbc;
 pub mod mmu;
 
@@ -28,12 +29,12 @@ pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
 #[no_mangle]
 #[wasm_bindgen]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
-pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
+pub fn clock_frame(gameboy: *mut gameboy::Gameboy, input: input::Input) -> Vec<u8> {
     unsafe {
         let screen: Vec<u8>;
         let mut gb = Box::from_raw(gameboy);
         'running: loop {
-            gb.clock();
+            gb.clock(&input);
             if gb.frame_complete() {
                 screen = gb.get_screen().to_owned();
                 break 'running;

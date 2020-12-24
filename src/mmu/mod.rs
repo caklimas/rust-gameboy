@@ -17,6 +17,7 @@ use crate::addresses::controls::*;
 use crate::cartridge::Cartridge;
 use crate::constants::boot_rom::*;
 use crate::controls::*;
+use crate::input::*;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Mmu {
@@ -25,6 +26,7 @@ pub struct Mmu {
     boot_rom_finished: bool,
     cartridge: Option<Cartridge>,
     controls: Controls,
+    previous_input: Option<Input>,
     run_boot_rom: bool
 }
 
@@ -36,6 +38,7 @@ impl Mmu {
             boot_rom_finished: !run_boot_rom,
             cartridge: Some(cartridge),
             controls: Default::default(),
+            previous_input: None,
             run_boot_rom
         };
 
@@ -46,7 +49,16 @@ impl Mmu {
         mmu
     }
 
-    pub fn clock(&mut self, cycles: u16) {
+    pub fn clock(&mut self, cycles: u16, input: &Input) {
+        if let Some(i) = self.previous_input {
+            let copy = (*input).clone();
+            if copy != i {
+                self.controls.update_input(input);
+                self.previous_input = Some(copy);
+            }
+        }
+
+        self.ram.interrupt_flag.set_joypad(self.controls.interrupt);
         self.ram.clock(cycles)
     }
 

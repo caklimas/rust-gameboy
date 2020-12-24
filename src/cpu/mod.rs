@@ -9,6 +9,7 @@ mod tests;
 use serde::{Serialize, Deserialize};
 use crate::cartridge::Cartridge;
 use crate::constants::cpu::PROGRAM_START;
+use crate::input::*;
 use crate::mmu::Mmu;
 use crate::mmu::interrupts::Interrupt;
 use opcodes::{
@@ -43,13 +44,13 @@ impl Cpu {
         cpu
     }
 
-    pub fn clock(&mut self) -> u16 {
+    pub fn clock(&mut self, input: &Input) -> u16 {
         let mut cycles = 0;
         if let Some(c) = self.handle_interrupts() {
-            self.mmu.clock(c);
+            self.mmu.clock(c, input);
             cycles = c;
         } else if let Some(c) = self.execute() {
-            self.mmu.clock(c);
+            self.mmu.clock(c, input);
             cycles = c;
         }
 
