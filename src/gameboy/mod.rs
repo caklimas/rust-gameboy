@@ -6,7 +6,6 @@ mod tests;
 use serde::{Serialize, Deserialize};
 use crate::cartridge::Cartridge;
 use crate::cpu;
-use crate::input::*;
 
 #[derive(Serialize, Deserialize)]
 pub struct Gameboy {
@@ -20,8 +19,8 @@ impl Gameboy {
         }
     }
 
-    pub fn clock(&mut self, input: &Input) -> u16 {
-        self.cpu.clock(input)
+    pub fn clock(&mut self) -> u16 {
+        self.cpu.clock()
     }
 
     pub fn frame_complete(&mut self) -> bool {

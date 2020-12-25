@@ -1,3 +1,4 @@
+use gameboy::Gameboy;
 use wasm_bindgen::prelude::*;
 use std::mem;
 
@@ -29,12 +30,12 @@ pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
 #[no_mangle]
 #[wasm_bindgen]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
-pub fn clock_frame(gameboy: *mut gameboy::Gameboy, input: input::Input) -> Vec<u8> {
+pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
     unsafe {
         let screen: Vec<u8>;
         let mut gb = Box::from_raw(gameboy);
         'running: loop {
-            gb.clock(&input);
+            gb.clock();
             if gb.frame_complete() {
                 screen = gb.get_screen().to_owned();
                 break 'running;
@@ -43,5 +44,16 @@ pub fn clock_frame(gameboy: *mut gameboy::Gameboy, input: input::Input) -> Vec<u
 
         mem::forget(gb);
         screen
+    }
+}
+
+#[no_mangle]
+#[wasm_bindgen]
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub fn update_controls(gameboy: *mut gameboy::Gameboy, input: input::Input) {
+    unsafe {
+        // self.ram.interrupt_flag.set_joypad(self.controls.interrupt);
+        let mut gb = Box::from_raw(gameboy);
+        mem::forget(gb);
     }
 }
