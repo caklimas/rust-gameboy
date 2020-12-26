@@ -52,8 +52,8 @@ pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn update_controls(gameboy: *mut gameboy::Gameboy, input: input::Input) {
     unsafe {
-        // self.ram.interrupt_flag.set_joypad(self.controls.interrupt);
         let mut gb = Box::from_raw(gameboy);
+        gb.update_controls(input);
         mem::forget(gb);
     }
 }

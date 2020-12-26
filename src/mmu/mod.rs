@@ -17,7 +17,7 @@ use crate::addresses::controls::*;
 use crate::cartridge::Cartridge;
 use crate::constants::boot_rom::*;
 use crate::controls::*;
-use crate::input::*;
+use crate::input::Input;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Mmu {
@@ -32,11 +32,11 @@ pub struct Mmu {
 impl Mmu {
     pub fn new(cartridge: Cartridge, run_boot_rom: bool) -> Self {
         let mut mmu = Mmu {
+            controls: Default::default(),
             ram: Default::default(),
             boot_rom: Default::default(),
             boot_rom_finished: !run_boot_rom,
             cartridge: Some(cartridge),
-            controls: Default::default(),
             run_boot_rom
         };
 
@@ -74,6 +74,11 @@ impl Mmu {
             (CONTROLS, _) => self.controls.read_byte(),
             _ => self.ram.read(address)
         }
+    }
+
+    pub fn update_controls(&mut self, input: Input) {
+        self.controls.update_input(&input);
+        self.ram.interrupt_flag.set_joypad(self.controls.interrupt);
     }
 
     pub fn write_word(&mut self, address: u16, data: u16) {
