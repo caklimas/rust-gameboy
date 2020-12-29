@@ -21,13 +21,13 @@ use opcodes::{
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cpu {
     pub master_clock_cycles: u32,
+    pub mmu: Mmu,
     cb_opcode: bool,
     halted: bool,
     index_registers: index_registers::IndexRegisters,
     interrupt_master_enable: bool,
     interrupt_page_address: u8,
     memory_refresh: u8,
-    mmu: Mmu,
     opcode: usize,
     program_counter: u16,
     registers: registers::Registers,

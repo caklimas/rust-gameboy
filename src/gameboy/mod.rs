@@ -6,6 +6,7 @@ mod tests;
 use serde::{Serialize, Deserialize};
 use crate::cartridge::Cartridge;
 use crate::cpu;
+use crate::input::Input;
 
 #[derive(Serialize, Deserialize)]
 pub struct Gameboy {
@@ -33,5 +34,9 @@ impl Gameboy {
 
     pub fn get_screen(&mut self) -> &[u8] {
         self.cpu.get_screen()
+    }
+
+    pub fn update_controls(&mut self, input: Input) {
+        self.cpu.mmu.update_controls(input);
     }
 }

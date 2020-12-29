@@ -13,8 +13,11 @@ mod tests;
 use serde::{Serialize, Deserialize};
 use crate::addresses::boot_rom::*;
 use crate::addresses::cartridge::*;
+use crate::addresses::controls::*;
 use crate::cartridge::Cartridge;
 use crate::constants::boot_rom::*;
+use crate::controls::*;
+use crate::input::Input;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Mmu {
@@ -22,12 +25,14 @@ pub struct Mmu {
     boot_rom: boot_rom::BootRom,
     boot_rom_finished: bool,
     cartridge: Option<Cartridge>,
+    controls: Controls,
     run_boot_rom: bool
 }
 
 impl Mmu {
     pub fn new(cartridge: Cartridge, run_boot_rom: bool) -> Self {
         let mut mmu = Mmu {
+            controls: Default::default(),
             ram: Default::default(),
             boot_rom: Default::default(),
             boot_rom_finished: !run_boot_rom,
@@ -66,8 +71,14 @@ impl Mmu {
             (BOOT_ROM_LOWER..=BOOT_ROM_UPPER, true) => self.boot_rom.read(address),
             (CART_ROM_LOWER..=CART_ROM_UPPER, _) => self.read_mbc_rom(address),
             (CART_EXTERNAL_RAM_LOWER..=CART_EXTERNAL_RAM_UPPER, _) => self.read_mbc_ram(address),
+            (CONTROLS, _) => self.controls.read_byte(),
             _ => self.ram.read(address)
         }
+    }
+
+    pub fn update_controls(&mut self, input: Input) {
+        self.controls.update_input(&input);
+        self.ram.interrupt_flag.set_joypad(self.controls.interrupt);
     }
 
     pub fn write_word(&mut self, address: u16, data: u16) {
@@ -84,6 +95,7 @@ impl Mmu {
             (CART_ROM_LOWER..=CART_ROM_UPPER, _) => self.write_mbc_rom(address, data),
             (CART_EXTERNAL_RAM_LOWER..=CART_EXTERNAL_RAM_UPPER, _) => self.write_mbc_ram(address, data),
             (BOOT_ROM_FINISHED, _) => self.boot_rom_finished = data == BOOT_ROM_FINISHED_VALUE,
+            (CONTROLS, _) => self.controls.write_byte(data),
             _ => self.ram.write(address, data)
         }
     }

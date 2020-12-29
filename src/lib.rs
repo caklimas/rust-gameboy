@@ -1,3 +1,4 @@
+use gameboy::Gameboy;
 use wasm_bindgen::prelude::*;
 use std::mem;
 
@@ -10,9 +11,11 @@ extern crate serde_big_array;
 pub mod addresses;
 pub mod cartridge;
 pub mod constants;
+pub mod controls;
 pub mod cpu;
 pub mod gameboy;
 pub mod gpu;
+pub mod input;
 pub mod mbc;
 pub mod mmu;
 
@@ -41,5 +44,16 @@ pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
 
         mem::forget(gb);
         screen
+    }
+}
+
+#[no_mangle]
+#[wasm_bindgen]
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub fn update_controls(gameboy: *mut gameboy::Gameboy, input: input::Input) {
+    unsafe {
+        let mut gb = Box::from_raw(gameboy);
+        gb.update_controls(input);
+        mem::forget(gb);
     }
 }
