@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use super::palette::Palette;
+use super::palette::{Palette, Rgb};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ObjPaletteData {
@@ -15,6 +15,17 @@ impl ObjPaletteData {
             color_2: Palette::from_u8((value >> 4) & 0b11),
             color_3: Palette::from_u8((value >> 6) & 0b11)
         }
+    }
+
+    pub fn get_color(&self, color_number: u8) -> Rgb {
+        let palette = match color_number {
+            1 => &self.color_1,
+            2 => &self.color_2,
+            3 => &self.color_3,
+            _ => panic!("Invalid color number {}", color_number)
+        };
+
+        palette.into_rgb()
     }
 
     pub fn into_u8(&self) -> u8 {

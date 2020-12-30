@@ -1,4 +1,5 @@
 use crate::constants::gpu::*;
+use crate::constants::lcd::*;
 use crate::constants::screen::*;
 use super::Lcd;
 
@@ -123,10 +124,10 @@ impl TileData {
         let tile_address = if self.tile_base.use_unsigned {
             tile_number as u16
         } else {
-            (tile_number as i8 as i16 + 128) as u16
+            (tile_number as i8 as i16 + (TILE_MEMORY_OFFSET as i16)) as u16
         };
 
-        (tile_address * 16) + (self.pixel_y * 2)
+        (tile_address * TILE_SIZE) + (self.pixel_y * 2)
     }
 }
 

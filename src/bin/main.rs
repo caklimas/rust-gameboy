@@ -1,6 +1,5 @@
 extern crate caklimas_rust_gameboy as rust_gameboy;
 
-use ggez::ContextBuilder;
 use ggez::conf::{WindowMode, WindowSetup};
 use ggez::event;
 use std::fs;

@@ -25,10 +25,6 @@ impl Gameboy {
                 PIXEL_SIZE as f32
             );
 
-            if color != Color::from_rgb(RGB_WHITE.0, RGB_WHITE.1, RGB_WHITE.2) {
-                let aasd = 213;
-            }
-
             builder.rectangle(DrawMode::Fill(FillOptions::DEFAULT), rectangle, color);
             coordinates += 1;
         }
