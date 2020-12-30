@@ -2,7 +2,11 @@ use crate::{addresses::gpu::sprite::*, constants::gpu::RGB_WHITE};
 use crate::constants::lcd::*;
 use crate::constants::sprites::*;
 use super::Lcd;
-use super::sprite_attributes::SpriteAttributes;
+use sprite_attributes::SpriteAttributes;
+use sprite_info::SpriteInfo;
+
+pub mod sprite_attributes;
+pub mod sprite_info;
 
 impl Lcd {
     pub fn render_sprites(&mut self) {
@@ -91,11 +95,4 @@ impl Lcd {
         let color_high = (pixel_high >> color_bit) & 0b1;
         (color_high << 1) | color_low
     }
-}
-
-struct SpriteInfo {
-    pub attributes: u8,
-    pub tile_location: u16,
-    pub x_position: u8,
-    pub y_position: u8
 }

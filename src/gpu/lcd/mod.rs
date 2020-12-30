@@ -12,7 +12,6 @@ pub mod obj_palette_data;
 pub mod palette;
 pub mod screen;
 pub mod sprites;
-pub mod sprite_attributes;
 
 use lcd_mode::LcdMode;
 use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
