@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
 use crate::addresses::gpu::lcd::*;
+use crate::addresses::gpu::sprite::*;
 use crate::addresses::gpu::video_ram::*;
 use crate::constants::gpu::*;
 
@@ -15,7 +16,7 @@ pub mod sprites;
 
 use lcd_mode::LcdMode;
 use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
-use super::video_ram::VideoRam;
+use super::{video_oam::VideoOam, video_ram::VideoRam};
 
 #[cfg(test)]
 mod tests;
@@ -37,7 +38,8 @@ pub struct Lcd {
     status: lcd_status::LcdStatus,
     window_x: u8,
     window_y: u8,
-    video_ram: VideoRam
+    video_ram: VideoRam,
+    video_oam: VideoOam
 }
 
 impl Lcd {
@@ -104,6 +106,7 @@ impl Lcd {
             LCD_WINDOW_Y => self.window_y,
             LCD_WINDOW_X => self.window_x,
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.read(address),
+            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.video_oam.read(address),
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
     }
@@ -122,6 +125,7 @@ impl Lcd {
             LCD_WINDOW_Y => self.window_y = data,
             LCD_WINDOW_X => self.window_x = data,
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
+            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.video_oam.write(address, data),
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
     }

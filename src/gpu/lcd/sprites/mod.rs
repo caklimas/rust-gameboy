@@ -15,7 +15,7 @@ impl Lcd {
             let sprite_info = self.get_sprite_info(index);
             let sprite_attributes = SpriteAttributes(sprite_info.attributes);
             let sprite_size = self.control.get_sprite_size();
-            if !(self.line_number >= sprite_info.y_position && self.line_number < sprite_info.y_position + sprite_size) {
+            if !((self.line_number as i32) >= sprite_info.y_position && (self.line_number as i32) < sprite_info.y_position + (sprite_size as i32)) {
                 return;
             }
 
@@ -49,8 +49,8 @@ impl Lcd {
     }
     
     fn get_sprite_info(&self, index: u16) -> SpriteInfo {
-        let y_position = self.read(SPRITE_ATTRIBUTE_TABLE_LOWER + index) - SPRITE_Y_OFFSET;
-        let x_position = self.read(SPRITE_ATTRIBUTE_TABLE_LOWER + index + 1) - SPRITE_X_OFFSET;
+        let y_position = self.read(SPRITE_ATTRIBUTE_TABLE_LOWER + index) as u16 as i32 - SPRITE_Y_OFFSET;
+        let x_position = self.read(SPRITE_ATTRIBUTE_TABLE_LOWER + index + 1) as u16 as i32 - SPRITE_X_OFFSET;
         let tile_location = self.read(SPRITE_ATTRIBUTE_TABLE_LOWER + index + 2) as u16;
         let attributes = self.read(SPRITE_ATTRIBUTE_TABLE_LOWER + index + 2);
 
@@ -68,7 +68,7 @@ impl Lcd {
         sprite_info: &SpriteInfo,
         sprite_attributes: &SpriteAttributes
     ) -> i16 {
-        let mut line = (self.line_number - sprite_info.y_position) as i16;
+        let mut line = ((self.line_number as i32) - sprite_info.y_position) as i16;
         if sprite_attributes.y_flip() {
             line -= sprite_size as i16;
             line *= -1;

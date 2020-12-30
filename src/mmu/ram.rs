@@ -43,6 +43,7 @@ impl Ram {
             LCD_DMA_START => 0, // write only
             LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.gpu.read(address),
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.read(address),
+            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.gpu.read(address),
             INTERRUPT_ENABLE => self.interrupt_enable.get(),
             _ => {
                 // println!("Invalid address 0x{:4X}", address);
@@ -61,6 +62,7 @@ impl Ram {
             LCD_DMA_START => self.run_dma(data),
             LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.gpu.write(address, data),
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.write(address, data),
+            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.gpu.write(address, data),
             INTERRUPT_ENABLE => self.interrupt_enable.set(data),
             _ => () // println!("Invalid address 0x{:4X}", address)
         }
