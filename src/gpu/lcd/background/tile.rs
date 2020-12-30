@@ -3,7 +3,7 @@ use crate::constants::screen::*;
 use super::Lcd;
 
 impl Lcd {
-    pub fn get_tile_data(&self, x: u16, using_window: bool) -> TileData {
+    pub fn get_bg_tile_data(&self, x: u16, using_window: bool) -> TileData {
         let tile_base = TileBase::new(self.control.bg_window_tile_data_select());        
 
         TileData::new(

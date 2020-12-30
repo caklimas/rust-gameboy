@@ -13,7 +13,6 @@ pub mod palette;
 pub mod screen;
 pub mod sprites;
 pub mod sprite_attributes;
-pub mod tile;
 
 use lcd_mode::LcdMode;
 use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
