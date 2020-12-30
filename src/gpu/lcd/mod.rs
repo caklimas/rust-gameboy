@@ -11,6 +11,8 @@ pub mod lcd_status;
 pub mod obj_palette_data;
 pub mod palette;
 pub mod screen;
+pub mod sprites;
+pub mod sprite_attributes;
 pub mod tile;
 
 use lcd_mode::LcdMode;
@@ -134,10 +136,6 @@ impl Lcd {
         if self.control.sprite_enabled() {
             self.render_sprites();
         }
-    }
-
-    fn render_sprites(&mut self) {
-
     }
 
     fn set_mode(&mut self, mode: LcdMode) {

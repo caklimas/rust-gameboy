@@ -15,3 +15,13 @@ bitfield! {
     pub lcd_display_enable, set_lcd_display_enable: 7;
     pub get, set: 7, 0;
 }
+
+impl LcdControl {
+    pub fn get_sprite_size(&self) -> u8 {
+        if self.sprite_size() {
+            16
+        } else {
+            8
+        }
+    }
+}
