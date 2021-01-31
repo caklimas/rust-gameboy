@@ -59,7 +59,7 @@ impl Lcd {
     }
     
     fn get_sprite_info(&self, index: u16, sprite_size: u8) -> SpriteInfo {
-        let sprite_address = SPRITE_ATTRIBUTE_TABLE_LOWER + (index) * SPRITE_SIZE_BYTES;
+        let sprite_address = SPRITE_ATTRIBUTE_TABLE_LOWER + index * SPRITE_SIZE_BYTES;
         let y_position = self.read(sprite_address) as u16 as i32 - SPRITE_Y_OFFSET;
         let x_position = self.read(sprite_address + 1) as u16 as i32 - SPRITE_X_OFFSET;
         let tile_location = self.read(sprite_address + 2) as u16;
@@ -98,7 +98,7 @@ impl Lcd {
     ) -> u8 {
         let mut color_bit = tile_bit;
         if sprite_attributes.x_flip() {
-            color_bit = 7 - color_bit;
+            color_bit = TILE_BITS - color_bit;
         }
 
         let color_low = (pixel_low >> color_bit) & 0b1;
