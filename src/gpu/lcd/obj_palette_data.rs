@@ -1,8 +1,10 @@
 use serde::{Serialize, Deserialize};
+use crate::constants::gpu::RGB_WHITE;
 use super::palette::{Palette, Rgb};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ObjPaletteData {
+    color_0: Palette,
     color_1: Palette,
     color_2: Palette,
     color_3: Palette
@@ -11,6 +13,7 @@ pub struct ObjPaletteData {
 impl ObjPaletteData {
     pub fn from_u8(value: u8) -> Self {
         ObjPaletteData {
+            color_0: Palette::White,
             color_1: Palette::from_u8((value >> 2) & 0b11),
             color_2: Palette::from_u8((value >> 4) & 0b11),
             color_3: Palette::from_u8((value >> 6) & 0b11)
@@ -19,6 +22,7 @@ impl ObjPaletteData {
 
     pub fn get_color(&self, color_number: u8) -> Rgb {
         let palette = match color_number {
+            0 => &self.color_0, // sprite index 0 means transparent
             1 => &self.color_1,
             2 => &self.color_2,
             3 => &self.color_3,

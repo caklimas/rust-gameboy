@@ -1,5 +1,7 @@
-use crate::{addresses::gpu::sprite::*, constants::{gpu::{RGB_WHITE, WINDOW_X_OFFSET}, screen::SCREEN_WIDTH}};
+use crate::addresses::gpu::sprite::SPRITE_ATTRIBUTE_TABLE_LOWER;
+use crate::constants::gpu::{RGB_WHITE, WINDOW_X_OFFSET};
 use crate::constants::lcd::*;
+use crate::constants::screen::SCREEN_WIDTH;
 use crate::constants::sprites::*;
 use super::Lcd;
 use sprite_attributes::SpriteAttributes;

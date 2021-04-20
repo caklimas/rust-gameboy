@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::addresses::high_ram::*;
+use crate::addresses::{gpu::sprite, high_ram::*};
 use crate::addresses::interrupt_enable::*;
 use crate::addresses::serial_data_transfer::*;
 use crate::addresses::gpu::lcd::*;
@@ -85,11 +85,9 @@ impl Ram {
     fn run_dma(&mut self, data: u8) {
         let base_address = (data as u16) << 8;
         for i in 0..=0x9F {
+            let sprite_data = self.read(base_address + i);
             let sprite_address = SPRITE_ATTRIBUTE_TABLE_LOWER + i;
-            let address = base_address + i;
-            let sprite_data = self.read(sprite_address);
-
-            self.write(address, sprite_data);
+            self.write(sprite_address, sprite_data);
         }
     }
 }
