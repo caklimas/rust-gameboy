@@ -1,4 +1,3 @@
-use gameboy::Gameboy;
 use wasm_bindgen::prelude::*;
 use std::mem;
 

@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::addresses::high_ram::*;
+use crate::addresses::{high_ram::*};
 use crate::addresses::interrupt_enable::*;
 use crate::addresses::serial_data_transfer::*;
 use crate::addresses::gpu::lcd::*;
@@ -43,6 +43,7 @@ impl Ram {
             LCD_DMA_START => 0, // write only
             LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.gpu.read(address),
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.read(address),
+            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.gpu.read(address),
             INTERRUPT_ENABLE => self.interrupt_enable.get(),
             _ => {
                 // println!("Invalid address 0x{:4X}", address);
@@ -61,6 +62,7 @@ impl Ram {
             LCD_DMA_START => self.run_dma(data),
             LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.gpu.write(address, data),
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.write(address, data),
+            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.gpu.write(address, data),
             INTERRUPT_ENABLE => self.interrupt_enable.set(data),
             _ => () // println!("Invalid address 0x{:4X}", address)
         }
@@ -83,11 +85,9 @@ impl Ram {
     fn run_dma(&mut self, data: u8) {
         let base_address = (data as u16) << 8;
         for i in 0..=0x9F {
+            let sprite_data = self.read(base_address + i);
             let sprite_address = SPRITE_ATTRIBUTE_TABLE_LOWER + i;
-            let address = base_address + i;
-            let sprite_data = self.read(sprite_address);
-
-            self.write(address, sprite_data);
+            self.write(sprite_address, sprite_data);
         }
     }
 }
