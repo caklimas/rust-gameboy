@@ -99,7 +99,7 @@ impl Lcd {
         tile_bit: i32
     ) -> u8 {
         let mut color_bit = tile_bit;
-        if sprite_attributes.x_flip() {
+        if !sprite_attributes.x_flip() {
             color_bit = TILE_BITS - color_bit;
         }
 

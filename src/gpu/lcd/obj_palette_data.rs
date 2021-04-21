@@ -1,5 +1,4 @@
 use serde::{Serialize, Deserialize};
-use crate::constants::gpu::RGB_WHITE;
 use super::palette::{Palette, Rgb};
 
 #[derive(Serialize, Deserialize, Default)]

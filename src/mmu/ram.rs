@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::addresses::{gpu::sprite, high_ram::*};
+use crate::addresses::{high_ram::*};
 use crate::addresses::interrupt_enable::*;
 use crate::addresses::serial_data_transfer::*;
 use crate::addresses::gpu::lcd::*;
