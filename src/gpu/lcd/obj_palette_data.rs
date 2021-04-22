@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
-use super::palette::{Palette, Rgb};
+use super::palette::{Palette};
+use super::sprites::sprite_color::SpriteColor;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ObjPaletteData {
@@ -19,7 +20,7 @@ impl ObjPaletteData {
         }
     }
 
-    pub fn get_color(&self, color_number: u8) -> Rgb {
+    pub fn get_color(&self, color_number: u8) -> SpriteColor {
         let palette = match color_number {
             0 => &self.color_0, // sprite index 0 means transparent
             1 => &self.color_1,
@@ -28,7 +29,10 @@ impl ObjPaletteData {
             _ => panic!("Invalid color number {}", color_number)
         };
 
-        palette.into_rgb()
+        SpriteColor {
+            color: palette.into_rgb(),
+            index: color_number
+        }
     }
 
     pub fn into_u8(&self) -> u8 {

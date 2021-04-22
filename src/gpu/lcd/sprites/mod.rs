@@ -1,5 +1,5 @@
 use crate::addresses::gpu::sprite::SPRITE_ATTRIBUTE_TABLE_LOWER;
-use crate::constants::gpu::{RGB_WHITE, WINDOW_X_OFFSET};
+use crate::constants::gpu::{WINDOW_X_OFFSET};
 use crate::constants::lcd::*;
 use crate::constants::screen::SCREEN_WIDTH;
 use crate::constants::sprites::*;
@@ -8,6 +8,7 @@ use sprite_attributes::SpriteAttributes;
 use sprite_info::SpriteInfo;
 
 pub mod sprite_attributes;
+pub mod sprite_color;
 pub mod sprite_info;
 
 impl Lcd {
@@ -44,18 +45,19 @@ impl Lcd {
                     tile_bit
                 );
 
-                let color = if sprite_attributes.palette_number() {
+                let sprite_color = if sprite_attributes.palette_number() {
                     self.obj_palette_1_data.get_color(color_number)
                 } else {
                     self.obj_palette_0_data.get_color(color_number)
                 };
 
-                if color == RGB_WHITE {
+                let x = sprite_info.x_position + tile_bit;
+
+                if sprite_color.index == 0 {
                     continue;
                 }
 
-                let x = sprite_info.x_position + tile_bit;
-                self.screen.set_pixel(self.line_number as u16, x as u16, color)
+                self.screen.set_pixel(self.line_number as u16, x as u16, sprite_color.color);
             }
         }
     }
