@@ -4,22 +4,23 @@ use crate::constants::screen::*;
 use super::Lcd;
 
 impl Lcd {
-    pub fn get_bg_tile_data(&self, x: u16, using_window: bool) -> TileData {
+    pub fn get_bg_tile_data(&self, x: u16, window_y: i32, window_x: i32) -> TileData {
+        let using_window = self.control.window_display() && window_y >= 0 && window_x >= 0;
         let tile_base = TileBase::new(self.control.bg_window_tile_data_select());        
 
         TileData::new(
-            self.get_pixel_x(x, using_window),
-            self.get_pixel_y(using_window),
+            self.get_pixel_x(x, using_window, window_x),
+            self.get_pixel_y(using_window, window_y),
             tile_base,
             self.get_display_address(using_window),
-            self.get_tile_x(x, using_window),
-            self.get_tile_y(using_window)
+            self.get_tile_x(x, using_window, window_x),
+            self.get_tile_y(using_window, window_y)
         )
     }
 
-    fn get_pixel_x(&self, x: u16, using_window: bool) -> u8 {
+    fn get_pixel_x(&self, x: u16, using_window: bool, window_x: i32) -> u8 {
         let pixel_x = if using_window {
-            self.get_window_x(x) as u8
+            window_x as u8
         } else {
             self.get_background_x(x) as u8
         };
@@ -27,9 +28,9 @@ impl Lcd {
         pixel_x & 0x07
     }
 
-    fn get_pixel_y(&self, using_window: bool) -> u16 {
+    fn get_pixel_y(&self, using_window: bool, window_y: i32) -> u16 {
         let pixel_y = if using_window {
-            self.get_window_y() as u16
+            window_y as u16
         } else {
             self.get_background_y() as u16
         };
@@ -37,19 +38,25 @@ impl Lcd {
         pixel_y & 0x07
     }
 
-    fn get_tile_x(&self, x: u16, using_window: bool) -> u16 {
+    fn get_tile_x(&self, x: u16, using_window: bool, window_x: i32) -> u16 {
         let tile_x = if using_window {
-            self.get_window_x(x) as u16
+            window_x as u16
         } else {
             self.get_background_x(x) as u16
         };
 
-        tile_x / PIXELS_PER_TILE
+        let result = tile_x / PIXELS_PER_TILE;
+        if result == 8180 {
+            println!("-({} - {}) + {} = {}", (self.window_x as i32), (WINDOW_X_OFFSET as i32), x as i32, -((self.window_x as i32) - (WINDOW_X_OFFSET as i32)) + (x as i32));
+            let sdf = 45;
+        }
+
+        result
     }
 
-    fn get_tile_y(&self, using_window: bool) -> u16 {
+    fn get_tile_y(&self, using_window: bool, window_y: i32) -> u16 {
         let tile_y = if using_window {
-            self.get_window_y() as u16
+            window_y as u16
         } else {
             self.get_background_y() as u16
         };
@@ -63,14 +70,6 @@ impl Lcd {
 
     fn get_background_y(&self) -> u8 {
         self.scroll_y.wrapping_add(self.line_number)
-    }
-
-    fn get_window_x(&self, x: u16) -> i32 {
-        - ((self.window_x as i32) - (WINDOW_X_OFFSET as i32)) + (x as i32)
-    }
-
-    fn get_window_y(&self) -> i32 {
-        (self.line_number as i32) - (self.window_y as i32)
     }
 
     fn get_display_address(&self, using_window: bool) -> u16 {
@@ -117,6 +116,10 @@ impl TileData {
     }
 
     pub fn get_tile_number_address(&self) -> u16 {
+        let total = self.tile_map_base + (self.tile_y * TILE_WIDTH) + self.tile_x;
+        if total >= 0xA000 {
+            println!("0x{:4X} + {} + {} = 0x{:4X}", self.tile_map_base, self.tile_y * TILE_WIDTH, self.tile_x, total);
+        }
         self.tile_map_base + (self.tile_y * TILE_WIDTH) + self.tile_x
     }
 

@@ -113,7 +113,15 @@ impl Lcd {
 
     pub fn write(&mut self, address: u16, data: u8) {
         match address {
-            LCD_CONTROL => self.control.set(data),
+            LCD_CONTROL => {
+                let previous_lcd_on = self.control.lcd_display_enable();
+                self.control.set(data);
+                if previous_lcd_on && !self.control.lcd_display_enable() {
+                    self.mode_clock = 0;
+                    self.mode = LcdMode::HorizontalBlank;
+                    self.line_number = 0;
+                }
+            },
             LCD_STATUS => self.set_status(data),
             LCD_SCROLL_Y => self.scroll_y = data,
             LCD_SCROLL_X => self.scroll_x = data,
@@ -123,7 +131,12 @@ impl Lcd {
             LCD_OBJ_0_PALETTE_DATA => self.obj_palette_0_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_OBJ_1_PALETTE_DATA => self.obj_palette_1_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_WINDOW_Y => self.window_y = data,
-            LCD_WINDOW_X => self.window_x = data,
+            LCD_WINDOW_X => {
+                if data == 96 {
+                    let dsf = 4;
+                }
+                self.window_x = data
+            },
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.video_oam.write(address, data),
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
