@@ -45,13 +45,7 @@ impl Lcd {
             self.get_background_x(x) as u16
         };
 
-        let result = tile_x / PIXELS_PER_TILE;
-        if result == 8180 {
-            println!("-({} - {}) + {} = {}", (self.window_x as i32), (WINDOW_X_OFFSET as i32), x as i32, -((self.window_x as i32) - (WINDOW_X_OFFSET as i32)) + (x as i32));
-            let sdf = 45;
-        }
-
-        result
+        tile_x / PIXELS_PER_TILE
     }
 
     fn get_tile_y(&self, using_window: bool, window_y: i32) -> u16 {

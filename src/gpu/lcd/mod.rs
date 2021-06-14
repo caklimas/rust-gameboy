@@ -81,6 +81,10 @@ impl Lcd {
                     self.mode_clock = 0;
                     self.line_number += 1;
 
+                    if self.status.line_coincidence() && self.status.line_coincidence_interrupt() {
+                        result.lcd_stat = true;
+                    }
+
                     if self.line_number >= MAX_SCANLINE {
                         self.set_mode(LcdMode::SearchingOam);
                         self.line_number = 0;
@@ -131,12 +135,7 @@ impl Lcd {
             LCD_OBJ_0_PALETTE_DATA => self.obj_palette_0_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_OBJ_1_PALETTE_DATA => self.obj_palette_1_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_WINDOW_Y => self.window_y = data,
-            LCD_WINDOW_X => {
-                if data == 96 {
-                    let dsf = 4;
-                }
-                self.window_x = data
-            },
+            LCD_WINDOW_X => self.window_x = data,
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.video_oam.write(address, data),
             _ => panic!("Invalid lcd address: 0x{:4X}", address)
@@ -163,7 +162,7 @@ impl Lcd {
     }
 
     fn set_status(&mut self, data: u8) {
-        self.status.set(data);        
+        self.status.set(data);     
         self.status.set_line_coincidence(self.line_number == self.lyc);
     }
 }
