@@ -60,18 +60,33 @@ impl Lcd {
                 if self.mode_clock >= DRAWING_CYCLES {
                     self.set_mode(LcdMode::HorizontalBlank);
                     self.render_scanline();
-                    self.line_number += 1;
+                    self.line_number = (self.line_number + 1) % 154;
+
+                    if self.status.horizontal_blank_interrupt() {
+                        println!("Set due to horizontal blank interrupt");
+                        result.lcd_stat = true;
+                    }
                 }
             },
             LcdMode::HorizontalBlank => {
                 if self.mode_clock >= HORIZONTAL_BLANK_CYCLES {
-                    if self.line_number == VERTICAL_BLANK_SCANLINE_LOWER {
+                    if self.line_number >= VERTICAL_BLANK_SCANLINE_LOWER {
                         self.set_mode(LcdMode::VerticalBlank);
                         result.vertical_blank = true;
                         self.frame_complete = true;
+
+                        if self.status.vertical_blank_interrupt() {
+                            println!("Set due to vertical blank interrupt");
+                            result.lcd_stat = true;
+                        }
                     } else {
                         self.set_mode(LcdMode::SearchingOam);
                         self.frame_complete = false;
+
+                        if self.status.oam_interrupt() {
+                            println!("Set due to oam interrupt");
+                            result.lcd_stat = true;
+                        }
                     }
                 }
             },
@@ -81,7 +96,7 @@ impl Lcd {
                     self.mode_clock = 0;
                     self.line_number += 1;
 
-                    if self.status.line_coincidence() && self.status.line_coincidence_interrupt() {
+                    if self.line_number == self.lyc && self.status.line_coincidence_interrupt() {
                         result.lcd_stat = true;
                     }
 
@@ -130,7 +145,10 @@ impl Lcd {
             LCD_SCROLL_Y => self.scroll_y = data,
             LCD_SCROLL_X => self.scroll_x = data,
             LCD_LY => (), // readonly
-            LCD_LYC => self.lyc = data,
+            LCD_LYC => {
+                println!("LYC = {}", data);
+                self.lyc = data
+            },
             LCD_BG_PALETTE_DATA => self.bg_palette_data = bg_palette_data::BgPaletteData::from_u8(data),
             LCD_OBJ_0_PALETTE_DATA => self.obj_palette_0_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_OBJ_1_PALETTE_DATA => self.obj_palette_1_data = obj_palette_data::ObjPaletteData::from_u8(data),

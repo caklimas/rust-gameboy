@@ -1,4 +1,3 @@
-use crate::constants::gpu::*;
 use crate::constants::lcd::*;
 use crate::constants::screen::*;
 use super::Lcd;
