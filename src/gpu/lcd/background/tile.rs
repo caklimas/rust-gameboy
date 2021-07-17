@@ -109,10 +109,6 @@ impl TileData {
     }
 
     pub fn get_tile_number_address(&self) -> u16 {
-        let total = self.tile_map_base + (self.tile_y * TILE_WIDTH) + self.tile_x;
-        if total >= 0xA000 {
-            println!("0x{:4X} + {} + {} = 0x{:4X}", self.tile_map_base, self.tile_y * TILE_WIDTH, self.tile_x, total);
-        }
         self.tile_map_base + (self.tile_y * TILE_WIDTH) + self.tile_x
     }
 

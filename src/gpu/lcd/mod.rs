@@ -61,9 +61,9 @@ impl Lcd {
                     self.set_mode(LcdMode::HorizontalBlank);
                     self.render_scanline();
                     self.line_number = (self.line_number + 1) % 154;
+                    self.check_lyc_interrupt(&mut result);
 
                     if self.status.horizontal_blank_interrupt() {
-                        println!("Set due to horizontal blank interrupt");
                         result.lcd_stat = true;
                     }
                 }
@@ -76,7 +76,6 @@ impl Lcd {
                         self.frame_complete = true;
 
                         if self.status.vertical_blank_interrupt() {
-                            println!("Set due to vertical blank interrupt");
                             result.lcd_stat = true;
                         }
                     } else {
@@ -84,7 +83,6 @@ impl Lcd {
                         self.frame_complete = false;
 
                         if self.status.oam_interrupt() {
-                            println!("Set due to oam interrupt");
                             result.lcd_stat = true;
                         }
                     }
@@ -95,10 +93,7 @@ impl Lcd {
                 if self.mode_clock >= MODE_CYCLES {
                     self.mode_clock = 0;
                     self.line_number += 1;
-
-                    if self.line_number == self.lyc && self.status.line_coincidence_interrupt() {
-                        result.lcd_stat = true;
-                    }
+                    self.check_lyc_interrupt(&mut result);
 
                     if self.line_number >= MAX_SCANLINE {
                         self.set_mode(LcdMode::SearchingOam);
@@ -182,5 +177,11 @@ impl Lcd {
     fn set_status(&mut self, data: u8) {
         self.status.set(data);     
         self.status.set_line_coincidence(self.line_number == self.lyc);
+    }
+
+    fn check_lyc_interrupt(&mut self, result: &mut LcdInterruptResult) {
+        if self.line_number == self.lyc {
+            result.lcd_stat = true;
+        }
     }
 }
