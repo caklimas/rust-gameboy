@@ -38,13 +38,18 @@ impl Lcd {
     }
 
     fn get_tile_x(&self, x: u16, using_window: bool, window_x: i32) -> u16 {
-        let tile_x = if using_window {
+        let tile = if using_window {
             window_x as u16
         } else {
             self.get_background_x(x) as u16
         };
 
-        tile_x / PIXELS_PER_TILE
+        let mut tile_x = tile / PIXELS_PER_TILE;
+        if !using_window {
+            tile_x = tile_x & 31;
+        }
+
+        tile_x
     }
 
     fn get_tile_y(&self, using_window: bool, window_y: i32) -> u16 {

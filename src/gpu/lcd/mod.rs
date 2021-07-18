@@ -140,10 +140,7 @@ impl Lcd {
             LCD_SCROLL_Y => self.scroll_y = data,
             LCD_SCROLL_X => self.scroll_x = data,
             LCD_LY => (), // readonly
-            LCD_LYC => {
-                println!("LYC = {}", data);
-                self.lyc = data
-            },
+            LCD_LYC => self.lyc = data,
             LCD_BG_PALETTE_DATA => self.bg_palette_data = bg_palette_data::BgPaletteData::from_u8(data),
             LCD_OBJ_0_PALETTE_DATA => self.obj_palette_0_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_OBJ_1_PALETTE_DATA => self.obj_palette_1_data = obj_palette_data::ObjPaletteData::from_u8(data),
