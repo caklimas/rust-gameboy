@@ -438,6 +438,7 @@ impl Cpu {
         }
 
         self.interrupt_master_enable = false;
+        self.mmu.ram.interrupt_flag.set(0);
         self.handle_interrupt(interrupt)
     }
 

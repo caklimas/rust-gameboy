@@ -1,5 +1,5 @@
 // use ggez::{Context, GameResult};
-// use ggez::event;
+// use ggez::event::{self, KeyCode, KeyMods};
 // use ggez::graphics::{self, Color, DrawMode, DrawParam, FillOptions, MeshBuilder};
 
 // use super::Gameboy;
@@ -50,5 +50,94 @@
 //         graphics::present(ctx).expect("Error rendering the screen");
 
 //         Ok(())
+//     }
+
+//     fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymods: KeyMods, _repeat: bool) {
+//         let mut controls_updated = false;
+//         let mut current_controls = self.get_controls();
+
+//         match keycode {
+//             KeyCode::Up => {
+//                 controls_updated = true;
+//                 current_controls.up = true;
+//             },
+//             KeyCode::Down => {
+//                 controls_updated = true;
+//                 current_controls.down = true;
+//             },
+//             KeyCode::Left => {
+//                 controls_updated = true;
+//                 current_controls.left = true;
+//             },
+//             KeyCode::Right => {
+//                 controls_updated = true;
+//                 current_controls.right = true;
+//             },
+//             KeyCode::Z => {
+//                 controls_updated = true;
+//                 current_controls.b = true;
+//             },
+//             KeyCode::X => {
+//                 controls_updated = true;
+//                 current_controls.a = true;
+//             },
+//             KeyCode::Return => {
+//                 controls_updated = true;
+//                 current_controls.start = true;
+//             },
+//             KeyCode::RShift => {
+//                 controls_updated = true;
+//                 current_controls.select = true;
+//             },
+//             _ => {}
+//         }
+
+//         if controls_updated {
+//             self.update_controls(current_controls);
+//         }
+//     }
+
+//     fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymods: KeyMods) {
+//         let mut controls_updated = false;
+//         let mut current_controls = self.get_controls();
+//         match keycode {
+//             KeyCode::Up => {
+//                 controls_updated = true;
+//                 current_controls.up = false;
+//             },
+//             KeyCode::Down => {
+//                 controls_updated = true;
+//                 current_controls.down = false;
+//             },
+//             KeyCode::Left => {
+//                 controls_updated = true;
+//                 current_controls.left = false;
+//             },
+//             KeyCode::Right => {
+//                 controls_updated = true;
+//                 current_controls.right = false;
+//             },
+//             KeyCode::Z => {
+//                 controls_updated = true;
+//                 current_controls.b = false;
+//             },
+//             KeyCode::X => {
+//                 controls_updated = true;
+//                 current_controls.a = false;
+//             },
+//             KeyCode::Return => {
+//                 controls_updated = true;
+//                 current_controls.start = false;
+//             },
+//             KeyCode::RShift => {
+//                 controls_updated = true;
+//                 current_controls.select = false;
+//             },
+//             _ => {}
+//         }
+
+//         if controls_updated {
+//             self.update_controls(current_controls);
+//         }
 //     }
 // }

@@ -60,18 +60,31 @@ impl Lcd {
                 if self.mode_clock >= DRAWING_CYCLES {
                     self.set_mode(LcdMode::HorizontalBlank);
                     self.render_scanline();
-                    self.line_number += 1;
+                    self.line_number = (self.line_number + 1) % 154;
+                    self.check_lyc_interrupt(&mut result);
+
+                    if self.status.horizontal_blank_interrupt() {
+                        result.lcd_stat = true;
+                    }
                 }
             },
             LcdMode::HorizontalBlank => {
                 if self.mode_clock >= HORIZONTAL_BLANK_CYCLES {
-                    if self.line_number == VERTICAL_BLANK_SCANLINE_LOWER {
+                    if self.line_number >= VERTICAL_BLANK_SCANLINE_LOWER {
                         self.set_mode(LcdMode::VerticalBlank);
                         result.vertical_blank = true;
                         self.frame_complete = true;
+
+                        if self.status.vertical_blank_interrupt() {
+                            result.lcd_stat = true;
+                        }
                     } else {
                         self.set_mode(LcdMode::SearchingOam);
                         self.frame_complete = false;
+
+                        if self.status.oam_interrupt() {
+                            result.lcd_stat = true;
+                        }
                     }
                 }
             },
@@ -80,6 +93,7 @@ impl Lcd {
                 if self.mode_clock >= MODE_CYCLES {
                     self.mode_clock = 0;
                     self.line_number += 1;
+                    self.check_lyc_interrupt(&mut result);
 
                     if self.line_number >= MAX_SCANLINE {
                         self.set_mode(LcdMode::SearchingOam);
@@ -113,7 +127,15 @@ impl Lcd {
 
     pub fn write(&mut self, address: u16, data: u8) {
         match address {
-            LCD_CONTROL => self.control.set(data),
+            LCD_CONTROL => {
+                let previous_lcd_on = self.control.lcd_display_enable();
+                self.control.set(data);
+                if previous_lcd_on && !self.control.lcd_display_enable() {
+                    self.mode_clock = 0;
+                    self.mode = LcdMode::HorizontalBlank;
+                    self.line_number = 0;
+                }
+            },
             LCD_STATUS => self.set_status(data),
             LCD_SCROLL_Y => self.scroll_y = data,
             LCD_SCROLL_X => self.scroll_x = data,
@@ -150,7 +172,13 @@ impl Lcd {
     }
 
     fn set_status(&mut self, data: u8) {
-        self.status.set(data);        
+        self.status.set(data);     
         self.status.set_line_coincidence(self.line_number == self.lyc);
+    }
+
+    fn check_lyc_interrupt(&mut self, result: &mut LcdInterruptResult) {
+        if self.line_number == self.lyc {
+            result.lcd_stat = true;
+        }
     }
 }

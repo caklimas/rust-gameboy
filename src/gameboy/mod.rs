@@ -10,13 +10,15 @@ use crate::input::Input;
 
 #[derive(Serialize, Deserialize)]
 pub struct Gameboy {
-    cpu: cpu::Cpu
+    cpu: cpu::Cpu,
+    pub input: Input
 }
 
 impl Gameboy {
     pub fn new(bytes: Vec<u8>, run_boot_rom: bool) -> Self {
         Gameboy {
-            cpu: cpu::Cpu::new(Cartridge::new(bytes), run_boot_rom)
+            cpu: cpu::Cpu::new(Cartridge::new(bytes), run_boot_rom),
+            input: Input::new()
         }
     }
 
@@ -32,11 +34,16 @@ impl Gameboy {
         self.cpu.master_clock_cycles
     }
 
+    pub fn get_controls(&mut self) -> Input {
+        self.input.clone()
+    }
+
     pub fn get_screen(&mut self) -> &[u8] {
         self.cpu.get_screen()
     }
 
     pub fn update_controls(&mut self, input: Input) {
+        self.input = input;
         self.cpu.mmu.update_controls(input);
     }
 }

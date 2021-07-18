@@ -23,6 +23,7 @@ pub struct Mbc1 {
 
 impl Mbc1 {
     pub fn new(header: &CartridgeHeader, data: Vec<u8>) -> Self {
+        println!("Ram size: {}", header.ram_size.get_size());
         Mbc1 {
             bank_mode: BankingMode::Rom,
             ram: vec![0; header.ram_size.get_size()],
@@ -88,7 +89,7 @@ impl Mbc for Mbc1 {
         let index = if address < KILOBYTES_16 {
             address as usize
         } else {
-            ((self.rom_bank_number as u16 * KILOBYTES_16) | (address % KILOBYTES_16)) as usize
+            (self.rom_bank_number as usize * KILOBYTES_16 as usize) | (address as usize % KILOBYTES_16 as usize)
         };
 
         self.rom[index]
