@@ -70,10 +70,6 @@ impl Ram {
 
     fn clock_gpu(&mut self, cycles: u16) {
         let result = self.gpu.clock(cycles);
-
-        if result.lcd_stat || result.vertical_blank {
-            // println!("Lcd_stat: {}, vertical_blank: {}", result.lcd_stat, result.vertical_blank);
-        }
         self.interrupt_flag.set_lcd_stat(result.lcd_stat);
         self.interrupt_flag.set_v_blank(result.vertical_blank);
     }
