@@ -1,0 +1,1 @@
+pub const CHANNEL_2_SOUND_LENGTH: u16 = 0xFF16;

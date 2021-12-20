@@ -8,6 +8,7 @@ extern crate bitfield;
 extern crate serde_big_array;
 
 pub mod addresses;
+pub mod apu;
 pub mod cartridge;
 pub mod constants;
 pub mod controls;
