@@ -18,3 +18,10 @@ fn ratio_test() {
 
     assert_eq!(0.75, wave_pattern.get_ratio());
 }
+
+#[test]
+fn sound_length_test() {
+    let wave_pattern = SoundLengthWavePattern(0b1100_1111);
+
+    assert_eq!(64 - 15, wave_pattern.get_sound_length());
+}

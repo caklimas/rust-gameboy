@@ -19,4 +19,8 @@ impl SoundLengthWavePattern {
             _ => panic!("Invalid wave_pattern_duty")
         }
     }
+
+    pub fn get_sound_length(&self) -> u8 {
+        64 - self.sound_length_data()
+    }
 }
