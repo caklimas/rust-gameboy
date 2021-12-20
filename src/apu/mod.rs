@@ -10,6 +10,7 @@ use self::{channel_1::Channel1, channel_2::Channel2, channel_3::Channel3};
 pub mod channel_1;
 pub mod channel_2;
 pub mod channel_3;
+pub mod channel_4;
 pub mod frequency_hi;
 pub mod select_output_level;
 pub mod sound_length_wave_pattern;
