@@ -6,8 +6,11 @@ use self::channel_2::Channel2;
 
 pub mod channel_1;
 pub mod channel_2;
+pub mod channel_3;
 pub mod frequency_hi;
+pub mod select_output_level;
 pub mod sound_length_wave_pattern;
+pub mod sound_on_off;
 pub mod sweep_register;
 pub mod volume_envelope;
 
