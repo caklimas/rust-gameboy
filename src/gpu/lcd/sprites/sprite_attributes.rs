@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 bitfield! {
     #[derive(Serialize, Deserialize, Default)]

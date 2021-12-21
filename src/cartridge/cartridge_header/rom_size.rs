@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[allow(non_camel_case_types)]
@@ -14,7 +14,7 @@ pub enum RomSize {
     Megabyte_8,
     Megabyte_1_1,
     Megabyte_1_2,
-    Megabyte_1_5
+    Megabyte_1_5,
 }
 
 impl RomSize {
@@ -32,7 +32,7 @@ impl RomSize {
             0x52 => RomSize::Megabyte_1_1,
             0x53 => RomSize::Megabyte_1_2,
             0x54 => RomSize::Megabyte_1_5,
-            _ => panic!("Invalid rom size 0x{:2X}", value)
+            _ => panic!("Invalid rom size 0x{:2X}", value),
         }
     }
 }

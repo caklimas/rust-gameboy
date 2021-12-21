@@ -1,17 +1,17 @@
-use serde::{Serialize, Deserialize};
-use crate::mmu::memory_sizes::{KILOBYTES_8};
+use crate::mmu::memory_sizes::KILOBYTES_8;
+use serde::{Deserialize, Serialize};
 
 big_array! { BigArray; }
 
 #[derive(Serialize, Deserialize)]
 pub struct VideoRam {
     #[serde(with = "BigArray")]
-    data: [u8; KILOBYTES_8 as usize]
+    data: [u8; KILOBYTES_8 as usize],
 }
 
 impl VideoRam {
     pub fn read(&self, address: u16) -> u8 {
-        let masked_address = self.get_masked_address(address); 
+        let masked_address = self.get_masked_address(address);
         self.data[masked_address]
     }
 
@@ -28,7 +28,7 @@ impl VideoRam {
 impl Default for VideoRam {
     fn default() -> Self {
         VideoRam {
-            data: [0; KILOBYTES_8 as usize]
+            data: [0; KILOBYTES_8 as usize],
         }
     }
 }

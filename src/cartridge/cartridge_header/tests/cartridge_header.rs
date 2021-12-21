@@ -1,7 +1,7 @@
-use super::super::CartridgeHeader;
 use super::super::cartridge_type::CartridgeType;
 use super::super::ram_size::RamSize;
 use super::super::rom_size::RomSize;
+use super::super::CartridgeHeader;
 
 #[test]
 fn new_cartridge_type_test() {

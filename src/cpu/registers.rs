@@ -1,6 +1,6 @@
-use serde::{Serialize, Deserialize};
 use super::flags_register::FlagsRegister;
 use super::opcodes::opcode::{CpuRegister, CpuRegister16};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Registers {
@@ -11,7 +11,7 @@ pub struct Registers {
     pub e: u8,
     pub f: FlagsRegister,
     pub h: u8,
-    pub l: u8
+    pub l: u8,
 }
 
 impl Registers {
@@ -23,7 +23,7 @@ impl Registers {
             CpuRegister::D => self.d,
             CpuRegister::E => self.e,
             CpuRegister::H => self.h,
-            CpuRegister::L => self.l
+            CpuRegister::L => self.l,
         }
     }
 
@@ -32,7 +32,7 @@ impl Registers {
             CpuRegister16::AF => self.get_af(),
             CpuRegister16::BC => self.get_bc(),
             CpuRegister16::DE => self.get_de(),
-            CpuRegister16::HL => self.get_hl()
+            CpuRegister16::HL => self.get_hl(),
         }
     }
 
@@ -44,7 +44,7 @@ impl Registers {
             CpuRegister::D => self.d = value,
             CpuRegister::E => self.e = value,
             CpuRegister::H => self.h = value,
-            CpuRegister::L => self.l = value
+            CpuRegister::L => self.l = value,
         }
     }
 
@@ -53,7 +53,7 @@ impl Registers {
             CpuRegister16::AF => self.set_af(value),
             CpuRegister16::BC => self.set_bc(value),
             CpuRegister16::DE => self.set_de(value),
-            CpuRegister16::HL => self.set_hl(value)
+            CpuRegister16::HL => self.set_hl(value),
         }
     }
 

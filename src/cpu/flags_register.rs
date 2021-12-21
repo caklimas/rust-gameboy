@@ -1,10 +1,10 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-bitfield!{
+bitfield! {
     #[derive(Serialize, Deserialize, Default)]
     pub struct FlagsRegister(u8);
     impl Debug;
-    
+
     pub carry, set_carry: 4;
     pub half_carry, set_half_carry: 5;
     pub subtraction, set_subtraction: 6;

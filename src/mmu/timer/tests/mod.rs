@@ -1,5 +1,5 @@
-use crate::addresses::timer::*;
 use super::Timer;
+use crate::addresses::timer::*;
 
 /*
 DIVIDER_REGISTER => self.divider,

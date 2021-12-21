@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum CartridgeType {
@@ -29,7 +29,7 @@ pub enum CartridgeType {
     PocketCamera,
     BandaiTama5,
     HuC3,
-    HuC1RamBattery
+    HuC1RamBattery,
 }
 
 impl CartridgeType {
@@ -63,7 +63,7 @@ impl CartridgeType {
             0xFD => CartridgeType::BandaiTama5,
             0xFE => CartridgeType::HuC3,
             0xFF => CartridgeType::HuC1RamBattery,
-            _ => panic!("Invalid cartridge type: 0x{:2X}", value)
+            _ => panic!("Invalid cartridge type: 0x{:2X}", value),
         }
     }
 }
