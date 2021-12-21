@@ -1,7 +1,7 @@
-use crate::mmu::memory_sizes::{KILOBYTES_32};
-use crate::cartridge::cartridge_header::{RAM_SIZE_INDEX};
-use super::super::Mbc;
 use super::super::mbc0::Mbc0;
+use super::super::Mbc;
+use crate::cartridge::cartridge_header::RAM_SIZE_INDEX;
+use crate::mmu::memory_sizes::KILOBYTES_32;
 
 #[test]
 fn read_ram_test() {

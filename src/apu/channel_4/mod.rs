@@ -18,6 +18,9 @@ use super::{sound_length_wave_pattern::SoundLengthWavePattern, volume_envelope::
 pub mod counter_consecutive_selection;
 pub mod polynomial_counter;
 
+/** Noise Channel
+ * Volume Envelope
+*/
 #[derive(Serialize, Deserialize, Default)]
 pub struct Channel4 {
     sound_length: SoundLengthWavePattern,

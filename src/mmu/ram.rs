@@ -1,34 +1,34 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::addresses::{high_ram::*};
-use crate::addresses::interrupt_enable::*;
-use crate::addresses::serial_data_transfer::*;
-use crate::addresses::gpu::lcd::*;
-use crate::addresses::gpu::video_ram::*;
-use crate::addresses::gpu::sprite::*;
-use crate::addresses::timer::*;
-use crate::addresses::work_ram::*;
-use crate::gpu;
 use super::high_ram;
 use super::interrupts::Interrupt;
 use super::serial_data_transfer::SerialDataTransfer;
 use super::timer::Timer;
 use super::work_ram;
+use crate::addresses::gpu::lcd::*;
+use crate::addresses::gpu::sprite::*;
+use crate::addresses::gpu::video_ram::*;
+use crate::addresses::high_ram::*;
+use crate::addresses::interrupt_enable::*;
+use crate::addresses::serial_data_transfer::*;
+use crate::addresses::timer::*;
+use crate::addresses::work_ram::*;
+use crate::gpu;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Ram {
-    pub gpu: gpu::Gpu, 
+    pub gpu: gpu::Gpu,
     pub interrupt_enable: Interrupt,
     pub interrupt_flag: Interrupt,
     high_ram: high_ram::HighRam,
     serial_data_transfer: SerialDataTransfer,
     timer: Timer,
-    work_ram: work_ram::WorkRam
+    work_ram: work_ram::WorkRam,
 }
 
 impl Ram {
     pub fn clock(&mut self, cycles: u16) {
-        let gpu_cycles = cycles; 
+        let gpu_cycles = cycles;
         self.clock_timer(gpu_cycles);
         self.clock_gpu(gpu_cycles);
     }
@@ -37,7 +37,9 @@ impl Ram {
         match address {
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.gpu.read(address),
             WORK_RAM_LOWER..=WORK_RAM_UPPER => self.work_ram.read(address),
-            SERIAL_TRANSFER_DATA..=SERIAL_TRANSFER_CONTROL => self.serial_data_transfer.read(address),
+            SERIAL_TRANSFER_DATA..=SERIAL_TRANSFER_CONTROL => {
+                self.serial_data_transfer.read(address)
+            }
             DIVIDER_REGISTER..=TIMER_CONTROL => self.timer.read(address),
             INTERRUPT_FLAG => self.interrupt_flag.get(),
             LCD_DMA_START => 0, // write only
@@ -56,15 +58,21 @@ impl Ram {
         match address {
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.gpu.write(address, data),
             WORK_RAM_LOWER..=WORK_RAM_UPPER => self.work_ram.write(address, data),
-            SERIAL_TRANSFER_DATA..=SERIAL_TRANSFER_CONTROL => self.serial_data_transfer.write(address, data),
+            SERIAL_TRANSFER_DATA..=SERIAL_TRANSFER_CONTROL => {
+                self.serial_data_transfer.write(address, data)
+            }
             DIVIDER_REGISTER..=TIMER_CONTROL => self.timer.write(address, data),
             INTERRUPT_FLAG => self.interrupt_flag.set(data),
             LCD_DMA_START => self.run_dma(data),
-            LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.gpu.write(address, data),
+            LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => {
+                self.gpu.write(address, data)
+            }
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.write(address, data),
-            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.gpu.write(address, data),
+            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
+                self.gpu.write(address, data)
+            }
             INTERRUPT_ENABLE => self.interrupt_enable.set(data),
-            _ => () // println!("Invalid address 0x{:4X}", address)
+            _ => (), // println!("Invalid address 0x{:4X}", address)
         }
     }
 

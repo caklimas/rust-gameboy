@@ -20,7 +20,7 @@ impl super::super::Cpu {
         let address = self.registers.get_target_16(&CpuRegister16::HL);
         let value = self.mmu.read_byte(address);
         let data = self.res_8(value, bit_n);
-        
+
         self.mmu.write_byte(address, data);
 
         16
@@ -36,7 +36,7 @@ impl super::super::Cpu {
 
     pub fn rl_a(&mut self) -> u16 {
         let register_value = self.registers.a;
-        self.registers.a =  self.rl_8(register_value);
+        self.registers.a = self.rl_8(register_value);
         self.registers.f.set_zero(false);
 
         4
@@ -51,8 +51,8 @@ impl super::super::Cpu {
 
         16
     }
-    
-    pub fn rl_r8(&mut self, register: &CpuRegister ) -> u16 {
+
+    pub fn rl_r8(&mut self, register: &CpuRegister) -> u16 {
         let register_value = self.registers.get_target(register);
         let new_value = self.rl_8(register_value);
 
@@ -82,13 +82,13 @@ impl super::super::Cpu {
         let register_value = self.registers.get_target(register);
         let new_value = self.rlc_8(register_value);
         self.registers.set_target(register, new_value);
-        
+
         8
     }
 
     pub fn rr_a(&mut self) -> u16 {
         let register_value = self.registers.a;
-        self.registers.a =  self.rr_8(register_value);
+        self.registers.a = self.rr_8(register_value);
         self.registers.f.set_zero(false);
 
         8
@@ -103,7 +103,7 @@ impl super::super::Cpu {
 
         16
     }
-    
+
     pub fn rr_r8(&mut self, register: &CpuRegister) -> u16 {
         let register_value = self.registers.get_target(register);
         let new_value = self.rr_8(register_value);
@@ -130,7 +130,7 @@ impl super::super::Cpu {
         16
     }
 
-    pub fn rrc_r8(&mut self, register: &CpuRegister ) -> u16 {
+    pub fn rrc_r8(&mut self, register: &CpuRegister) -> u16 {
         let register_value = self.registers.get_target(register);
         let new_value = self.rrc_8(register_value);
 
@@ -142,7 +142,7 @@ impl super::super::Cpu {
         let address = self.registers.get_target_16(&CpuRegister16::HL);
         let value = self.mmu.read_byte(address);
         let data = self.set_8(value, bit_n);
-        
+
         self.mmu.write_byte(address, data);
 
         16
@@ -166,7 +166,7 @@ impl super::super::Cpu {
         16
     }
 
-    pub fn sla_r8(&mut self, register: &CpuRegister ) -> u16 {
+    pub fn sla_r8(&mut self, register: &CpuRegister) -> u16 {
         let register_value = self.registers.get_target(register);
         let new_value = self.sla_8(register_value);
 
@@ -184,7 +184,7 @@ impl super::super::Cpu {
         16
     }
 
-    pub fn sra_r8(&mut self, register: &CpuRegister ) -> u16 {
+    pub fn sra_r8(&mut self, register: &CpuRegister) -> u16 {
         let register_value = self.registers.get_target(register);
         let new_value = self.sra_8(register_value);
 
@@ -202,7 +202,7 @@ impl super::super::Cpu {
         16
     }
 
-    pub fn srl_r8(&mut self, register: &CpuRegister ) -> u16 {
+    pub fn srl_r8(&mut self, register: &CpuRegister) -> u16 {
         let register_value = self.registers.get_target(register);
         let new_value = self.srl_8(register_value);
 

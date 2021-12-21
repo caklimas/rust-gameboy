@@ -1,5 +1,5 @@
-use crate::addresses::ld_opcode::LD_ADDRESS_LOWER;
 use super::opcode::{CpuRegister, CpuRegister16};
+use crate::addresses::ld_opcode::LD_ADDRESS_LOWER;
 
 impl super::super::Cpu {
     pub fn ld(&mut self, dest: &CpuRegister, src: &CpuRegister) -> u16 {
@@ -67,9 +67,11 @@ impl super::super::Cpu {
         self.registers.set_target(&CpuRegister::A, value);
 
         if *increment {
-            self.registers.set_target_16(&CpuRegister16::HL, address + 1);
+            self.registers
+                .set_target_16(&CpuRegister16::HL, address + 1);
         } else {
-            self.registers.set_target_16(&CpuRegister16::HL, address - 1);
+            self.registers
+                .set_target_16(&CpuRegister16::HL, address - 1);
         }
 
         8
@@ -81,9 +83,11 @@ impl super::super::Cpu {
         self.mmu.write_byte(address, data);
 
         if *increment {
-            self.registers.set_target_16(&CpuRegister16::HL, address + 1);
+            self.registers
+                .set_target_16(&CpuRegister16::HL, address + 1);
         } else {
-            self.registers.set_target_16(&CpuRegister16::HL, address - 1);
+            self.registers
+                .set_target_16(&CpuRegister16::HL, address - 1);
         }
 
         8

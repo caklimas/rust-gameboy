@@ -13,6 +13,11 @@ use super::{
     sweep_register::SweepRegister, volume_envelope::VolumeEnvelope,
 };
 
+/** Square-Wave Channel
+ * Sweep
+ * Volume Envelope
+ * Length Counter
+*/
 #[derive(Serialize, Deserialize, Default)]
 pub struct Channel1 {
     sweep_register: SweepRegister,

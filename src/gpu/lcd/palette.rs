@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use crate::constants::gpu::*;
+use serde::{Deserialize, Serialize};
 
 pub type Rgb = (u8, u8, u8);
 
@@ -8,7 +8,7 @@ pub enum Palette {
     White,
     LightGray,
     DarkGray,
-    Black
+    Black,
 }
 
 impl Palette {
@@ -18,7 +18,7 @@ impl Palette {
             1 => Palette::LightGray,
             2 => Palette::DarkGray,
             3 => Palette::Black,
-            _ => panic!("Invalid color: {}", value)
+            _ => panic!("Invalid color: {}", value),
         }
     }
 
@@ -27,7 +27,7 @@ impl Palette {
             Palette::White => RGB_WHITE,
             Palette::LightGray => RGB_LIGHT_GRAY,
             Palette::DarkGray => RGB_DARK_GRAY,
-            Palette::Black => RGB_BLACK
+            Palette::Black => RGB_BLACK,
         }
     }
 

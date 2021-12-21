@@ -1,6 +1,6 @@
-use crate::addresses::gpu::video_ram::VIDEO_RAM_LOWER;
 use super::super::super::Cpu;
 use super::super::opcode::{Condition, CpuRegister16};
+use crate::addresses::gpu::video_ram::VIDEO_RAM_LOWER;
 
 #[test]
 fn call_test() {

@@ -1,11 +1,11 @@
+use super::Lcd;
 use crate::constants::lcd::*;
 use crate::constants::screen::*;
-use super::Lcd;
 
 impl Lcd {
     pub fn get_bg_tile_data(&self, x: u16, window_y: i32, window_x: i32) -> TileData {
         let using_window = self.control.window_display() && window_y >= 0 && window_x >= 0;
-        let tile_base = TileBase::new(self.control.bg_window_tile_data_select());        
+        let tile_base = TileBase::new(self.control.bg_window_tile_data_select());
 
         TileData::new(
             self.get_pixel_x(x, using_window, window_x),
@@ -13,7 +13,7 @@ impl Lcd {
             tile_base,
             self.get_display_address(using_window),
             self.get_tile_x(x, using_window, window_x),
-            self.get_tile_y(using_window, window_y)
+            self.get_tile_y(using_window, window_y),
         )
     }
 
@@ -91,7 +91,7 @@ pub struct TileData {
     pub tile_base: TileBase,
     pub tile_map_base: u16,
     pub tile_x: u16,
-    pub tile_y: u16
+    pub tile_y: u16,
 }
 
 impl TileData {
@@ -101,7 +101,7 @@ impl TileData {
         tile_base: TileBase,
         tile_map_base: u16,
         tile_x: u16,
-        tile_y: u16
+        tile_y: u16,
     ) -> Self {
         TileData {
             pixel_x,
@@ -109,7 +109,7 @@ impl TileData {
             tile_base,
             tile_map_base,
             tile_x,
-            tile_y
+            tile_y,
         }
     }
 
@@ -130,15 +130,21 @@ impl TileData {
 
 pub struct TileBase {
     pub address: u16,
-    pub use_unsigned: bool
+    pub use_unsigned: bool,
 }
 
 impl TileBase {
     pub fn new(bg_window_tile_data_select: bool) -> Self {
         if bg_window_tile_data_select {
-            TileBase { address: 0x8000, use_unsigned: true }
+            TileBase {
+                address: 0x8000,
+                use_unsigned: true,
+            }
         } else {
-            TileBase { address: 0x8800, use_unsigned: false }
+            TileBase {
+                address: 0x8800,
+                use_unsigned: false,
+            }
         }
     }
 }

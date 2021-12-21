@@ -3,22 +3,22 @@ pub mod render;
 #[cfg(test)]
 mod tests;
 
-use serde::{Serialize, Deserialize};
 use crate::cartridge::Cartridge;
 use crate::cpu;
 use crate::input::Input;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Gameboy {
     cpu: cpu::Cpu,
-    pub input: Input
+    pub input: Input,
 }
 
 impl Gameboy {
     pub fn new(bytes: Vec<u8>, run_boot_rom: bool) -> Self {
         Gameboy {
             cpu: cpu::Cpu::new(Cartridge::new(bytes), run_boot_rom),
-            input: Input::new()
+            input: Input::new(),
         }
     }
 

@@ -23,5 +23,5 @@ pub enum CbOpcode {
     SrlR8(CpuRegister),
     SwapHl,
     SwapR8(CpuRegister),
-    Unknown
+    Unknown,
 }

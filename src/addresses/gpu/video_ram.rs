@@ -4,4 +4,4 @@ pub const VIDEO_RAM_BLOCK_1_LOWER: u16 = 0x8800;
 pub const VIDEO_RAM_BLOCK_1_UPPER: u16 = 0x8FFF;
 pub const VIDEO_RAM_BLOCK_2_LOWER: u16 = 0x9000;
 pub const VIDEO_RAM_BLOCK_2_UPPER: u16 = 0x97FF;
-pub const VIDEO_RAM_UPPER: u16 = 0x9FFF; 
+pub const VIDEO_RAM_UPPER: u16 = 0x9FFF;

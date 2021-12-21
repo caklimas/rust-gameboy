@@ -14,6 +14,9 @@ use super::{frequency_hi::FrequencyHi, sound_on_off::SoundOnOff};
 
 pub mod select_output_level;
 
+/** Waveform Channel
+ * Length Counter
+*/
 #[derive(Serialize, Deserialize, Default)]
 pub struct Channel3 {
     sound_on_off: SoundOnOff,
