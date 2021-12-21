@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 bitfield! {
+    /// Sweep is a way to adjust the frequency of a channel periodically.
     #[derive(Serialize, Deserialize, Default)]
     pub struct SweepRegister(u8);
     impl Debug;

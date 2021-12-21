@@ -8,11 +8,15 @@ use crate::{
     utils::invalid_address,
 };
 
-use super::{
+use self::{
     counter_consecutive_selection::CounterConsecutiveSelection,
-    polynomial_counter::PolynomialCounter, sound_length_wave_pattern::SoundLengthWavePattern,
-    volume_envelope::VolumeEnvelope,
+    polynomial_counter::PolynomialCounter,
 };
+
+use super::{sound_length_wave_pattern::SoundLengthWavePattern, volume_envelope::VolumeEnvelope};
+
+pub mod counter_consecutive_selection;
+pub mod polynomial_counter;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Channel4 {

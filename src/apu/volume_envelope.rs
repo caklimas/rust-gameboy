@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 bitfield! {
+    ///Envelope is a way to adjust the volume of a channel periodically.
     #[derive(Serialize, Deserialize, Default)]
     pub struct VolumeEnvelope(u8);
     impl Debug;

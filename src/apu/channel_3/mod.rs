@@ -8,9 +8,11 @@ use crate::{
     utils::invalid_address,
 };
 
-use super::{
-    frequency_hi::FrequencyHi, select_output_level::SelectOutputLevel, sound_on_off::SoundOnOff,
-};
+use self::select_output_level::SelectOutputLevel;
+
+use super::{frequency_hi::FrequencyHi, sound_on_off::SoundOnOff};
+
+pub mod select_output_level;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Channel3 {
