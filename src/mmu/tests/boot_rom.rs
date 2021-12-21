@@ -1,5 +1,5 @@
-use super::super::memory_sizes::BOOT_ROM_SIZE;
 use super::super::boot_rom::BootRom;
+use super::super::memory_sizes::BOOT_ROM_SIZE;
 
 #[test]
 fn read_test() {

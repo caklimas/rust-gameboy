@@ -1,7 +1,7 @@
-use crate::addresses::gpu::lcd::*;
 use super::bg_palette_data::BgPaletteData;
-use super::Lcd;
 use super::obj_palette_data::ObjPaletteData;
+use super::Lcd;
+use crate::addresses::gpu::lcd::*;
 
 #[test]
 fn read_bg_palette_test() {

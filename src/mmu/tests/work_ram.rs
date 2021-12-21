@@ -1,6 +1,6 @@
-use crate::addresses::work_ram::WORK_RAM_ECHO_LOWER;
 use super::super::memory_sizes::KILOBYTES_8;
 use super::super::work_ram::WorkRam;
+use crate::addresses::work_ram::WORK_RAM_ECHO_LOWER;
 
 #[test]
 fn read_test() {

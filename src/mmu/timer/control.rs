@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 bitfield! {
     #[derive(Serialize, Deserialize, Default)]
@@ -17,7 +17,7 @@ impl TimerControl {
             1 => 16,
             2 => 64,
             3 => 256,
-            _ => panic!("Invalid input select value {}", self.input_clock_select())
+            _ => panic!("Invalid input select value {}", self.input_clock_select()),
         }
     }
 }

@@ -1,5 +1,5 @@
 use super::super::super::Cpu;
-use super::super::opcode::{CpuRegister16};
+use super::super::opcode::CpuRegister16;
 use crate::addresses::gpu::video_ram::VIDEO_RAM_LOWER;
 
 #[test]
@@ -97,7 +97,10 @@ fn pop_test() {
     cpu.pop(&CpuRegister16::AF);
 
     assert_eq!(address, cpu.stack_pointer);
-    assert_eq!(cpu.mmu.read_word(VIDEO_RAM_LOWER), cpu.registers.get_target_16(&CpuRegister16::AF));
+    assert_eq!(
+        cpu.mmu.read_word(VIDEO_RAM_LOWER),
+        cpu.registers.get_target_16(&CpuRegister16::AF)
+    );
 }
 
 #[test]
@@ -124,7 +127,10 @@ fn push_test() {
     cpu.push(&CpuRegister16::BC);
 
     assert_eq!(VIDEO_RAM_LOWER, cpu.stack_pointer);
-    assert_eq!(cpu.registers.get_target_16(&CpuRegister16::BC), cpu.mmu.read_word(address - 2));
+    assert_eq!(
+        cpu.registers.get_target_16(&CpuRegister16::BC),
+        cpu.mmu.read_word(address - 2)
+    );
 }
 
 #[test]
