@@ -27,6 +27,13 @@ pub struct SquareChannel {
 }
 
 impl SquareChannel {
+    pub fn with_sweep() -> Self {
+        SquareChannel {
+            sweep_register: Option::Some(Default::default()),
+            ..Default::default()
+        }
+    }
+
     pub fn clock(&mut self, cycles: u16) {
         self.timer -= cycles;
         if self.timer <= 0 {

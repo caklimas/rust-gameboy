@@ -31,7 +31,7 @@ pub const WAVE_DUTIES: [[bool; 8]; 4] = [
     [false, true, true, true, true, true, true, false],      // 75%
 ];
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize)]
 pub struct Apu {
     channel_1: SquareChannel,
     channel_2: SquareChannel,
@@ -80,6 +80,19 @@ impl Apu {
             }
             CHANNEL_CONTROL..=SOUND_CONTROL => self.sound_control.write(address, value),
             _ => panic!("Invalid APU address 0x{:4X}", address),
+        }
+    }
+}
+
+impl Default for Apu {
+    fn default() -> Self {
+        Self {
+            channel_1: SquareChannel::with_sweep(),
+            channel_2: Default::default(),
+            channel_3: Default::default(),
+            channel_4: Default::default(),
+            sound_control: Default::default(),
+            wave_pattern_ram: Default::default(),
         }
     }
 }
