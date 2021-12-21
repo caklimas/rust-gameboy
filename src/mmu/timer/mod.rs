@@ -6,7 +6,7 @@ mod tests;
 use crate::addresses::timer::*;
 use crate::constants::timer::*;
 use control::TimerControl;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Timer {
@@ -16,14 +16,13 @@ pub struct Timer {
     cycles: u16,
     divider: u8,
     internal_counter: u32,
-    modulo: u8
+    modulo: u8,
 }
 
 impl Timer {
     pub fn clock(&mut self, cycles: u16) {
         self.cycles += cycles;
-        while self.cycles >= DIVIDER_INCREMENT_RATE
-        {
+        while self.cycles >= DIVIDER_INCREMENT_RATE {
             self.divider = self.divider.wrapping_add(1);
             self.cycles -= DIVIDER_INCREMENT_RATE;
         }
@@ -48,7 +47,7 @@ impl Timer {
             TIMER_COUNTER => self.counter,
             TIMER_MODULO => self.modulo,
             TIMER_CONTROL => self.control.get(),
-            _ => panic!("Invalid timer address 0x{:4X}", address)
+            _ => panic!("Invalid timer address 0x{:4X}", address),
         }
     }
 
@@ -58,7 +57,7 @@ impl Timer {
             TIMER_COUNTER => self.counter = data,
             TIMER_MODULO => self.modulo = data,
             TIMER_CONTROL => self.control.set(data),
-            _ => panic!("Invalid timer address 0x{:4X}", address)
+            _ => panic!("Invalid timer address 0x{:4X}", address),
         }
     }
 }

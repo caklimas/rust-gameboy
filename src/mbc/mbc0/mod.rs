@@ -1,19 +1,19 @@
 #[cfg(test)]
 mod tests;
 
-use crate::mmu::memory_sizes::*;
 use super::Mbc;
+use crate::mmu::memory_sizes::*;
 
 pub struct Mbc0 {
     ram: Vec<u8>,
-    rom: Vec<u8>
+    rom: Vec<u8>,
 }
 
 impl Mbc0 {
     pub fn new(data: Vec<u8>) -> Self {
         Mbc0 {
             ram: vec![0; KILOBYTES_8 as usize],
-            rom: data
+            rom: data,
         }
     }
 
@@ -42,6 +42,5 @@ impl Mbc for Mbc0 {
         self.ram[index] = data;
     }
 
-    fn write_rom(&mut self, _address: u16, _data: u8) {
-    }
+    fn write_rom(&mut self, _address: u16, _data: u8) {}
 }

@@ -1,13 +1,13 @@
-use serde::{Serialize, Deserialize};
-use super::palette::{Palette};
+use super::palette::Palette;
 use super::sprites::sprite_color::SpriteColor;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct ObjPaletteData {
     color_0: Palette,
     color_1: Palette,
     color_2: Palette,
-    color_3: Palette
+    color_3: Palette,
 }
 
 impl ObjPaletteData {
@@ -16,7 +16,7 @@ impl ObjPaletteData {
             color_0: Palette::White,
             color_1: Palette::from_u8((value >> 2) & 0b11),
             color_2: Palette::from_u8((value >> 4) & 0b11),
-            color_3: Palette::from_u8((value >> 6) & 0b11)
+            color_3: Palette::from_u8((value >> 6) & 0b11),
         }
     }
 
@@ -26,12 +26,12 @@ impl ObjPaletteData {
             1 => &self.color_1,
             2 => &self.color_2,
             3 => &self.color_3,
-            _ => panic!("Invalid color number {}", color_number)
+            _ => panic!("Invalid color number {}", color_number),
         };
 
         SpriteColor {
             color: palette.into_rgb(),
-            index: color_number
+            index: color_number,
         }
     }
 
