@@ -1,5 +1,5 @@
-use wasm_bindgen::prelude::*;
 use std::mem;
+use wasm_bindgen::prelude::*;
 
 #[macro_use]
 extern crate bitfield;
@@ -18,12 +18,13 @@ pub mod gpu;
 pub mod input;
 pub mod mbc;
 pub mod mmu;
+pub mod utils;
 
 #[no_mangle]
 #[wasm_bindgen]
 pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
     let gameboy = gameboy::Gameboy::new(bytes, true);
-    let b = Box::new(gameboy); 
+    let b = Box::new(gameboy);
     Box::into_raw(b)
 }
 

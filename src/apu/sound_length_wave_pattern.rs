@@ -6,7 +6,7 @@ bitfield! {
     impl Debug;
 
     pub wave_pattern_duty, _: 7, 6;
-    pub sound_length_data, _: 5, 0;
+    pub sound_length_data, set_sound_length_data: 5, 0;
 }
 
 impl SoundLengthWavePattern {

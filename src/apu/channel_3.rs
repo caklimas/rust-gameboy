@@ -1,8 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-use crate::addresses::apu::{
-    CHANNEL_3_FREQUENCY_HI_DATA, CHANNEL_3_FREQUENCY_LO_DATA, CHANNEL_3_SELECT_OUTPUT_LEVEL,
-    CHANNEL_3_SOUND_LENGTH, CHANNEL_3_SOUND_ON_OFF,
+use crate::{
+    addresses::apu::{
+        CHANNEL_3_FREQUENCY_HI_DATA, CHANNEL_3_FREQUENCY_LO_DATA, CHANNEL_3_SELECT_OUTPUT_LEVEL,
+        CHANNEL_3_SOUND_LENGTH, CHANNEL_3_SOUND_ON_OFF,
+    },
+    utils::invalid_address,
 };
 
 use super::{
@@ -26,7 +29,7 @@ impl Channel3 {
             CHANNEL_3_SELECT_OUTPUT_LEVEL => self.select_output_level.0,
             CHANNEL_3_FREQUENCY_LO_DATA => panic!("Can't read address 0x{:4X}", address),
             CHANNEL_3_FREQUENCY_HI_DATA => self.frequency_hi.0,
-            _ => panic!("Invalid APU address 0x{:4X}", address),
+            _ => invalid_address("APU", address),
         }
     }
 
@@ -37,7 +40,7 @@ impl Channel3 {
             CHANNEL_3_SELECT_OUTPUT_LEVEL => self.select_output_level.0 = value,
             CHANNEL_3_FREQUENCY_LO_DATA => self.frequency_lo = value,
             CHANNEL_3_FREQUENCY_HI_DATA => self.frequency_hi.0 = value,
-            _ => panic!("Invalid APU address 0x{:4X}", address),
+            _ => invalid_address("APU", address),
         }
     }
 

@@ -1,8 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-use crate::addresses::apu::{
-    CHANNEL_1_FREQUENCY_HI_DATA, CHANNEL_1_FREQUENCY_LO_DATA, CHANNEL_1_SOUND_LENGTH_WAVE_PATTERN,
-    CHANNEL_1_SWEEP_REGISTER, CHANNEL_1_VOLUME_ENVELOPE,
+use crate::{
+    addresses::apu::{
+        CHANNEL_1_FREQUENCY_HI_DATA, CHANNEL_1_FREQUENCY_LO_DATA,
+        CHANNEL_1_SOUND_LENGTH_WAVE_PATTERN, CHANNEL_1_SWEEP_REGISTER, CHANNEL_1_VOLUME_ENVELOPE,
+    },
+    utils::invalid_address,
 };
 
 use super::{
@@ -29,7 +32,7 @@ impl Channel1 {
             CHANNEL_1_VOLUME_ENVELOPE => self.frequency_lo,
             CHANNEL_1_FREQUENCY_LO_DATA => self.frequency_lo,
             CHANNEL_1_FREQUENCY_HI_DATA => self.frequency_hi.0,
-            _ => panic!("Invalid APU address 0x{:4X}", address),
+            _ => invalid_address("APU", address),
         }
     }
 
@@ -40,7 +43,7 @@ impl Channel1 {
             CHANNEL_1_VOLUME_ENVELOPE => self.volume_envelope.0 = value,
             CHANNEL_1_FREQUENCY_LO_DATA => self.frequency_lo = value,
             CHANNEL_1_FREQUENCY_HI_DATA => self.frequency_hi.0 = value,
-            _ => panic!("Invalid APU address 0x{:4X}", address),
+            _ => invalid_address("APU", address),
         }
     }
 
