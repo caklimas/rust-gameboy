@@ -1,8 +1,8 @@
+use serde::{Serialize, Deserialize};
 use crate::addresses::gpu::lcd::*;
 use crate::addresses::gpu::sprite::*;
 use crate::addresses::gpu::video_ram::*;
 use crate::constants::gpu::*;
-use serde::{Deserialize, Serialize};
 
 pub mod background;
 pub mod bg_palette_data;
@@ -14,9 +14,9 @@ pub mod palette;
 pub mod screen;
 pub mod sprites;
 
-use super::{video_oam::VideoOam, video_ram::VideoRam};
-use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
 use lcd_mode::LcdMode;
+use crate::mmu::interrupts::lcd_interrupt::LcdInterruptResult;
+use super::{video_oam::VideoOam, video_ram::VideoRam};
 
 #[cfg(test)]
 mod tests;
@@ -39,7 +39,7 @@ pub struct Lcd {
     window_x: u8,
     window_y: u8,
     video_ram: VideoRam,
-    video_oam: VideoOam,
+    video_oam: VideoOam
 }
 
 impl Lcd {
@@ -54,8 +54,8 @@ impl Lcd {
             LcdMode::SearchingOam => {
                 if self.mode_clock >= SEARCH_OAM_CYCLES {
                     self.set_mode(LcdMode::Drawing);
-                }
-            }
+                } 
+            },
             LcdMode::Drawing => {
                 if self.mode_clock >= DRAWING_CYCLES {
                     self.set_mode(LcdMode::HorizontalBlank);
@@ -67,7 +67,7 @@ impl Lcd {
                         result.lcd_stat = true;
                     }
                 }
-            }
+            },
             LcdMode::HorizontalBlank => {
                 if self.mode_clock >= HORIZONTAL_BLANK_CYCLES {
                     if self.line_number >= VERTICAL_BLANK_SCANLINE_LOWER {
@@ -87,7 +87,7 @@ impl Lcd {
                         }
                     }
                 }
-            }
+            },
             LcdMode::VerticalBlank => {
                 self.frame_complete = false;
                 if self.mode_clock >= MODE_CYCLES {
@@ -120,10 +120,8 @@ impl Lcd {
             LCD_WINDOW_Y => self.window_y,
             LCD_WINDOW_X => self.window_x,
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.read(address),
-            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
-                self.video_oam.read(address)
-            }
-            _ => panic!("Invalid lcd address: 0x{:4X}", address),
+            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.video_oam.read(address),
+            _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
     }
 
@@ -137,28 +135,20 @@ impl Lcd {
                     self.mode = LcdMode::HorizontalBlank;
                     self.line_number = 0;
                 }
-            }
+            },
             LCD_STATUS => self.set_status(data),
             LCD_SCROLL_Y => self.scroll_y = data,
             LCD_SCROLL_X => self.scroll_x = data,
             LCD_LY => (), // readonly
             LCD_LYC => self.lyc = data,
-            LCD_BG_PALETTE_DATA => {
-                self.bg_palette_data = bg_palette_data::BgPaletteData::from_u8(data)
-            }
-            LCD_OBJ_0_PALETTE_DATA => {
-                self.obj_palette_0_data = obj_palette_data::ObjPaletteData::from_u8(data)
-            }
-            LCD_OBJ_1_PALETTE_DATA => {
-                self.obj_palette_1_data = obj_palette_data::ObjPaletteData::from_u8(data)
-            }
+            LCD_BG_PALETTE_DATA => self.bg_palette_data = bg_palette_data::BgPaletteData::from_u8(data),
+            LCD_OBJ_0_PALETTE_DATA => self.obj_palette_0_data = obj_palette_data::ObjPaletteData::from_u8(data),
+            LCD_OBJ_1_PALETTE_DATA => self.obj_palette_1_data = obj_palette_data::ObjPaletteData::from_u8(data),
             LCD_WINDOW_Y => self.window_y = data,
             LCD_WINDOW_X => self.window_x = data,
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
-            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
-                self.video_oam.write(address, data)
-            }
-            _ => panic!("Invalid lcd address: 0x{:4X}", address),
+            SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.video_oam.write(address, data),
+            _ => panic!("Invalid lcd address: 0x{:4X}", address)
         }
     }
 
@@ -182,9 +172,8 @@ impl Lcd {
     }
 
     fn set_status(&mut self, data: u8) {
-        self.status.set(data);
-        self.status
-            .set_line_coincidence(self.line_number == self.lyc);
+        self.status.set(data);     
+        self.status.set_line_coincidence(self.line_number == self.lyc);
     }
 
     fn check_lyc_interrupt(&mut self, result: &mut LcdInterruptResult) {

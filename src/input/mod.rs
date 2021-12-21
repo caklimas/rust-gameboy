@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -11,7 +11,7 @@ pub struct Input {
     pub a: bool,
     pub b: bool,
     pub start: bool,
-    pub select: bool,
+    pub select: bool
 }
 
 #[wasm_bindgen]
@@ -60,6 +60,6 @@ impl Input {
             direction_keys |= 1 << 3;
         }
 
-        direction_keys
+        direction_keys       
     }
 }

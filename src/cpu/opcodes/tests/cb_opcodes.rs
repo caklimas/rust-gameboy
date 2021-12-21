@@ -1,6 +1,6 @@
-use crate::addresses::gpu::video_ram::VIDEO_RAM_LOWER;
-use crate::cpu::opcodes::opcode::{CpuRegister, CpuRegister16};
 use crate::cpu::Cpu;
+use crate::cpu::opcodes::opcode::{CpuRegister, CpuRegister16};
+use crate::addresses::gpu::video_ram::VIDEO_RAM_LOWER;
 
 #[test]
 fn bit_n_set_hl_test() {
@@ -131,7 +131,7 @@ fn rl_8_test() {
     cpu.registers.f.set_carry(true);
     let value = 0b0000_1100;
     let new_value = cpu.rl_8(value);
-
+    
     assert_eq!(false, cpu.registers.f.carry());
     assert_eq!(0b0001_1001, new_value);
 
@@ -192,7 +192,7 @@ fn rlc_8_test() {
 
     let value = 0b0000_1100;
     let new_value = cpu.rlc_8(value);
-
+    
     assert_eq!(false, cpu.registers.f.carry());
     assert_eq!(0b0001_1000, new_value);
 
@@ -253,7 +253,7 @@ fn rr_8_test() {
     cpu.registers.f.set_carry(true);
     let value = 0b0000_1100;
     let new_value = cpu.rr_8(value);
-
+    
     assert_eq!(false, cpu.registers.f.carry());
     assert_eq!(0b1000_0110, new_value);
 
@@ -314,7 +314,7 @@ fn rrc_8_test() {
 
     let value = 0b0000_1100;
     let new_value = cpu.rrc_8(value);
-
+    
     assert_eq!(false, cpu.registers.f.carry());
     assert_eq!(0b0000_0110, new_value);
 

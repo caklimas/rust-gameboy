@@ -13,10 +13,6 @@ use super::{
     volume_envelope::VolumeEnvelope,
 };
 
-/** Square-Wave Channel
- * Volume Envelope
- * Length Counter
-*/
 #[derive(Serialize, Deserialize, Default)]
 pub struct Channel2 {
     sound_length_wave_pattern: SoundLengthWavePattern,

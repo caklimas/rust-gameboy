@@ -78,7 +78,7 @@ pub enum Opcode {
     SubHl,
     XOr(CpuRegister),
     XOrD8,
-    XOrHl,
+    XOrHl
 }
 
 #[derive(Debug)]
@@ -89,7 +89,7 @@ pub enum CpuRegister {
     D,
     E,
     H,
-    L,
+    L
 }
 
 #[derive(Debug)]
@@ -97,13 +97,13 @@ pub enum CpuRegister16 {
     AF,
     BC,
     DE,
-    HL,
+    HL
 }
 
 #[derive(Debug)]
 pub enum Condition {
-    Z,  // Execute if Z is set.
+    Z, // Execute if Z is set.
     NZ, // Execute if Z is not set.
-    C,  // Execute if C is set.
+    C, // Execute if C is set.
     NC, // Execute if C is not set.
 }

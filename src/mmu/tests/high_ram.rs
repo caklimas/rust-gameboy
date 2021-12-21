@@ -1,5 +1,5 @@
-use super::super::high_ram::HighRam;
 use super::super::memory_sizes::HIGH_RAM;
+use super::super::high_ram::HighRam;
 
 #[test]
 fn read_test() {

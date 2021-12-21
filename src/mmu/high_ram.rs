@@ -1,14 +1,14 @@
-use super::memory_sizes::HIGH_RAM;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
+use super::memory_sizes::{HIGH_RAM};
 
 #[derive(Serialize, Deserialize)]
 pub struct HighRam {
-    data: Vec<u8>,
+    data: Vec<u8>
 }
 
 impl HighRam {
     pub fn read(&self, address: u16) -> u8 {
-        let masked_address = self.get_masked_address(address);
+        let masked_address = self.get_masked_address(address); 
         self.data[masked_address]
     }
 
@@ -25,7 +25,7 @@ impl HighRam {
 impl Default for HighRam {
     fn default() -> Self {
         HighRam {
-            data: vec![0; HIGH_RAM as usize],
+            data: vec![0; HIGH_RAM as usize]
         }
     }
 }

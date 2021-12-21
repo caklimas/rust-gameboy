@@ -16,9 +16,7 @@ impl super::super::Cpu {
     }
 
     pub fn adc_hl(&mut self) -> u16 {
-        let target = self
-            .mmu
-            .read_byte(self.registers.get_target_16(&CpuRegister16::HL));
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.add(target, true);
         self.registers.a = result;
         8
@@ -32,9 +30,7 @@ impl super::super::Cpu {
     }
 
     pub fn add_a_hl(&mut self) -> u16 {
-        let target = self
-            .mmu
-            .read_byte(self.registers.get_target_16(&CpuRegister16::HL));
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.add(target, false);
         self.registers.a = result;
         8
@@ -55,9 +51,7 @@ impl super::super::Cpu {
         self.registers.set_target_16(hl_register, result);
 
         self.registers.f.set_carry(overflow);
-        self.registers
-            .f
-            .set_half_carry(super::is_half_carry_16(hl_register_value, value));
+        self.registers.f.set_half_carry(super::is_half_carry_16(hl_register_value, value));
         self.registers.f.set_subtraction(false);
 
         8
@@ -70,30 +64,21 @@ impl super::super::Cpu {
         self.registers.set_target_16(register, result);
 
         self.registers.f.set_carry(overflow);
-        self.registers
-            .f
-            .set_half_carry(super::is_half_carry_16(value, self.stack_pointer));
+        self.registers.f.set_half_carry(super::is_half_carry_16(value, self.stack_pointer));
         self.registers.f.set_subtraction(false);
 
         8
     }
-
+    
     pub fn add_sp_e8(&mut self) -> u16 {
         let e = self.read_byte() as i8;
         let value = self.stack_pointer.wrapping_add(e as u16);
-
-        self.registers
-            .f
-            .set_carry(super::is_overflow_8(self.stack_pointer as u16, e as u16));
-        self.registers.f.set_half_carry(super::is_half_carry_8(
-            self.stack_pointer as u8,
-            e as u8,
-            false,
-            0,
-        ));
+        
+        self.registers.f.set_carry(super::is_overflow_8(self.stack_pointer as u16, e as u16));
+        self.registers.f.set_half_carry(super::is_half_carry_8(self.stack_pointer as u8, e as u8, false, 0));
         self.registers.f.set_subtraction(false);
         self.registers.f.set_zero(false);
-
+        
         self.stack_pointer = value;
         16
     }
@@ -113,9 +98,7 @@ impl super::super::Cpu {
     }
 
     pub fn and_hl(&mut self) -> u16 {
-        let target = self
-            .mmu
-            .read_byte(self.registers.get_target_16(&CpuRegister16::HL));
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.and(target);
         self.registers.a = result;
         8
@@ -141,9 +124,7 @@ impl super::super::Cpu {
     }
 
     pub fn cp_hl(&mut self) -> u16 {
-        let target = self
-            .mmu
-            .read_byte(self.registers.get_target_16(&CpuRegister16::HL));
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         self.sub(target, false);
         8
     }
@@ -156,10 +137,10 @@ impl super::super::Cpu {
     }
 
     pub fn daa(&mut self) -> u16 {
-        // When this instruction is executed, the A register is BCD corrected using the contents of the flags.
-        // The exact process is the following: if the least significant four bits of A contain a non-BCD digit
-        // (i. e. it is greater than 9) or the H flag is set, then $06 is added to the register.
-        // Then the four most significant bits are checked.
+        // When this instruction is executed, the A register is BCD corrected using the contents of the flags. 
+        // The exact process is the following: if the least significant four bits of A contain a non-BCD digit 
+        // (i. e. it is greater than 9) or the H flag is set, then $06 is added to the register. 
+        // Then the four most significant bits are checked. 
         // If this more significant digit also happens to be greater than 9 or the C flag is set, then $60 is added.
         let mut value = self.registers.a;
         let mut correction = if self.registers.f.carry() { 0x60 } else { 0x00 };
@@ -170,12 +151,8 @@ impl super::super::Cpu {
         if self.registers.f.subtraction() {
             value = value.wrapping_sub(correction);
         } else {
-            if value & 0x0F > 0x09 {
-                correction |= 0x06;
-            };
-            if value > 0x99 {
-                correction |= 0x60;
-            };
+            if value & 0x0F > 0x09 { correction |= 0x06; };
+            if value > 0x99 { correction |= 0x60; };
             value = value.wrapping_add(correction);
         }
 
@@ -256,9 +233,7 @@ impl super::super::Cpu {
     }
 
     pub fn or_hl(&mut self) -> u16 {
-        let target = self
-            .mmu
-            .read_byte(self.registers.get_target_16(&CpuRegister16::HL));
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.or(target);
         self.registers.a = result;
         8
@@ -279,9 +254,7 @@ impl super::super::Cpu {
     }
 
     pub fn sbc_hl(&mut self) -> u16 {
-        let target = self
-            .mmu
-            .read_byte(self.registers.get_target_16(&CpuRegister16::HL));
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.sub(target, true);
         self.registers.a = result;
         8
@@ -309,9 +282,7 @@ impl super::super::Cpu {
     }
 
     pub fn sub_hl(&mut self) -> u16 {
-        let target = self
-            .mmu
-            .read_byte(self.registers.get_target_16(&CpuRegister16::HL));
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.sub(target, false);
         self.registers.a = result;
         8
@@ -332,9 +303,7 @@ impl super::super::Cpu {
     }
 
     pub fn xor_hl(&mut self) -> u16 {
-        let target = self
-            .mmu
-            .read_byte(self.registers.get_target_16(&CpuRegister16::HL));
+        let target = self.mmu.read_byte(self.registers.get_target_16(&CpuRegister16::HL));
         let result = self.xor(target);
         self.registers.a = result;
         8

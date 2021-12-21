@@ -5,7 +5,7 @@ pub mod rom_size;
 #[cfg(test)]
 mod tests;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 
 big_array! { BigArray; }
 
@@ -31,7 +31,7 @@ pub struct CartridgeHeader {
     #[serde(with = "BigArray")]
     logo: [u8; LOGO_SIZE],
     name: [u8; NAME_SIZE],
-    sgb_flag: u8,
+    sgb_flag: u8
 }
 
 impl CartridgeHeader {
@@ -54,7 +54,7 @@ impl CartridgeHeader {
             rom_size: rom_size::RomSize::new(&bytes[ROM_SIZE_INDEX]),
             logo,
             name,
-            sgb_flag: bytes[SGB_INDEX],
+            sgb_flag: bytes[SGB_INDEX]
         }
     }
 

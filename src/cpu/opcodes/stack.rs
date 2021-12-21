@@ -1,4 +1,4 @@
-use super::opcode::CpuRegister16;
+use super::opcode::{CpuRegister16};
 
 impl super::super::Cpu {
     pub fn ld_a16_sp(&mut self) -> u16 {
@@ -24,15 +24,8 @@ impl super::super::Cpu {
         let value = self.stack_pointer.wrapping_add(e as u16);
         self.registers.set_target_16(&CpuRegister16::HL, value);
 
-        self.registers
-            .f
-            .set_carry(super::is_overflow_8(self.stack_pointer as u16, e as u16));
-        self.registers.f.set_half_carry(super::is_half_carry_8(
-            self.stack_pointer as u8,
-            e as u8,
-            false,
-            0,
-        ));
+        self.registers.f.set_carry(super::is_overflow_8(self.stack_pointer as u16, e as u16));
+        self.registers.f.set_half_carry(super::is_half_carry_8(self.stack_pointer as u8, e as u8, false, 0));
         self.registers.f.set_subtraction(false);
         self.registers.f.set_zero(false);
         12

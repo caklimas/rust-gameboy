@@ -1,7 +1,7 @@
 #[derive(Debug, PartialEq)]
 pub enum BankingMode {
     Rom,
-    Ram,
+    Ram
 }
 
 impl BankingMode {
@@ -9,7 +9,7 @@ impl BankingMode {
         match value & 0x01 {
             0 => BankingMode::Rom,
             1 => BankingMode::Ram,
-            _ => panic!("Invalid banking mode"),
-        }
+            _ => panic!("Invalid banking mode")
+        } 
     }
 }

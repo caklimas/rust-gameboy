@@ -1,8 +1,8 @@
 pub mod lcd_interrupt;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize, Deserialize};
 
-bitfield! {
+bitfield!{
     #[derive(Serialize, Deserialize, Default)]
     pub struct Interrupt(u8);
     impl Debug;

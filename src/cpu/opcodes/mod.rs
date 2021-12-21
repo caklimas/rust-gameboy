@@ -12,24 +12,18 @@ pub mod stack;
 #[cfg(test)]
 mod tests;
 
-use opcode::Condition;
+use opcode::{Condition};
 
 const LOWER_NIBBLE_8: u8 = 0xF;
 const LOWER_NIBBLE_16: u16 = 0x7FF;
 
 impl super::Cpu {
     fn add(&mut self, target: u8, include_carry: bool) -> u8 {
-        let carry = if include_carry && self.registers.f.carry() {
-            1
-        } else {
-            0
-        };
+        let carry = if include_carry && self.registers.f.carry() { 1 } else { 0 };
         let (result, overflow) = self.registers.a.overflowing_add(target);
         let (result_2, overflow_2) = result.overflowing_add(carry);
         self.registers.f.set_carry(overflow | overflow_2);
-        self.registers
-            .f
-            .set_half_carry(is_half_carry_8(self.registers.a, target, false, carry));
+        self.registers.f.set_half_carry(is_half_carry_8(self.registers.a, target, false, carry));
         self.registers.f.set_subtraction(false);
         self.registers.f.set_zero(result_2 == 0);
 
@@ -64,9 +58,7 @@ impl super::Cpu {
 
     fn inc_8(&mut self, target: u8) -> u8 {
         let result = target.wrapping_add(1);
-        self.registers
-            .f
-            .set_half_carry(is_half_carry_8(target, 1, false, 0));
+        self.registers.f.set_half_carry(is_half_carry_8(target, 1, false, 0));
         self.registers.f.set_subtraction(false);
         self.registers.f.set_zero(result == 0);
 
@@ -75,10 +67,18 @@ impl super::Cpu {
 
     fn is_condition_met(&self, condition: &Condition) -> bool {
         match condition {
-            Condition::Z => self.registers.f.zero(),
-            Condition::NZ => !self.registers.f.zero(),
-            Condition::C => self.registers.f.carry(),
-            Condition::NC => !self.registers.f.carry(),
+            Condition::Z => {
+                self.registers.f.zero()
+            },
+            Condition::NZ => {
+                !self.registers.f.zero()
+            },
+            Condition::C => {
+                self.registers.f.carry()
+            },
+            Condition::NC => {
+                !self.registers.f.carry()
+            }
         }
     }
 
@@ -113,7 +113,11 @@ impl super::Cpu {
         let bit_7 = value & 0b1000_0000;
 
         let shifted = value << 1;
-        let result = if carry { shifted | 0b1 } else { shifted & !0b1 };
+        let result = if carry {
+            shifted | 0b1
+        } else {
+            shifted & !0b1
+        };
 
         self.registers.f.set_carry(bit_7 > 0);
         self.registers.f.set_half_carry(false);
@@ -126,14 +130,14 @@ impl super::Cpu {
     fn rlc_8(&mut self, value: u8) -> u8 {
         // C <- [7 <- 0] <- [7]
         let bit_7 = value & 0b1000_0000;
-
+        
         let shifted = value << 1;
         let result = if bit_7 > 0 {
             shifted | 0b1
         } else {
             shifted & !0b1
         };
-
+        
         self.registers.f.set_carry(bit_7 > 0);
         self.registers.f.set_half_carry(false);
         self.registers.f.set_subtraction(false);
@@ -145,14 +149,14 @@ impl super::Cpu {
         // C -> [7 -> 0] -> C
         let bit_0 = value & 0b1;
         let carry = self.registers.f.carry();
-
+        
         let shifted = value >> 1;
         let result = if carry {
             shifted | 0b1000_0000
         } else {
             shifted & !0b1000_0000
         };
-
+        
         self.registers.f.set_carry(bit_0 > 0);
         self.registers.f.set_half_carry(false);
         self.registers.f.set_subtraction(false);
@@ -163,14 +167,14 @@ impl super::Cpu {
     fn rrc_8(&mut self, value: u8) -> u8 {
         // [0] -> [7 -> 0] -> C
         let bit_0 = value & 0b1;
-
+        
         let shifted = value >> 1;
         let result = if bit_0 > 0 {
             shifted | 0b1000_0000
         } else {
             shifted & !0b1000_0000
         };
-
+        
         self.registers.f.set_carry(bit_0 > 0);
         self.registers.f.set_half_carry(false);
         self.registers.f.set_subtraction(false);
@@ -226,19 +230,13 @@ impl super::Cpu {
 
         result
     }
-
+ 
     fn sub(&mut self, target: u8, include_carry: bool) -> u8 {
-        let carry = if include_carry && self.registers.f.carry() {
-            1
-        } else {
-            0
-        };
+        let carry = if include_carry && self.registers.f.carry() { 1 } else { 0 };
         let (result, overflow) = self.registers.a.overflowing_sub(target);
         let (result_2, overflow_2) = result.overflowing_sub(carry);
         self.registers.f.set_carry(overflow | overflow_2);
-        self.registers
-            .f
-            .set_half_carry(is_half_carry_8(self.registers.a, target, true, carry));
+        self.registers.f.set_half_carry(is_half_carry_8(self.registers.a, target, true, carry));
         self.registers.f.set_subtraction(true);
         self.registers.f.set_zero(result_2 == 0);
 

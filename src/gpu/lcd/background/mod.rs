@@ -1,5 +1,5 @@
-use super::Lcd;
 use crate::constants::{gpu::WINDOW_X_OFFSET, screen::*};
+use super::Lcd;
 use tile::*;
 
 pub mod tile;
@@ -12,8 +12,7 @@ impl Lcd {
             let window_x = self.get_window_x(x);
             let tile_data = self.get_bg_tile_data(x, window_y, window_x);
             let tile_number = self.get_tile_number(&tile_data);
-            let tile_address =
-                tile_data.tile_base.address + tile_data.get_tile_address(tile_number);
+            let tile_address = tile_data.tile_base.address + tile_data.get_tile_address(tile_number);
             let color_number = self.get_bg_color_number(tile_address, &tile_data);
             let color = self.bg_palette_data.get_color(color_number);
 
@@ -34,9 +33,9 @@ impl Lcd {
         let color_high = (pixel_high >> color_bit) & 0b1;
         (color_high << 1) | color_low
     }
-
+    
     fn get_window_x(&self, x: u16) -> i32 {
-        -((self.window_x as i32) - (WINDOW_X_OFFSET as i32)) + (x as i32)
+        - ((self.window_x as i32) - (WINDOW_X_OFFSET as i32)) + (x as i32)
     }
 
     fn get_window_y(&self) -> i32 {

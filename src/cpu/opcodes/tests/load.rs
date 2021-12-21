@@ -1,7 +1,9 @@
 use super::super::super::Cpu;
 use super::super::opcode::{CpuRegister, CpuRegister16};
 use crate::addresses::{
-    gpu::video_ram::VIDEO_RAM_LOWER, high_ram::HIGH_RAM_LOWER, ld_opcode::LD_ADDRESS_LOWER,
+    gpu::video_ram::VIDEO_RAM_LOWER,
+    high_ram::HIGH_RAM_LOWER,
+    ld_opcode::LD_ADDRESS_LOWER
 };
 
 #[test]
@@ -22,8 +24,7 @@ fn ld_test() {
 fn ld_a8_a_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
-    cpu.mmu
-        .write_byte(VIDEO_RAM_LOWER, (HIGH_RAM_LOWER - LD_ADDRESS_LOWER) as u8);
+    cpu.mmu.write_byte(VIDEO_RAM_LOWER, (HIGH_RAM_LOWER - LD_ADDRESS_LOWER) as u8);
     cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.registers.a = data;
 
@@ -37,8 +38,7 @@ fn ld_a_a8_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
     cpu.mmu.write_byte(HIGH_RAM_LOWER, data);
-    cpu.mmu
-        .write_byte(VIDEO_RAM_LOWER, (HIGH_RAM_LOWER - LD_ADDRESS_LOWER) as u8);
+    cpu.mmu.write_byte(VIDEO_RAM_LOWER, (HIGH_RAM_LOWER - LD_ADDRESS_LOWER) as u8);
     cpu.program_counter = VIDEO_RAM_LOWER;
 
     cpu.ld_a_a8();
@@ -66,7 +66,7 @@ fn ld_a_a16_test() {
     cpu.mmu.write_word(VIDEO_RAM_LOWER, HIGH_RAM_LOWER);
     cpu.mmu.write_byte(HIGH_RAM_LOWER, data);
     cpu.program_counter = VIDEO_RAM_LOWER;
-
+    
     cpu.ld_a_a16();
 
     assert_eq!(data, cpu.registers.a);
@@ -114,8 +114,7 @@ fn ld_hl_d8_test() {
     let mut cpu: Cpu = Default::default();
     cpu.program_counter = VIDEO_RAM_LOWER;
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
-    cpu.registers
-        .set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER + 1);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER + 1);
 
     cpu.ld_hl_d8();
 
@@ -127,47 +126,33 @@ fn ld_hl_a_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
     cpu.registers.a = data;
-    cpu.registers
-        .set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
 
     cpu.ld_hl_a(&true);
 
     assert_eq!(data, cpu.mmu.read_byte(VIDEO_RAM_LOWER));
-    assert_eq!(
-        VIDEO_RAM_LOWER + 1,
-        cpu.registers.get_target_16(&CpuRegister16::HL)
-    );
+    assert_eq!(VIDEO_RAM_LOWER + 1, cpu.registers.get_target_16(&CpuRegister16::HL));
 
     cpu.ld_hl_a(&false);
 
-    assert_eq!(
-        VIDEO_RAM_LOWER,
-        cpu.registers.get_target_16(&CpuRegister16::HL)
-    );
+    assert_eq!(VIDEO_RAM_LOWER, cpu.registers.get_target_16(&CpuRegister16::HL));
 }
 
 #[test]
 fn ld_a_hl_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
-    cpu.registers
-        .set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::HL, VIDEO_RAM_LOWER);
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
 
     cpu.ld_a_hl(&true);
 
     assert_eq!(data, cpu.registers.a);
-    assert_eq!(
-        VIDEO_RAM_LOWER + 1,
-        cpu.registers.get_target_16(&CpuRegister16::HL)
-    );
+    assert_eq!(VIDEO_RAM_LOWER + 1, cpu.registers.get_target_16(&CpuRegister16::HL));
 
     cpu.ld_hl_a(&false);
 
-    assert_eq!(
-        VIDEO_RAM_LOWER,
-        cpu.registers.get_target_16(&CpuRegister16::HL)
-    );
+    assert_eq!(VIDEO_RAM_LOWER, cpu.registers.get_target_16(&CpuRegister16::HL));
 }
 
 #[test]
@@ -175,8 +160,7 @@ fn ld_16_r_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
     cpu.registers.a = data;
-    cpu.registers
-        .set_target_16(&CpuRegister16::BC, VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::BC, VIDEO_RAM_LOWER);
 
     cpu.ld_16_r(&CpuRegister16::BC, &CpuRegister::A);
 
@@ -188,8 +172,7 @@ fn ld_r_16_test() {
     let data = 5;
     let mut cpu: Cpu = Default::default();
     cpu.mmu.write_byte(VIDEO_RAM_LOWER, data);
-    cpu.registers
-        .set_target_16(&CpuRegister16::BC, VIDEO_RAM_LOWER);
+    cpu.registers.set_target_16(&CpuRegister16::BC, VIDEO_RAM_LOWER);
 
     cpu.ld_r_16(&CpuRegister::A, &CpuRegister16::BC);
 

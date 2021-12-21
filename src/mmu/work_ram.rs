@@ -1,18 +1,18 @@
-use super::memory_sizes::KILOBYTES_8;
+use serde::{Serialize, Deserialize};
+use super::memory_sizes::{KILOBYTES_8};
 use crate::addresses::work_ram::WORK_RAM_ECHO_LOWER;
-use serde::{Deserialize, Serialize};
 
 big_array! { BigArray; }
 
 #[derive(Serialize, Deserialize)]
 pub struct WorkRam {
     #[serde(with = "BigArray")]
-    data: [u8; KILOBYTES_8 as usize],
+    data: [u8; KILOBYTES_8 as usize]
 }
 
 impl WorkRam {
     pub fn read(&self, address: u16) -> u8 {
-        let masked_address = self.get_masked_address(address);
+        let masked_address = self.get_masked_address(address); 
         self.data[masked_address]
     }
 
@@ -35,7 +35,7 @@ impl WorkRam {
 impl Default for WorkRam {
     fn default() -> Self {
         WorkRam {
-            data: [0; KILOBYTES_8 as usize],
+            data: [0; KILOBYTES_8 as usize]
         }
     }
 }

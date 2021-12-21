@@ -1,17 +1,17 @@
+use serde::{Serialize, Deserialize};
 use crate::mmu::memory_sizes::*;
-use serde::{Deserialize, Serialize};
 
 big_array! { BigArray; }
 
 #[derive(Serialize, Deserialize)]
 pub struct VideoOam {
     #[serde(with = "BigArray")]
-    data: [u8; VIDEO_OAM],
+    data: [u8; VIDEO_OAM]
 }
 
 impl VideoOam {
     pub fn read(&self, address: u16) -> u8 {
-        let masked_address = self.get_masked_address(address);
+        let masked_address = self.get_masked_address(address); 
         self.data[masked_address]
     }
 
@@ -28,7 +28,7 @@ impl VideoOam {
 impl Default for VideoOam {
     fn default() -> Self {
         VideoOam {
-            data: [0; VIDEO_OAM as usize],
+            data: [0; VIDEO_OAM as usize]
         }
     }
 }

@@ -1,5 +1,5 @@
-use super::super::opcodes::opcode::{CpuRegister, CpuRegister16};
 use super::super::registers::Registers;
+use super::super::opcodes::opcode::{CpuRegister, CpuRegister16};
 
 #[test]
 fn get_target_test() {

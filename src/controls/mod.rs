@@ -1,5 +1,5 @@
+use serde::{Serialize, Deserialize};
 use crate::input::*;
-use serde::{Deserialize, Serialize};
 
 #[cfg(test)]
 mod tests;
@@ -13,7 +13,7 @@ pub struct Controls {
     pub direction_keys: u8,
     pub interrupt: bool,
     pub select_button_keys: bool,
-    pub select_direction_keys: bool,
+    pub select_direction_keys: bool
 }
 
 impl Controls {
@@ -67,7 +67,7 @@ impl Default for Controls {
             direction_keys: 0b0000_1111,
             interrupt: false,
             select_button_keys: true,
-            select_direction_keys: true,
+            select_direction_keys: true
         }
     }
 }

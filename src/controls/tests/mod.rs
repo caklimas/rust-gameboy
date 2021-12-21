@@ -24,7 +24,7 @@ fn read_byte_test() {
 fn write_byte_test() {
     let mut controls: Controls = Default::default();
     controls.write_byte(0);
-
+    
     assert_eq!(true, controls.select_button_keys);
     assert_eq!(true, controls.select_direction_keys);
 
