@@ -27,6 +27,8 @@ pub struct Channel4 {
 }
 
 impl Channel4 {
+    pub fn clock(&mut self, cycles: u16) {}
+
     pub fn read(&self, address: u16) -> u8 {
         match address {
             CHANNEL_4_SOUND_LENGTH => panic!("Channel 4 sound length is write only"),

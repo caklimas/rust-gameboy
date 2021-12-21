@@ -13,10 +13,12 @@ use crate::addresses::interrupt_enable::*;
 use crate::addresses::serial_data_transfer::*;
 use crate::addresses::timer::*;
 use crate::addresses::work_ram::*;
+use crate::apu;
 use crate::gpu;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Ram {
+    pub apu: apu::Apu,
     pub gpu: gpu::Gpu,
     pub interrupt_enable: Interrupt,
     pub interrupt_flag: Interrupt,
@@ -31,6 +33,7 @@ impl Ram {
         let gpu_cycles = cycles;
         self.clock_timer(gpu_cycles);
         self.clock_gpu(gpu_cycles);
+        self.clock_apu(cycles);
     }
 
     pub fn read(&self, address: u16) -> u8 {
@@ -88,6 +91,10 @@ impl Ram {
             self.interrupt_flag.set_timer(true);
             self.timer.interrupt_requested = false;
         }
+    }
+
+    fn clock_apu(&mut self, cycles: u16) {
+        self.apu.clock(cycles);
     }
 
     fn run_dma(&mut self, data: u8) {

@@ -24,6 +24,8 @@ pub struct Channel3 {
 }
 
 impl Channel3 {
+    pub fn clock(&mut self, cycles: u16) {}
+
     pub fn read(&self, address: u16) -> u8 {
         match address {
             CHANNEL_3_SOUND_ON_OFF => self.sound_on_off.0,

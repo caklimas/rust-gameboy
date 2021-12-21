@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use super::WAVE_DUTIES;
+
 bitfield! {
     #[derive(Serialize, Deserialize, Default)]
     pub struct SoundLengthWavePattern(u8);
@@ -10,12 +12,10 @@ bitfield! {
 }
 
 impl SoundLengthWavePattern {
-    pub fn get_ratio(&self) -> f64 {
-        match self.wave_pattern_duty() {
-            0 => 0.125,
-            1 => 0.25,
-            2 => 0.50,
-            3 => 0.75,
+    pub fn get_wave_duty(&self) -> [bool; 8] {
+        let duty = self.wave_pattern_duty() as usize;
+        match duty {
+            0..=3 => WAVE_DUTIES[duty],
             _ => panic!("Invalid wave_pattern_duty"),
         }
     }
