@@ -1,5 +1,9 @@
 use serde::{Deserialize, Serialize};
 
+pub const ENVELOPE_PERIOD_MAX: u8 = 8;
+pub const ENVELOPE_VOLUME_MIN: u8 = 0;
+pub const ENVELOPE_VOLUME_MAX: u8 = 15;
+
 bitfield! {
     ///Envelope is a way to adjust the volume of a channel periodically.
     #[derive(Serialize, Deserialize, Default)]

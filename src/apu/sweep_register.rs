@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+pub const SWEEP_PERIOD_MAX: u8 = 8;
+
 bitfield! {
     /// Sweep is a way to adjust the frequency of a channel periodically.
     #[derive(Serialize, Deserialize, Default)]
@@ -7,7 +9,7 @@ bitfield! {
     impl Debug;
 
     pub time, _: 6, 4;
-    pub direction, _: 3; // Sweep Increase/Decrease 0: Addition    (frequency increases) 1: Subtraction (frequency decreases)
+    pub decrease, _: 3; // Sweep Increase/Decrease 0: Addition    (frequency increases) 1: Subtraction (frequency decreases)
     pub shift, _: 2, 0; // Number of sweep shift (n: 0-7)
 }
 

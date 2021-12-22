@@ -11,9 +11,16 @@ use crate::{
 };
 
 use super::{
-    frequency_hi::FrequencyHi, sound_length_wave_pattern::SoundLengthWavePattern,
-    sweep_register::SweepRegister, volume_envelope::VolumeEnvelope, LENGTH_COUNTER_MAX,
+    frequency_hi::FrequencyHi,
+    sound_length_wave_pattern::SoundLengthWavePattern,
+    sweep_register::{SweepRegister, SWEEP_PERIOD_MAX},
+    volume_envelope::{
+        VolumeEnvelope, ENVELOPE_PERIOD_MAX, ENVELOPE_VOLUME_MAX, ENVELOPE_VOLUME_MIN,
+    },
+    LENGTH_COUNTER_MAX,
 };
+
+const FREQUENCY_MAX: u16 = 2047;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct SquareChannel {
@@ -24,12 +31,16 @@ pub struct SquareChannel {
     frequency_hi: FrequencyHi,
     sequence_pointer: usize,
     timer: u16,
+    frequency: u16,
     enabled: bool,
     output_volume: u8,
     volume: u8,
     length_counter: u8,
-    envelope_counter: u8,
+    envelope_timer: u8,
     envelope_running: bool,
+    sweep_period: u8,
+    sweep_enabled: bool,
+    shadow_frequency: u16,
 }
 
 impl SquareChannel {
@@ -65,15 +76,57 @@ impl SquareChannel {
         if self.sweep_register.is_none() {
             return;
         }
-    }
 
-    pub fn clock_volume_envelope(&mut self) {
-        self.envelope_counter -= 1;
-        if self.envelope_counter > 0 {
+        self.sweep_period -= 1;
+        if self.sweep_period > 0 {
             return;
         }
 
-        self.envelope_counter = self.volume_envelope.initial_envelope_period();
+        let sweep = self.sweep_register.as_ref().unwrap();
+        self.sweep_period = sweep.time();
+        if self.sweep_period == 0 {
+            self.sweep_period = SWEEP_PERIOD_MAX;
+        }
+
+        if self.sweep_enabled && sweep.time() > 0 {
+            let (new_frequency, disable) = self.calculate_sweep();
+            if new_frequency <= FREQUENCY_MAX && sweep.shift() > 0 {
+                self.shadow_frequency = new_frequency;
+                self.frequency = new_frequency;
+                self.calculate_sweep();
+            }
+
+            if disable {
+                self.enabled = false;
+            }
+
+            self.calculate_sweep();
+        }
+    }
+
+    pub fn clock_volume_envelope(&mut self) {
+        self.envelope_timer -= 1;
+        if self.envelope_timer > 0 {
+            return;
+        }
+
+        self.envelope_timer = self.volume_envelope.initial_envelope_period();
+        if self.envelope_timer == 0 {
+            self.envelope_timer = ENVELOPE_PERIOD_MAX;
+        }
+
+        if self.envelope_running && self.volume_envelope.initial_envelope_period() > 0 {
+            let direction = self.volume_envelope.direction();
+            if direction && self.volume < ENVELOPE_VOLUME_MAX {
+                self.volume += 1;
+            } else if !direction && self.volume > ENVELOPE_VOLUME_MIN {
+                self.volume -= 1;
+            }
+        }
+
+        if self.volume == ENVELOPE_VOLUME_MIN || self.volume == ENVELOPE_VOLUME_MAX {
+            self.envelope_running = false;
+        }
     }
 
     pub fn read(&self, address: u16) -> u8 {
@@ -98,16 +151,16 @@ impl SquareChannel {
             }
             CHANNEL_1_VOLUME_ENVELOPE | CHANNEL_2_VOLUME_ENVELOPE => {
                 self.volume_envelope.0 = value;
-                self.envelope_counter = self.volume_envelope.initial_envelope_period();
+                self.envelope_timer = self.volume_envelope.initial_envelope_period();
                 self.volume = self.volume_envelope.initial_volume();
             }
             CHANNEL_1_FREQUENCY_LO_DATA | CHANNEL_2_FREQUENCY_LO_DATA => {
                 self.frequency_lo = value;
-                self.update_timer();
+                self.frequency = self.get_frequency();
             }
             CHANNEL_1_FREQUENCY_HI_DATA | CHANNEL_2_FREQUENCY_HI_DATA => {
                 self.frequency_hi.0 = value;
-                self.update_timer();
+                self.frequency = self.get_frequency();
                 if self.frequency_hi.initialize() {
                     self.initialize();
                 }
@@ -131,11 +184,10 @@ impl SquareChannel {
     }
 
     fn update_timer(&mut self) {
-        let frequency = self.get_frequency();
-        self.timer = if frequency > 2048 {
+        self.timer = if self.frequency > 2048 {
             0
         } else {
-            (2048 - frequency) * 4
+            (2048 - self.frequency) * 4
         }
     }
 
@@ -156,10 +208,53 @@ impl SquareChannel {
     fn initialize(&mut self) {
         self.enabled = true;
 
+        self.initialize_length_counter();
+        self.initialize_envelope();
+        self.initialize_sweep();
+
+        self.shadow_frequency = self.get_frequency();
+    }
+
+    fn initialize_length_counter(&mut self) {
         if self.length_counter == 0 {
             self.length_counter = LENGTH_COUNTER_MAX;
         }
         self.update_timer();
+    }
+
+    fn initialize_envelope(&mut self) {
         self.envelope_running = true;
+        self.envelope_timer = self.volume_envelope.initial_envelope_period();
+        self.volume = self.volume_envelope.initial_volume();
+    }
+
+    fn initialize_sweep(&mut self) {
+        if self.sweep_register.is_none() {
+            return;
+        }
+
+        let sweep = self.sweep_register.as_ref().unwrap();
+        self.shadow_frequency = self.get_frequency();
+        self.sweep_period = sweep.time();
+        if self.sweep_period == 0 {
+            self.sweep_period = SWEEP_PERIOD_MAX;
+        }
+
+        self.sweep_enabled = self.sweep_period > 0 || sweep.shift() > 0;
+        if sweep.shift() > 0 {
+            self.calculate_sweep();
+        }
+    }
+
+    fn calculate_sweep(&self) -> (u16, bool) {
+        let sweep = self.sweep_register.as_ref().unwrap();
+        let mut new_frequency = self.shadow_frequency >> sweep.shift();
+        if sweep.decrease() {
+            new_frequency = self.shadow_frequency - new_frequency;
+        } else {
+            new_frequency = self.shadow_frequency + new_frequency;
+        }
+
+        (new_frequency, new_frequency > FREQUENCY_MAX)
     }
 }
