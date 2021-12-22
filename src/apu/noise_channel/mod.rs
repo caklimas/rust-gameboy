@@ -13,10 +13,7 @@ use self::{
     polynomial_counter::PolynomialCounter,
 };
 
-use super::{
-    sound_length_wave_pattern::SoundLengthWavePattern, volume_envelope::VolumeEnvelope,
-    LENGTH_COUNTER_MAX,
-};
+use super::{sound_length_wave_pattern::SoundLengthWavePattern, volume_envelope::VolumeEnvelope};
 
 pub mod counter_consecutive_selection;
 pub mod polynomial_counter;

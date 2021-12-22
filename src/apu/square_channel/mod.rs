@@ -28,6 +28,8 @@ pub struct SquareChannel {
     output_volume: u8,
     volume: u8,
     length_counter: u8,
+    envelope_counter: u8,
+    envelope_running: bool,
 }
 
 impl SquareChannel {
@@ -65,7 +67,14 @@ impl SquareChannel {
         }
     }
 
-    pub fn clock_volume_envelope(&mut self) {}
+    pub fn clock_volume_envelope(&mut self) {
+        self.envelope_counter -= 1;
+        if self.envelope_counter > 0 {
+            return;
+        }
+
+        self.envelope_counter = self.volume_envelope.initial_envelope_period();
+    }
 
     pub fn read(&self, address: u16) -> u8 {
         match address {
@@ -87,7 +96,11 @@ impl SquareChannel {
                 self.sound_length_wave_pattern.0 = value;
                 self.length_counter = self.sound_length_wave_pattern.get_sound_length();
             }
-            CHANNEL_1_VOLUME_ENVELOPE | CHANNEL_2_VOLUME_ENVELOPE => self.volume_envelope.0 = value,
+            CHANNEL_1_VOLUME_ENVELOPE | CHANNEL_2_VOLUME_ENVELOPE => {
+                self.volume_envelope.0 = value;
+                self.envelope_counter = self.volume_envelope.initial_envelope_period();
+                self.volume = self.volume_envelope.initial_volume();
+            }
             CHANNEL_1_FREQUENCY_LO_DATA | CHANNEL_2_FREQUENCY_LO_DATA => {
                 self.frequency_lo = value;
                 self.update_timer();
@@ -147,5 +160,6 @@ impl SquareChannel {
             self.length_counter = LENGTH_COUNTER_MAX;
         }
         self.update_timer();
+        self.envelope_running = true;
     }
 }
