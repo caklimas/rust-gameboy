@@ -12,7 +12,7 @@ use crate::{
 
 use super::{
     frequency_hi::FrequencyHi, sound_length_wave_pattern::SoundLengthWavePattern,
-    sweep_register::SweepRegister, volume_envelope::VolumeEnvelope,
+    sweep_register::SweepRegister, volume_envelope::VolumeEnvelope, LENGTH_COUNTER_MAX,
 };
 
 #[derive(Serialize, Deserialize, Default)]
@@ -24,6 +24,10 @@ pub struct SquareChannel {
     frequency_hi: FrequencyHi,
     sequence_pointer: usize,
     timer: u16,
+    enabled: bool,
+    output_volume: u8,
+    volume: u8,
+    length_counter: u8,
 }
 
 impl SquareChannel {
@@ -34,13 +38,34 @@ impl SquareChannel {
         }
     }
 
-    pub fn clock(&mut self, cycles: u16) {
-        self.timer -= cycles;
+    pub fn step(&mut self) {
+        self.timer -= 1;
         if self.timer <= 0 {
             self.sequence_pointer = (self.sequence_pointer + 1) % 8;
             self.update_timer();
         }
+
+        self.output_volume = if self.enabled { self.volume } else { 0 };
     }
+
+    pub fn clock_length_counter(&mut self) {
+        if self.length_counter <= 0 || !self.frequency_hi.length_enabled() {
+            return;
+        }
+
+        self.length_counter -= 1;
+        if self.length_counter == 0 {
+            self.enabled = false;
+        }
+    }
+
+    pub fn clock_sweep(&mut self) {
+        if self.sweep_register.is_none() {
+            return;
+        }
+    }
+
+    pub fn clock_volume_envelope(&mut self) {}
 
     pub fn read(&self, address: u16) -> u8 {
         match address {
@@ -59,7 +84,8 @@ impl SquareChannel {
         match address {
             CHANNEL_1_SWEEP_REGISTER => self.set_sweep_register(value),
             CHANNEL_1_SOUND_LENGTH_WAVE_PATTERN | CHANNEL_2_SOUND_LENGTH_WAVE_PATTERN => {
-                self.sound_length_wave_pattern.0 = value
+                self.sound_length_wave_pattern.0 = value;
+                self.length_counter = self.sound_length_wave_pattern.get_sound_length();
             }
             CHANNEL_1_VOLUME_ENVELOPE | CHANNEL_2_VOLUME_ENVELOPE => self.volume_envelope.0 = value,
             CHANNEL_1_FREQUENCY_LO_DATA | CHANNEL_2_FREQUENCY_LO_DATA => {
@@ -69,6 +95,9 @@ impl SquareChannel {
             CHANNEL_1_FREQUENCY_HI_DATA | CHANNEL_2_FREQUENCY_HI_DATA => {
                 self.frequency_hi.0 = value;
                 self.update_timer();
+                if self.frequency_hi.initialize() {
+                    self.initialize();
+                }
             }
             _ => invalid_address("APU", address),
         }
@@ -80,9 +109,9 @@ impl SquareChannel {
         hi | lo
     }
 
-    pub fn get_output(&self) -> u8 {
+    pub fn get_output_volume(&self) -> u8 {
         if self.sound_length_wave_pattern.get_wave_duty()[self.sequence_pointer] {
-            1
+            self.output_volume
         } else {
             0
         }
@@ -109,5 +138,14 @@ impl SquareChannel {
             .as_mut()
             .unwrap_or_else(|| panic!("Sweep not available"));
         sweep_register.0 = value
+    }
+
+    fn initialize(&mut self) {
+        self.enabled = true;
+
+        if self.length_counter == 0 {
+            self.length_counter = LENGTH_COUNTER_MAX;
+        }
+        self.update_timer();
     }
 }

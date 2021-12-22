@@ -1,4 +1,4 @@
-use crate::apu::channel_3::select_output_level::SelectOutputLevel;
+use crate::apu::wave_channel::select_output_level::SelectOutputLevel;
 
 #[test]
 fn get_output_level_test() {

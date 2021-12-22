@@ -13,21 +13,42 @@ use self::{
     polynomial_counter::PolynomialCounter,
 };
 
-use super::{sound_length_wave_pattern::SoundLengthWavePattern, volume_envelope::VolumeEnvelope};
+use super::{
+    sound_length_wave_pattern::SoundLengthWavePattern, volume_envelope::VolumeEnvelope,
+    LENGTH_COUNTER_MAX,
+};
 
 pub mod counter_consecutive_selection;
 pub mod polynomial_counter;
 
 #[derive(Serialize, Deserialize, Default)]
-pub struct Channel4 {
+pub struct NoiseChannel {
     sound_length: SoundLengthWavePattern,
     volume_envelope: VolumeEnvelope,
     polynomial_counter: PolynomialCounter,
     selection: CounterConsecutiveSelection,
+    timer: u16,
+    enabled: bool,
+    output_volume: u8,
+    volume: u8,
+    length_counter: u8,
 }
 
-impl Channel4 {
-    pub fn clock(&mut self, cycles: u16) {}
+impl NoiseChannel {
+    pub fn step(&mut self) {}
+
+    pub fn clock_length_counter(&mut self) {
+        if self.length_counter <= 0 || !self.selection.length_enabled() {
+            return;
+        }
+
+        self.length_counter -= 1;
+        if self.length_counter == 0 {
+            self.enabled = false;
+        }
+    }
+
+    pub fn clock_volume_envelope(&mut self) {}
 
     pub fn read(&self, address: u16) -> u8 {
         match address {

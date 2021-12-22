@@ -15,7 +15,7 @@ use super::{frequency_hi::FrequencyHi, sound_on_off::SoundOnOff};
 pub mod select_output_level;
 
 #[derive(Serialize, Deserialize, Default)]
-pub struct Channel3 {
+pub struct WaveChannel {
     sound_on_off: SoundOnOff,
     sound_length: u8,
     select_output_level: SelectOutputLevel,
@@ -23,8 +23,10 @@ pub struct Channel3 {
     frequency_hi: FrequencyHi,
 }
 
-impl Channel3 {
-    pub fn clock(&mut self, cycles: u16) {}
+impl WaveChannel {
+    pub fn step(&mut self) {}
+
+    pub fn clock_length_counter(&mut self) {}
 
     pub fn read(&self, address: u16) -> u8 {
         match address {

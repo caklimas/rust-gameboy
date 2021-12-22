@@ -14,15 +14,9 @@ bitfield! {
 impl SweepRegister {
     pub fn get_sweep_time(&self) -> f64 {
         let hz = 128.0;
+        let time = self.time();
         let numerator = match self.time() {
-            0b000 => 0.0,
-            0b001 => 1.0,
-            0b010 => 2.0,
-            0b011 => 3.0,
-            0b100 => 4.0,
-            0b101 => 5.0,
-            0b110 => 6.0,
-            0b111 => 7.0,
+            0..=7 => time as f64,
             _ => panic!("Invalid sweep time value"),
         };
 

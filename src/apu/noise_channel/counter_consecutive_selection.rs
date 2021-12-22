@@ -5,6 +5,6 @@ bitfield! {
     pub struct CounterConsecutiveSelection(u8);
     impl Debug;
 
-    pub initial, _: 7;
-    pub selection, _: 6;
+    pub initialize, _: 7;
+    pub length_enabled, _: 6;
 }

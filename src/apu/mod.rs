@@ -7,23 +7,25 @@ use crate::addresses::apu::{
 };
 
 use self::{
-    channel_3::Channel3, channel_4::Channel4, sound_control::SoundControl,
-    square_channel::SquareChannel,
+    frame_sequencer::FrameSequencer, noise_channel::NoiseChannel, sound_control::SoundControl,
+    square_channel::SquareChannel, wave_channel::WaveChannel,
 };
 
-pub mod channel_3;
-pub mod channel_4;
+pub mod frame_sequencer;
 pub mod frequency_hi;
+pub mod noise_channel;
 pub mod sound_control;
 pub mod sound_length_wave_pattern;
 pub mod sound_on_off;
 pub mod square_channel;
 pub mod sweep_register;
 pub mod volume_envelope;
+pub mod wave_channel;
 
 #[cfg(test)]
 mod tests;
 
+pub const LENGTH_COUNTER_MAX: u8 = 64;
 pub const WAVE_DUTIES: [[bool; 8]; 4] = [
     [false, false, false, false, false, false, false, true], // 12.5%
     [true, false, false, false, false, false, false, true],  // 25%
@@ -31,22 +33,56 @@ pub const WAVE_DUTIES: [[bool; 8]; 4] = [
     [false, true, true, true, true, true, true, false],      // 75%
 ];
 
+const FRAME_SEQUENCE_COUNTDOWN_TICKS: u16 = 8192;
+const FRAME_SEQUENCE_STEP_TICKS: u8 = 8;
+
 #[derive(Serialize, Deserialize)]
 pub struct Apu {
     channel_1: SquareChannel,
     channel_2: SquareChannel,
-    channel_3: Channel3,
-    channel_4: Channel4,
+    channel_3: WaveChannel,
+    channel_4: NoiseChannel,
     sound_control: SoundControl,
     wave_pattern_ram: [u8; 16],
+    frame_sequencer: FrameSequencer,
 }
 
 impl Apu {
     pub fn clock(&mut self, cycles: u16) {
-        self.channel_1.clock(cycles);
-        self.channel_2.clock(cycles);
-        self.channel_3.clock(cycles);
-        self.channel_4.clock(cycles);
+        // 1 CPU Cycle is 1 APU Cycle
+        for _ in cycles..=0 {
+            self.frame_sequencer.countdown -= 1;
+            if self.frame_sequencer.countdown <= 0 {
+                self.frame_sequencer.countdown = FRAME_SEQUENCE_COUNTDOWN_TICKS;
+
+                match self.frame_sequencer.step {
+                    0 => self.clock_length_counters(),
+                    1 => (),
+                    2 => {
+                        self.clock_sweep();
+                        self.clock_length_counters();
+                    }
+                    3 => (),
+                    4 => self.clock_length_counters(),
+                    5 => (), // Do nothing
+                    6 => {
+                        self.clock_sweep();
+                        self.clock_length_counters();
+                    }
+                    7 => self.clock_volume_envelope(),
+                    _ => panic!("Invalid frame sequencer step"),
+                }
+
+                self.frame_sequencer.step =
+                    (self.frame_sequencer.step + 1) % FRAME_SEQUENCE_STEP_TICKS;
+            }
+
+            // Step all channels
+            self.channel_1.step();
+            self.channel_2.step();
+            self.channel_3.step();
+            self.channel_4.step();
+        }
     }
 
     pub fn read(&self, address: u16) -> u8 {
@@ -82,6 +118,23 @@ impl Apu {
             _ => panic!("Invalid APU address 0x{:4X}", address),
         }
     }
+
+    fn clock_length_counters(&mut self) {
+        self.channel_1.clock_length_counter();
+        self.channel_2.clock_length_counter();
+        self.channel_3.clock_length_counter();
+        self.channel_4.clock_length_counter();
+    }
+
+    fn clock_sweep(&mut self) {
+        self.channel_1.clock_sweep();
+    }
+
+    fn clock_volume_envelope(&mut self) {
+        self.channel_1.clock_volume_envelope();
+        self.channel_2.clock_volume_envelope();
+        self.channel_4.clock_volume_envelope();
+    }
 }
 
 impl Default for Apu {
@@ -93,6 +146,7 @@ impl Default for Apu {
             channel_4: Default::default(),
             sound_control: Default::default(),
             wave_pattern_ram: Default::default(),
+            frame_sequencer: Default::default(),
         }
     }
 }
