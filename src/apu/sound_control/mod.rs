@@ -16,9 +16,9 @@ pub mod sound_trigger;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct SoundControl {
-    channel_control: ChannelControl,
-    output_terminal_selection: SoundOutputTerminalSelection,
-    sound_trigger: SoundTrigger,
+    pub channel_control: ChannelControl,
+    pub output_terminal_selection: SoundOutputTerminalSelection,
+    pub sound_trigger: SoundTrigger,
 }
 
 impl SoundControl {

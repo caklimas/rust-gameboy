@@ -24,7 +24,7 @@ pub struct WaveChannel {
 }
 
 impl WaveChannel {
-    pub fn step(&mut self) {}
+    pub fn clock(&mut self) {}
 
     pub fn clock_length_counter(&mut self) {}
 

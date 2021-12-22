@@ -4,6 +4,7 @@ use crate::addresses::apu::{
     CHANNEL_1_FREQUENCY_HI_DATA, CHANNEL_1_SWEEP_REGISTER, CHANNEL_2_FREQUENCY_HI_DATA,
     CHANNEL_2_SOUND_LENGTH_WAVE_PATTERN, CHANNEL_3_FREQUENCY_HI_DATA, CHANNEL_3_SOUND_ON_OFF,
     CHANNEL_4_COUNTER_CONSECUTIVE_INITIAL, CHANNEL_4_SOUND_LENGTH, CHANNEL_CONTROL, SOUND_CONTROL,
+    WAVE_PATTERN_RAM_LOWER, WAVE_PATTERN_RAM_UPPER,
 };
 
 use self::{
@@ -35,6 +36,7 @@ pub const WAVE_DUTIES: [[bool; 8]; 4] = [
 
 const FRAME_SEQUENCE_COUNTDOWN_TICKS: u16 = 8192;
 const FRAME_SEQUENCE_STEP_TICKS: u8 = 8;
+const SAMPLE_COUNTER_MAX: u8 = 95;
 
 #[derive(Serialize, Deserialize)]
 pub struct Apu {
@@ -45,6 +47,7 @@ pub struct Apu {
     sound_control: SoundControl,
     wave_pattern_ram: [u8; 16],
     frame_sequencer: FrameSequencer,
+    sample_counter: u8,
 }
 
 impl Apu {
@@ -78,10 +81,49 @@ impl Apu {
             }
 
             // Step all channels
-            self.channel_1.step();
-            self.channel_2.step();
-            self.channel_3.step();
-            self.channel_4.step();
+            self.channel_1.clock();
+            self.channel_2.clock();
+            self.channel_3.clock();
+            self.channel_4.clock();
+
+            self.sample_counter -= 1;
+            if self.sample_counter <= 0 {
+                self.sample_counter = SAMPLE_COUNTER_MAX;
+
+                // Left volumes
+                let mut buffer_in_0 = 0.0;
+                let volume =
+                    (self.sound_control.channel_control.s02_output_level() as u16 * 128) / 7;
+
+                if self
+                    .sound_control
+                    .output_terminal_selection
+                    .sound_2_to_s02()
+                {
+                    buffer_in_0 = self.channel_2.get_output_volume() as f64 / 100.0;
+                }
+
+                if buffer_in_0 != 0.0 {
+                    println!("Left Buffer in: {} volume: {}", buffer_in_0, volume);
+                }
+
+                // Right volumes
+                let mut buffer_in_0 = 0.0;
+                let volume =
+                    (self.sound_control.channel_control.s01_output_level() as u16 * 128) / 7;
+
+                if self
+                    .sound_control
+                    .output_terminal_selection
+                    .sound_2_to_s01()
+                {
+                    buffer_in_0 = self.channel_2.get_output_volume() as f64 / 100.0;
+                }
+
+                if buffer_in_0 != 0.0 {
+                    println!("Right Buffer in: {} volume: {}", buffer_in_0, volume);
+                }
+            }
         }
     }
 
@@ -96,6 +138,7 @@ impl Apu {
                 self.channel_4.read(address)
             }
             CHANNEL_CONTROL..=SOUND_CONTROL => self.sound_control.read(address),
+            WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => 0,
             _ => panic!("Invalid APU address 0x{:4X}", address),
         }
     }
@@ -115,6 +158,7 @@ impl Apu {
                 self.channel_4.write(address, value)
             }
             CHANNEL_CONTROL..=SOUND_CONTROL => self.sound_control.write(address, value),
+            WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => (),
             _ => panic!("Invalid APU address 0x{:4X}", address),
         }
     }
@@ -147,6 +191,7 @@ impl Default for Apu {
             sound_control: Default::default(),
             wave_pattern_ram: Default::default(),
             frame_sequencer: Default::default(),
+            sample_counter: Default::default(),
         }
     }
 }

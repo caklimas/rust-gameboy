@@ -32,7 +32,7 @@ pub struct NoiseChannel {
 }
 
 impl NoiseChannel {
-    pub fn step(&mut self) {}
+    pub fn clock(&mut self) {}
 
     pub fn clock_length_counter(&mut self) {
         if self.length_counter <= 0 || !self.selection.length_enabled() {

@@ -51,7 +51,7 @@ impl SquareChannel {
         }
     }
 
-    pub fn step(&mut self) {
+    pub fn clock(&mut self) {
         self.timer -= 1;
         if self.timer <= 0 {
             self.sequence_pointer = (self.sequence_pointer + 1) % 8;
@@ -176,6 +176,7 @@ impl SquareChannel {
     }
 
     pub fn get_output_volume(&self) -> u8 {
+        println!("Get output volume");
         if self.sound_length_wave_pattern.get_wave_duty()[self.sequence_pointer] {
             self.output_volume
         } else {
