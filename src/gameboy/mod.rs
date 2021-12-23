@@ -22,7 +22,7 @@ impl Gameboy {
         }
     }
 
-    pub fn clock(&mut self) -> u16 {
+    pub fn clock(&mut self) -> (u16, bool) {
         self.cpu.clock()
     }
 

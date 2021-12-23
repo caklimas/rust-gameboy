@@ -31,11 +31,11 @@ pub struct Ram {
 }
 
 impl Ram {
-    pub fn clock(&mut self, cycles: u16) {
+    pub fn clock(&mut self, cycles: u16) -> bool {
         let gpu_cycles = cycles;
         self.clock_timer(gpu_cycles);
         self.clock_gpu(gpu_cycles);
-        self.clock_apu(cycles);
+        self.clock_apu(cycles)
     }
 
     pub fn read(&self, address: u16) -> u8 {
@@ -97,8 +97,8 @@ impl Ram {
         }
     }
 
-    fn clock_apu(&mut self, cycles: u16) {
-        self.apu.clock(cycles);
+    fn clock_apu(&mut self, cycles: u16) -> bool {
+        self.apu.clock(cycles)
     }
 
     fn run_dma(&mut self, data: u8) {

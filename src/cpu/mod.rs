@@ -43,18 +43,19 @@ impl Cpu {
         cpu
     }
 
-    pub fn clock(&mut self) -> u16 {
+    pub fn clock(&mut self) -> (u16, bool) {
         let mut cycles = 0;
+        let mut audio_buffer_full = false;
         if let Some(c) = self.handle_interrupts() {
-            self.mmu.clock(c);
+            audio_buffer_full = self.mmu.clock(c);
             cycles = c;
         } else if let Some(c) = self.execute() {
-            self.mmu.clock(c);
+            audio_buffer_full = self.mmu.clock(c);
             cycles = c;
         }
 
         self.master_clock_cycles += cycles as u32;
-        cycles
+        (cycles, audio_buffer_full)
     }
 
     pub fn frame_complete(&self) -> bool {

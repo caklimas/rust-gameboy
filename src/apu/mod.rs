@@ -8,10 +8,11 @@ use crate::addresses::apu::{
 };
 
 use self::{
-    frame_sequencer::FrameSequencer, noise_channel::NoiseChannel, sound_control::SoundControl,
-    square_channel::SquareChannel, wave_channel::WaveChannel,
+    audio_formatter::mix_audio, frame_sequencer::FrameSequencer, noise_channel::NoiseChannel,
+    sound_control::SoundControl, square_channel::SquareChannel, wave_channel::WaveChannel,
 };
 
+pub mod audio_formatter;
 pub mod frame_sequencer;
 pub mod frequency_hi;
 pub mod noise_channel;
@@ -37,6 +38,7 @@ pub const WAVE_DUTIES: [[bool; 8]; 4] = [
 const FRAME_SEQUENCE_COUNTDOWN_TICKS: u16 = 8192;
 const FRAME_SEQUENCE_STEP_TICKS: u8 = 8;
 const SAMPLE_COUNTER_MAX: u8 = 95;
+const SAMPLE_SIZE: usize = 4096;
 
 #[derive(Serialize, Deserialize)]
 pub struct Apu {
@@ -48,10 +50,16 @@ pub struct Apu {
     wave_pattern_ram: [u8; 16],
     frame_sequencer: FrameSequencer,
     sample_counter: u8,
+
+    #[serde(skip_serializing, skip_deserializing, default = "get_default_buffer")]
+    buffer: [f32; SAMPLE_SIZE],
+    buffer_index: usize,
 }
 
 impl Apu {
-    pub fn clock(&mut self, cycles: u16) {
+    pub fn clock(&mut self, cycles: u16) -> bool {
+        let mut audio_buffer_full = false;
+
         // 1 CPU Cycle is 1 APU Cycle
         for _ in 0..cycles {
             self.frame_sequencer.countdown -= 1;
@@ -90,33 +98,19 @@ impl Apu {
             if self.sample_counter <= 0 {
                 self.sample_counter = SAMPLE_COUNTER_MAX;
 
-                // Left volumes
-                let mut buffer_in_0 = 0.0;
-                let volume =
-                    (self.sound_control.channel_control.s02_output_level() as u16 * 128) / 7;
+                self.buffer_left_channel();
+                self.buffer_right_channel();
+            }
 
-                if self
-                    .sound_control
-                    .output_terminal_selection
-                    .sound_2_to_s02()
-                {
-                    buffer_in_0 = self.channel_2.get_output_volume() as f64 / 100.0;
-                }
-
-                // Right volumes
-                let mut buffer_in_0 = 0.0;
-                let volume =
-                    (self.sound_control.channel_control.s01_output_level() as u16 * 128) / 7;
-
-                if self
-                    .sound_control
-                    .output_terminal_selection
-                    .sound_2_to_s01()
-                {
-                    buffer_in_0 = self.channel_2.get_output_volume() as f64 / 100.0;
-                }
+            if self.buffer_index >= SAMPLE_SIZE {
+                self.buffer_index = 0;
+                audio_buffer_full = true;
+                println!("Buffer full");
+                break;
             }
         }
+
+        audio_buffer_full
     }
 
     pub fn read(&self, address: u16) -> u8 {
@@ -171,6 +165,76 @@ impl Apu {
         self.channel_2.clock_volume_envelope();
         self.channel_4.clock_volume_envelope();
     }
+
+    fn buffer_left_channel(&mut self) {
+        let mut buffer_input = 0.0_f32;
+        let volume = (self.sound_control.channel_control.s02_output_level() as u16 * 128) / 7;
+
+        if self
+            .sound_control
+            .output_terminal_selection
+            .sound_1_to_s02()
+        {
+            buffer_input = mix_audio(
+                buffer_input,
+                self.channel_1.get_output_volume() as f32 / 100.0,
+                volume,
+            );
+        }
+        if self
+            .sound_control
+            .output_terminal_selection
+            .sound_2_to_s02()
+        {
+            buffer_input = mix_audio(
+                buffer_input,
+                self.channel_2.get_output_volume() as f32 / 100.0,
+                volume,
+            );
+        }
+
+        self.buffer[self.buffer_index] = buffer_input;
+        self.buffer_index += 1;
+
+        if buffer_input != 0.0 {
+            // println!("Left Buffer in: {} volume: {}", buffer_input, volume);
+        }
+    }
+
+    fn buffer_right_channel(&mut self) {
+        let mut buffer_input = 0.0;
+        let volume = (self.sound_control.channel_control.s01_output_level() as u16 * 128) / 7;
+
+        if self
+            .sound_control
+            .output_terminal_selection
+            .sound_1_to_s01()
+        {
+            buffer_input = mix_audio(
+                buffer_input,
+                self.channel_1.get_output_volume() as f32 / 100.0,
+                volume,
+            );
+        }
+        if self
+            .sound_control
+            .output_terminal_selection
+            .sound_2_to_s01()
+        {
+            buffer_input = mix_audio(
+                buffer_input,
+                self.channel_2.get_output_volume() as f32 / 100.0,
+                volume,
+            );
+        }
+
+        self.buffer[self.buffer_index] = buffer_input;
+        self.buffer_index += 1;
+
+        if buffer_input != 0.0 {
+            // println!("Right Buffer in: {} volume: {}", buffer_input, volume);
+        }
+    }
 }
 
 impl Default for Apu {
@@ -184,6 +248,12 @@ impl Default for Apu {
             wave_pattern_ram: Default::default(),
             frame_sequencer: Default::default(),
             sample_counter: Default::default(),
+            buffer: get_default_buffer(),
+            buffer_index: 0,
         }
     }
+}
+
+fn get_default_buffer() -> [f32; SAMPLE_SIZE] {
+    [Default::default(); SAMPLE_SIZE]
 }
