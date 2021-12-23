@@ -47,7 +47,7 @@ impl Mmu {
         mmu
     }
 
-    pub fn clock(&mut self, cycles: u16) {
+    pub fn clock(&mut self, cycles: u16) -> bool {
         self.ram.clock(cycles)
     }
 

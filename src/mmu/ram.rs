@@ -5,6 +5,8 @@ use super::interrupts::Interrupt;
 use super::serial_data_transfer::SerialDataTransfer;
 use super::timer::Timer;
 use super::work_ram;
+use crate::addresses::apu::CHANNEL_1_SWEEP_REGISTER;
+use crate::addresses::apu::WAVE_PATTERN_RAM_UPPER;
 use crate::addresses::gpu::lcd::*;
 use crate::addresses::gpu::sprite::*;
 use crate::addresses::gpu::video_ram::*;
@@ -13,10 +15,12 @@ use crate::addresses::interrupt_enable::*;
 use crate::addresses::serial_data_transfer::*;
 use crate::addresses::timer::*;
 use crate::addresses::work_ram::*;
+use crate::apu;
 use crate::gpu;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Ram {
+    pub apu: apu::Apu,
     pub gpu: gpu::Gpu,
     pub interrupt_enable: Interrupt,
     pub interrupt_flag: Interrupt,
@@ -27,10 +31,11 @@ pub struct Ram {
 }
 
 impl Ram {
-    pub fn clock(&mut self, cycles: u16) {
+    pub fn clock(&mut self, cycles: u16) -> bool {
         let gpu_cycles = cycles;
         self.clock_timer(gpu_cycles);
         self.clock_gpu(gpu_cycles);
+        self.clock_apu(cycles)
     }
 
     pub fn read(&self, address: u16) -> u8 {
@@ -42,6 +47,7 @@ impl Ram {
             }
             DIVIDER_REGISTER..=TIMER_CONTROL => self.timer.read(address),
             INTERRUPT_FLAG => self.interrupt_flag.get(),
+            CHANNEL_1_SWEEP_REGISTER..=WAVE_PATTERN_RAM_UPPER => self.apu.read(address),
             LCD_DMA_START => 0, // write only
             LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => self.gpu.read(address),
             HIGH_RAM_LOWER..=HIGH_RAM_UPPER => self.high_ram.read(address),
@@ -64,6 +70,7 @@ impl Ram {
             DIVIDER_REGISTER..=TIMER_CONTROL => self.timer.write(address, data),
             INTERRUPT_FLAG => self.interrupt_flag.set(data),
             LCD_DMA_START => self.run_dma(data),
+            CHANNEL_1_SWEEP_REGISTER..=WAVE_PATTERN_RAM_UPPER => self.apu.write(address, data),
             LCD_CONTROL..=LCD_LYC | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X => {
                 self.gpu.write(address, data)
             }
@@ -88,6 +95,10 @@ impl Ram {
             self.interrupt_flag.set_timer(true);
             self.timer.interrupt_requested = false;
         }
+    }
+
+    fn clock_apu(&mut self, cycles: u16) -> bool {
+        self.apu.clock(cycles)
     }
 
     fn run_dma(&mut self, data: u8) {

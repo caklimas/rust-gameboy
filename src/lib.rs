@@ -8,6 +8,7 @@ extern crate bitfield;
 extern crate serde_big_array;
 
 pub mod addresses;
+pub mod apu;
 pub mod cartridge;
 pub mod constants;
 pub mod controls;
@@ -17,6 +18,7 @@ pub mod gpu;
 pub mod input;
 pub mod mbc;
 pub mod mmu;
+pub mod utils;
 
 #[no_mangle]
 #[wasm_bindgen]
@@ -29,20 +31,27 @@ pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
 #[no_mangle]
 #[wasm_bindgen]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
-pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Vec<u8> {
+pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Frame {
     unsafe {
-        let screen: Vec<u8>;
+        let mut screen = None;
+        let mut audio_buffer = None;
         let mut gb = Box::from_raw(gameboy);
         'running: loop {
-            gb.clock();
+            let result = gb.clock();
             if gb.frame_complete() {
-                screen = gb.get_screen().to_owned();
+                screen = Option::Some(gb.get_screen().to_owned());
+            }
+            if result.1 {
+                audio_buffer = Option::Some(gb.get_audio_buffer());
+            }
+
+            if gb.frame_complete() || result.1 {
                 break 'running;
             }
         }
 
         mem::forget(gb);
-        screen
+        Frame::new(audio_buffer, screen)
     }
 }
 
@@ -54,5 +63,28 @@ pub fn update_controls(gameboy: *mut gameboy::Gameboy, input: input::Input) {
         let mut gb = Box::from_raw(gameboy);
         gb.update_controls(input);
         mem::forget(gb);
+    }
+}
+
+#[wasm_bindgen]
+pub struct Frame {
+    audio_buffer: Option<[f32; 4096]>,
+    screen: Option<Vec<u8>>,
+}
+
+impl Frame {
+    pub fn new(audio_buffer: Option<[f32; 4096]>, screen: Option<Vec<u8>>) -> Self {
+        Self {
+            audio_buffer,
+            screen,
+        }
+    }
+
+    pub fn get_audio_buffer_full(&self) -> Option<[f32; 4096]> {
+        self.audio_buffer
+    }
+
+    pub fn get_screen(&self) -> Option<Vec<u8>> {
+        self.screen.to_owned()
     }
 }
