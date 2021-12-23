@@ -3,9 +3,9 @@ pub mod render;
 #[cfg(test)]
 mod tests;
 
-use crate::cartridge::Cartridge;
 use crate::cpu;
 use crate::input::Input;
+use crate::{cartridge::Cartridge, constants::apu::SAMPLE_SIZE};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -34,12 +34,16 @@ impl Gameboy {
         self.cpu.master_clock_cycles
     }
 
-    pub fn get_controls(&mut self) -> Input {
+    pub fn get_controls(&self) -> Input {
         self.input.clone()
     }
 
-    pub fn get_screen(&mut self) -> &[u8] {
+    pub fn get_screen(&self) -> &[u8] {
         self.cpu.get_screen()
+    }
+
+    pub fn get_audio_buffer(&self) -> [f32; SAMPLE_SIZE] {
+        self.cpu.get_audio_buffer()
     }
 
     pub fn update_controls(&mut self, input: Input) {

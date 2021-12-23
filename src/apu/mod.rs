@@ -7,6 +7,8 @@ use crate::addresses::apu::{
     WAVE_PATTERN_RAM_LOWER, WAVE_PATTERN_RAM_UPPER,
 };
 
+use crate::constants::apu::SAMPLE_SIZE;
+
 use self::{
     audio_formatter::mix_audio, frame_sequencer::FrameSequencer, noise_channel::NoiseChannel,
     sound_control::SoundControl, square_channel::SquareChannel, wave_channel::WaveChannel,
@@ -38,7 +40,6 @@ pub const WAVE_DUTIES: [[bool; 8]; 4] = [
 const FRAME_SEQUENCE_COUNTDOWN_TICKS: u16 = 8192;
 const FRAME_SEQUENCE_STEP_TICKS: u8 = 8;
 const SAMPLE_COUNTER_MAX: u8 = 95;
-const SAMPLE_SIZE: usize = 4096;
 
 #[derive(Serialize, Deserialize)]
 pub struct Apu {
@@ -111,6 +112,10 @@ impl Apu {
         }
 
         audio_buffer_full
+    }
+
+    pub fn get_audio_buffer(&self) -> [f32; SAMPLE_SIZE] {
+        self.buffer
     }
 
     pub fn read(&self, address: u16) -> u8 {

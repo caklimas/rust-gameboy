@@ -33,20 +33,25 @@ pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Frame {
     unsafe {
-        let screen: Vec<u8>;
+        let mut screen = None;
+        let mut audio_buffer = None;
         let mut gb = Box::from_raw(gameboy);
-        let mut audio_buffer_full = false;
         'running: loop {
             let result = gb.clock();
             if gb.frame_complete() {
-                screen = gb.get_screen().to_owned();
-                audio_buffer_full = result.1;
+                screen = Option::Some(gb.get_screen().to_owned());
+            }
+            if result.1 {
+                audio_buffer = Option::Some(gb.get_audio_buffer());
+            }
+
+            if gb.frame_complete() || result.1 {
                 break 'running;
             }
         }
 
         mem::forget(gb);
-        Frame::new(audio_buffer_full, screen)
+        Frame::new(audio_buffer, screen)
     }
 }
 
@@ -63,31 +68,23 @@ pub fn update_controls(gameboy: *mut gameboy::Gameboy, input: input::Input) {
 
 #[wasm_bindgen]
 pub struct Frame {
-    audio_buffer_full: bool,
-    screen: Vec<u8>,
+    audio_buffer: Option<[f32; 4096]>,
+    screen: Option<Vec<u8>>,
 }
 
 impl Frame {
-    pub fn new(audio_buffer_full: bool, screen: Vec<u8>) -> Self {
+    pub fn new(audio_buffer: Option<[f32; 4096]>, screen: Option<Vec<u8>>) -> Self {
         Self {
-            audio_buffer_full,
+            audio_buffer,
             screen,
         }
     }
 
-    pub fn get_audio_buffer_full(&self) -> bool {
-        self.audio_buffer_full
+    pub fn get_audio_buffer_full(&self) -> Option<[f32; 4096]> {
+        self.audio_buffer
     }
 
-    pub fn set_audio_buffer_full(&mut self, value: bool) {
-        self.audio_buffer_full = value;
-    }
-
-    pub fn get_screen(&self) -> Vec<u8> {
+    pub fn get_screen(&self) -> Option<Vec<u8>> {
         self.screen.to_owned()
-    }
-
-    pub fn set_screen(&mut self, value: Vec<u8>) {
-        self.screen = value;
     }
 }
