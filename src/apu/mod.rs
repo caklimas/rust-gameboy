@@ -64,7 +64,7 @@ impl Apu {
         // 1 CPU Cycle is 1 APU Cycle
         for _ in 0..cycles {
             self.frame_sequencer.countdown -= 1;
-            if self.frame_sequencer.countdown <= 0 {
+            if self.frame_sequencer.countdown == 0 {
                 self.frame_sequencer.countdown = FRAME_SEQUENCE_COUNTDOWN_TICKS;
 
                 match self.frame_sequencer.step {
@@ -96,7 +96,7 @@ impl Apu {
             self.channel_4.clock();
 
             self.sample_counter -= 1;
-            if self.sample_counter <= 0 {
+            if self.sample_counter == 0 {
                 self.sample_counter = SAMPLE_COUNTER_MAX;
 
                 self.buffer_left_channel();

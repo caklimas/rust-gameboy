@@ -53,7 +53,7 @@ impl SquareChannel {
 
     pub fn clock(&mut self) {
         self.timer -= 1;
-        if self.timer <= 0 {
+        if self.timer == 0 {
             self.sequence_pointer = (self.sequence_pointer + 1) % 8;
             self.update_timer();
         }
@@ -62,7 +62,7 @@ impl SquareChannel {
     }
 
     pub fn clock_length_counter(&mut self) {
-        if self.length_counter <= 0 || !self.frequency_hi.length_enabled() {
+        if self.length_counter == 0 || !self.frequency_hi.length_enabled() {
             return;
         }
 
