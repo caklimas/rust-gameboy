@@ -114,8 +114,8 @@ impl Apu {
         audio_buffer_full
     }
 
-    pub fn get_audio_buffer(&self) -> [f32; SAMPLE_SIZE] {
-        self.buffer
+    pub fn get_audio_buffer(&self) -> Vec<f32> {
+        self.buffer.to_vec()
     }
 
     pub fn read(&self, address: u16) -> u8 {

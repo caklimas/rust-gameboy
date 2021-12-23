@@ -3,9 +3,9 @@ pub mod render;
 #[cfg(test)]
 mod tests;
 
+use crate::cartridge::Cartridge;
 use crate::cpu;
 use crate::input::Input;
-use crate::{cartridge::Cartridge, constants::apu::SAMPLE_SIZE};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -42,7 +42,7 @@ impl Gameboy {
         self.cpu.get_screen()
     }
 
-    pub fn get_audio_buffer(&self) -> [f32; SAMPLE_SIZE] {
+    pub fn get_audio_buffer(&self) -> Vec<f32> {
         self.cpu.get_audio_buffer()
     }
 

@@ -68,20 +68,21 @@ pub fn update_controls(gameboy: *mut gameboy::Gameboy, input: input::Input) {
 
 #[wasm_bindgen]
 pub struct Frame {
-    audio_buffer: Option<[f32; 4096]>,
+    audio_buffer: Option<Vec<f32>>,
     screen: Option<Vec<u8>>,
 }
 
+#[wasm_bindgen]
 impl Frame {
-    pub fn new(audio_buffer: Option<[f32; 4096]>, screen: Option<Vec<u8>>) -> Self {
+    pub fn new(audio_buffer: Option<Vec<f32>>, screen: Option<Vec<u8>>) -> Self {
         Self {
             audio_buffer,
             screen,
         }
     }
 
-    pub fn get_audio_buffer_full(&self) -> Option<[f32; 4096]> {
-        self.audio_buffer
+    pub fn get_audio_buffer_full(&self) -> Option<Vec<f32>> {
+        self.audio_buffer.to_owned()
     }
 
     pub fn get_screen(&self) -> Option<Vec<u8>> {

@@ -6,10 +6,10 @@ pub mod registers;
 #[cfg(test)]
 mod tests;
 
+use crate::cartridge::Cartridge;
 use crate::constants::cpu::PROGRAM_START;
 use crate::mmu::interrupts::Interrupt;
 use crate::mmu::Mmu;
-use crate::{cartridge::Cartridge, constants::apu::SAMPLE_SIZE};
 use opcodes::{
     cb_opcode::CbOpcode,
     cb_opcode_table::CB_OPCODE_TABLE,
@@ -66,7 +66,7 @@ impl Cpu {
         self.mmu.ram.gpu.lcd.screen.get_pixels()
     }
 
-    pub fn get_audio_buffer(&self) -> [f32; SAMPLE_SIZE] {
+    pub fn get_audio_buffer(&self) -> Vec<f32> {
         self.mmu.ram.apu.get_audio_buffer()
     }
 
