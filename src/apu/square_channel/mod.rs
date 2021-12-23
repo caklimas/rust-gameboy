@@ -176,7 +176,6 @@ impl SquareChannel {
     }
 
     pub fn get_output_volume(&self) -> u8 {
-        println!("Get output volume");
         if self.sound_length_wave_pattern.get_wave_duty()[self.sequence_pointer] {
             self.output_volume
         } else {

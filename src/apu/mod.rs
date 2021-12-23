@@ -53,7 +53,7 @@ pub struct Apu {
 impl Apu {
     pub fn clock(&mut self, cycles: u16) {
         // 1 CPU Cycle is 1 APU Cycle
-        for _ in cycles..=0 {
+        for _ in 0..cycles {
             self.frame_sequencer.countdown -= 1;
             if self.frame_sequencer.countdown <= 0 {
                 self.frame_sequencer.countdown = FRAME_SEQUENCE_COUNTDOWN_TICKS;
@@ -103,10 +103,6 @@ impl Apu {
                     buffer_in_0 = self.channel_2.get_output_volume() as f64 / 100.0;
                 }
 
-                if buffer_in_0 != 0.0 {
-                    println!("Left Buffer in: {} volume: {}", buffer_in_0, volume);
-                }
-
                 // Right volumes
                 let mut buffer_in_0 = 0.0;
                 let volume =
@@ -118,10 +114,6 @@ impl Apu {
                     .sound_2_to_s01()
                 {
                     buffer_in_0 = self.channel_2.get_output_volume() as f64 / 100.0;
-                }
-
-                if buffer_in_0 != 0.0 {
-                    println!("Right Buffer in: {} volume: {}", buffer_in_0, volume);
                 }
             }
         }
