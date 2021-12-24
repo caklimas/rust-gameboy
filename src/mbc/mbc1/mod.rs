@@ -23,7 +23,6 @@ pub struct Mbc1 {
 
 impl Mbc1 {
     pub fn new(header: &CartridgeHeader, data: Vec<u8>) -> Self {
-        println!("Ram size: {}", header.ram_size.get_size());
         Mbc1 {
             bank_mode: BankingMode::Rom,
             ram: vec![0; header.ram_size.get_size()],
