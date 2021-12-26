@@ -35,7 +35,7 @@ impl Gameboy {
     }
 
     pub fn get_controls(&self) -> Input {
-        self.input.clone()
+        self.input
     }
 
     pub fn get_screen(&self) -> &[u8] {
