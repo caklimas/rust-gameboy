@@ -69,7 +69,7 @@ impl Cpu {
         self.mmu.ram.gpu.lcd.screen.get_pixels()
     }
 
-    pub fn get_audio_buffer(&self) -> Vec<f32> {
+    pub fn get_audio_buffer(&self) -> &[f32] {
         self.mmu.ram.apu.get_audio_buffer()
     }
 
