@@ -22,81 +22,13 @@ pub mod mbc;
 pub mod mmu;
 pub mod utils;
 
-const sample_rate: f32 = 44_100.0;
-const sample_count: u32 = 4096;
-const latency: f64 = 0.032;
+const SAMPLE_RATE: f32 = 44_100.0;
+const SAMPLE_COUNT: u32 = 4096;
+const LATENCY: f64 = 0.032;
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-#[no_mangle]
-#[wasm_bindgen]
-pub fn run(bytes: Vec<u8>) -> *mut gameboy::Gameboy {
-    let gameboy = gameboy::Gameboy::new(bytes, true);
-    let b = Box::new(gameboy);
-    Box::into_raw(b)
-}
-
-#[no_mangle]
-#[wasm_bindgen]
-#[allow(clippy::not_unsafe_ptr_arg_deref)]
-pub fn clock_frame(gameboy: *mut gameboy::Gameboy) -> Frame {
-    unsafe {
-        let mut screen = None;
-        let mut gb = Box::from_raw(gameboy);
-        'running: loop {
-            let result = gb.clock();
-            if result.1 {
-                let audio_buffer = gb.get_audio_buffer();
-            } else if gb.frame_complete() {
-                screen = Option::Some(gb.get_screen().to_owned());
-            }
-
-            if gb.frame_complete() || result.1 {
-                break 'running;
-            }
-        }
-
-        mem::forget(gb);
-        Frame::new(Option::None, screen)
-    }
-}
-
-#[no_mangle]
-#[wasm_bindgen]
-#[allow(clippy::not_unsafe_ptr_arg_deref)]
-pub fn update_controls(gameboy: *mut gameboy::Gameboy, input: input::Input) {
-    unsafe {
-        let mut gb = Box::from_raw(gameboy);
-        gb.update_controls(input);
-        mem::forget(gb);
-    }
-}
-
-#[wasm_bindgen]
-pub struct Frame {
-    audio_buffer: Option<Vec<f32>>,
-    screen: Option<Vec<u8>>,
-}
-
-#[wasm_bindgen]
-impl Frame {
-    pub fn new(audio_buffer: Option<Vec<f32>>, screen: Option<Vec<u8>>) -> Self {
-        Self {
-            audio_buffer,
-            screen,
-        }
-    }
-
-    pub fn get_audio_buffer_full(&self) -> Option<Vec<f32>> {
-        self.audio_buffer.to_owned()
-    }
-
-    pub fn get_screen(&self) -> Option<Vec<u8>> {
-        self.screen.to_owned()
-    }
-}
 
 #[wasm_bindgen]
 pub struct Emulator {
@@ -128,7 +60,7 @@ impl Emulator {
             if result.1 {
                 let audio_buffer = if self.empty_audio_buffers.len() == 0 {
                     self.audio_context
-                        .create_buffer(2, sample_count, sample_rate * 2.0)?
+                        .create_buffer(2, SAMPLE_COUNT, SAMPLE_RATE * 2.0)?
                 } else {
                     self.empty_audio_buffers.pop().unwrap()
                 };
@@ -140,14 +72,14 @@ impl Emulator {
                 node.connect_with_audio_node(&self.audio_context.destination())?;
                 node.set_buffer(Option::Some(&audio_buffer));
 
-                let timestamp = self.audio_context.current_time() + latency;
+                let timestamp = self.audio_context.current_time() + LATENCY;
                 let play_timestamp = if timestamp >= self.timestamp {
                     timestamp
                 } else {
                     self.timestamp
                 };
 
-                self.timestamp = play_timestamp + (sample_count as f64) / 2.0 / sample_rate as f64;
+                self.timestamp = play_timestamp + (SAMPLE_COUNT as f64) / 2.0 / SAMPLE_RATE as f64;
                 node.start_with_when(play_timestamp)?;
             } else if self.gameboy.frame_complete() {
                 screen = self.gameboy.get_screen().to_owned();
