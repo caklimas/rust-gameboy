@@ -37,8 +37,11 @@ pub struct Cpu {
 
 impl Cpu {
     pub fn new(cartridge: Cartridge, run_boot_rom: bool) -> Self {
-        let mut cpu: Cpu = Default::default();
-        cpu.mmu = Mmu::new(cartridge, run_boot_rom);
+        let mut cpu = Cpu {
+            mmu: Mmu::new(cartridge, run_boot_rom),
+            ..Default::default()
+        };
+
         cpu.program_start(run_boot_rom);
         cpu
     }
@@ -66,7 +69,7 @@ impl Cpu {
         self.mmu.ram.gpu.lcd.screen.get_pixels()
     }
 
-    pub fn get_audio_buffer(&self) -> Vec<f32> {
+    pub fn get_audio_buffer(&self) -> &[f32] {
         self.mmu.ram.apu.get_audio_buffer()
     }
 

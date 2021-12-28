@@ -24,7 +24,6 @@ impl super::super::Cpu {
     }
 
     pub fn stop(&mut self) -> u16 {
-        println!("Stop");
         self.stopped = true;
         4
     }

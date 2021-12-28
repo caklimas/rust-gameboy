@@ -46,7 +46,7 @@ impl Lcd {
 
         let mut tile_x = tile / PIXELS_PER_TILE;
         if !using_window {
-            tile_x = tile_x & 31;
+            tile_x &= 31;
         }
 
         tile_x

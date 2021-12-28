@@ -35,14 +35,14 @@ impl Gameboy {
     }
 
     pub fn get_controls(&self) -> Input {
-        self.input.clone()
+        self.input
     }
 
     pub fn get_screen(&self) -> &[u8] {
         self.cpu.get_screen()
     }
 
-    pub fn get_audio_buffer(&self) -> Vec<f32> {
+    pub fn get_audio_buffer(&self) -> &[f32] {
         self.cpu.get_audio_buffer()
     }
 

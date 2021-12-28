@@ -252,7 +252,7 @@ impl SquareChannel {
         if sweep.decrease() {
             new_frequency = self.shadow_frequency - new_frequency;
         } else {
-            new_frequency = self.shadow_frequency + new_frequency;
+            new_frequency += self.shadow_frequency;
         }
 
         (new_frequency, new_frequency > FREQUENCY_MAX)

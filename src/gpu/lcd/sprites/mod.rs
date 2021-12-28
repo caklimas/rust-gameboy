@@ -25,7 +25,7 @@ impl Lcd {
                 continue;
             }
 
-            if sprite_info.x_position < ((WINDOW_X_OFFSET as i32) * -1)
+            if sprite_info.x_position < -(WINDOW_X_OFFSET as i32)
                 || sprite_info.x_position >= (SCREEN_WIDTH as i32)
             {
                 continue;

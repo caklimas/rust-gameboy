@@ -106,7 +106,6 @@ impl Apu {
             if self.buffer_index >= SAMPLE_SIZE {
                 self.buffer_index = 0;
                 audio_buffer_full = true;
-                println!("Buffer full");
                 break;
             }
         }
@@ -114,8 +113,8 @@ impl Apu {
         audio_buffer_full
     }
 
-    pub fn get_audio_buffer(&self) -> Vec<f32> {
-        self.buffer.to_vec()
+    pub fn get_audio_buffer(&self) -> &[f32] {
+        &self.buffer
     }
 
     pub fn read(&self, address: u16) -> u8 {
@@ -200,10 +199,6 @@ impl Apu {
 
         self.buffer[self.buffer_index] = buffer_input;
         self.buffer_index += 1;
-
-        if buffer_input != 0.0 {
-            // println!("Left Buffer in: {} volume: {}", buffer_input, volume);
-        }
     }
 
     fn buffer_right_channel(&mut self) {
@@ -235,10 +230,6 @@ impl Apu {
 
         self.buffer[self.buffer_index] = buffer_input;
         self.buffer_index += 1;
-
-        if buffer_input != 0.0 {
-            // println!("Right Buffer in: {} volume: {}", buffer_input, volume);
-        }
     }
 }
 

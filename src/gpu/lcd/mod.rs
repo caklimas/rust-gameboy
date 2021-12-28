@@ -44,7 +44,7 @@ pub struct Lcd {
 
 impl Lcd {
     pub fn clock(&mut self, cycles: u16) -> LcdInterruptResult {
-        let mut result = LcdInterruptResult::new();
+        let mut result = LcdInterruptResult::default();
         if !self.control.lcd_display_enable() {
             return result;
         }

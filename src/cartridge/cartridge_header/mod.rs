@@ -42,10 +42,8 @@ impl CartridgeHeader {
         let mut name: [u8; NAME_SIZE] = [0; NAME_SIZE];
         name.copy_from_slice(&bytes[NAME_INDEX_LOWER..=NAME_INDEX_UPPER]);
 
-        if check_checksum {
-            if !CartridgeHeader::valid_checksum(bytes) {
-                panic!("Invalid checksum");
-            }
+        if check_checksum && !CartridgeHeader::valid_checksum(bytes) {
+            panic!("Invalid checksum");
         }
 
         CartridgeHeader {
