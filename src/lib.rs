@@ -1,5 +1,5 @@
 use gameboy::Gameboy;
-use std::mem;
+use std::{cmp::max, mem};
 use wasm_bindgen::prelude::*;
 use web_sys::{AudioBuffer, AudioContext, HtmlCanvasElement};
 
@@ -101,26 +101,28 @@ impl Frame {
 #[wasm_bindgen]
 pub struct Emulator {
     audio_context: AudioContext,
-    canvas: HtmlCanvasElement,
     empty_audio_buffers: Vec<AudioBuffer>,
     gameboy: Gameboy,
+    timestamp: f64,
 }
 
 #[wasm_bindgen]
 impl Emulator {
     #[wasm_bindgen(constructor)]
-    pub fn new(bytes: Vec<u8>, canvas: HtmlCanvasElement) -> Result<Emulator, JsValue> {
+    pub fn new(bytes: Vec<u8>) -> Result<Emulator, JsValue> {
         let audio_context = AudioContext::new()?;
         let gameboy = Gameboy::new(bytes, true);
         Ok(Self {
             audio_context,
-            canvas,
             empty_audio_buffers: Vec::new(),
             gameboy,
+            timestamp: Default::default(),
         })
     }
 
-    pub fn clock(&mut self) -> Result<(), JsValue> {
+    #[inline]
+    pub fn clock(&mut self) -> Result<Vec<u8>, JsValue> {
+        let screen;
         'running: loop {
             let result = self.gameboy.clock();
             if result.1 {
@@ -132,18 +134,33 @@ impl Emulator {
                 };
 
                 let sample = self.gameboy.get_audio_buffer();
-                audio_buffer.copy_to_channel(sample, 0);
-                let x = self.audio_context.create_buffer(2, 5, 5.0)?;
-            } else if self.gameboy.frame_complete() {
-                let screen = Option::Some(self.gameboy.get_screen().to_owned());
-            }
+                audio_buffer.copy_to_channel(sample, 0)?;
 
-            if self.gameboy.frame_complete() || result.1 {
+                let node = self.audio_context.create_buffer_source()?;
+                node.connect_with_audio_node(&self.audio_context.destination())?;
+                node.set_buffer(Option::Some(&audio_buffer));
+
+                let timestamp = self.audio_context.current_time() + latency;
+                let play_timestamp = if timestamp >= self.timestamp {
+                    timestamp
+                } else {
+                    self.timestamp
+                };
+
+                self.timestamp = play_timestamp + (sample_count as f64) / 2.0 / sample_rate as f64;
+                node.start_with_when(play_timestamp)?;
+            } else if self.gameboy.frame_complete() {
+                screen = self.gameboy.get_screen().to_owned();
                 break 'running;
             }
         }
 
-        Ok(())
+        Ok(screen)
+    }
+
+    #[inline]
+    pub fn update_controls(&mut self, input: input::Input) {
+        self.gameboy.update_controls(input);
     }
 }
 

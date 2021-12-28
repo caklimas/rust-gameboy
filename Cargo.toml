@@ -25,7 +25,9 @@ wasm-opt = ["-Oz", "--enable-mutable-globals"]
 version = "0.3.55"
 features = [
   'AudioBuffer',
+  'AudioBufferSourceNode',
   'AudioContext',
+  'AudioDestinationNode',
   'CanvasRenderingContext2d',
   'HtmlCanvasElement',
 ]
