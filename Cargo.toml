@@ -2,7 +2,7 @@
 name = "caklimas-rust-gameboy"
 version = "0.4.3"
 authors = ["caklimas <caklimas@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

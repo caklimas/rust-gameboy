@@ -1,7 +1,6 @@
 use gameboy::Gameboy;
-use std::{cmp::max, mem};
 use wasm_bindgen::prelude::*;
-use web_sys::{AudioBuffer, AudioContext, HtmlCanvasElement};
+use web_sys::{AudioBuffer, AudioContext};
 
 #[macro_use]
 extern crate bitfield;
@@ -58,7 +57,7 @@ impl Emulator {
         'running: loop {
             let result = self.gameboy.clock();
             if result.1 {
-                let audio_buffer = if self.empty_audio_buffers.len() == 0 {
+                let audio_buffer = if self.empty_audio_buffers.is_empty() {
                     self.audio_context
                         .create_buffer(2, SAMPLE_COUNT, SAMPLE_RATE * 2.0)?
                 } else {
