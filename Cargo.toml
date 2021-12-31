@@ -12,6 +12,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 bitfield = "0.13.2"
 #ggez = "0.5.1"
+js-sys = "0.3.55"
 serde = { version = "1.0", features = ["derive", "rc"] }
 serde-big-array = "0.3.0"
 serde_json = "1.0.57"
@@ -30,4 +31,6 @@ features = [
   'AudioDestinationNode',
   'CanvasRenderingContext2d',
   'HtmlCanvasElement',
+  'ImageData',
+  'Window',
 ]
