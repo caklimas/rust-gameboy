@@ -1,8 +1,8 @@
 [package]
 name = "caklimas-rust-gameboy"
-version = "0.4.3"
+version = "0.4.4"
 authors = ["caklimas <caklimas@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,6 +12,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 bitfield = "0.13.2"
 #ggez = "0.5.1"
+js-sys = "0.3.55"
 serde = { version = "1.0", features = ["derive", "rc"] }
 serde-big-array = "0.3.0"
 serde_json = "1.0.57"
@@ -20,14 +21,3 @@ wee_alloc = "0.4.5"
 
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = ["-Oz", "--enable-mutable-globals"]
-
-[dependencies.web-sys]
-version = "0.3.55"
-features = [
-  'AudioBuffer',
-  'AudioBufferSourceNode',
-  'AudioContext',
-  'AudioDestinationNode',
-  'CanvasRenderingContext2d',
-  'HtmlCanvasElement',
-]

@@ -1,7 +1,7 @@
 use gameboy::Gameboy;
-use std::{cmp::max, mem};
+
+use input::Input;
 use wasm_bindgen::prelude::*;
-use web_sys::{AudioBuffer, AudioContext, HtmlCanvasElement};
 
 #[macro_use]
 extern crate bitfield;
@@ -22,82 +22,56 @@ pub mod mbc;
 pub mod mmu;
 pub mod utils;
 
-const SAMPLE_RATE: f32 = 44_100.0;
-const SAMPLE_COUNT: u32 = 4096;
-const LATENCY: f64 = 0.032;
-
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
 pub struct Emulator {
-    audio_context: AudioContext,
-    empty_audio_buffers: Vec<AudioBuffer>,
+    cycles: usize,
     gameboy: Gameboy,
-    timestamp: f64,
 }
 
 #[wasm_bindgen]
 impl Emulator {
     #[wasm_bindgen(constructor)]
-    pub fn new(bytes: Vec<u8>) -> Result<Emulator, JsValue> {
-        let audio_context = AudioContext::new()?;
+    pub fn new(bytes: Vec<u8>) -> Self {
         let gameboy = Gameboy::new(bytes, true);
-        Ok(Self {
-            audio_context,
-            empty_audio_buffers: Vec::new(),
-            gameboy,
-            timestamp: Default::default(),
-        })
+        Self { cycles: 0, gameboy }
     }
 
-    #[inline]
-    pub fn clock(&mut self) -> Result<Vec<u8>, JsValue> {
-        let screen;
-        'running: loop {
-            let result = self.gameboy.clock();
-            if result.1 {
-                let audio_buffer = if self.empty_audio_buffers.len() == 0 {
-                    self.audio_context
-                        .create_buffer(2, SAMPLE_COUNT, SAMPLE_RATE * 2.0)?
-                } else {
-                    self.empty_audio_buffers.pop().unwrap()
-                };
-
-                let sample = self.gameboy.get_audio_buffer();
-                audio_buffer.copy_to_channel(sample, 0)?;
-
-                let node = self.audio_context.create_buffer_source()?;
-                node.connect_with_audio_node(&self.audio_context.destination())?;
-                node.set_buffer(Option::Some(&audio_buffer));
-
-                let timestamp = self.audio_context.current_time() + LATENCY;
-                let play_timestamp = if timestamp >= self.timestamp {
-                    timestamp
-                } else {
-                    self.timestamp
-                };
-
-                self.timestamp = play_timestamp + (SAMPLE_COUNT as f64) / 2.0 / SAMPLE_RATE as f64;
-                node.start_with_when(play_timestamp)?;
+    pub fn clock_until_event(&mut self, max_cycles: usize) -> EmulatorState {
+        while self.cycles < max_cycles {
+            let (cycles, audio_full) = self.gameboy.clock();
+            self.cycles += cycles as usize;
+            if audio_full {
+                return EmulatorState::AudioFull;
             } else if self.gameboy.frame_complete() {
-                screen = self.gameboy.get_screen().to_owned();
-                break 'running;
+                return EmulatorState::FrameComplete;
             }
         }
 
-        Ok(screen)
+        self.cycles -= max_cycles;
+        EmulatorState::MaxCycles
     }
 
-    #[inline]
-    pub fn update_controls(&mut self, input: input::Input) {
+    pub fn update_controls(&mut self, input: Input) {
         self.gameboy.update_controls(input);
+    }
+
+    pub fn get_screen(&self) -> Vec<u8> {
+        self.gameboy.get_screen().to_vec()
+    }
+
+    pub fn get_audio_buffer(&self) -> Vec<f32> {
+        self.gameboy.get_audio_buffer().to_vec()
     }
 }
 
-impl Drop for Emulator {
-    fn drop(&mut self) {
-        let _ = self.audio_context.close();
-    }
+#[wasm_bindgen]
+pub enum EmulatorState {
+    None,
+    FrameComplete,
+    AudioFull,
+    MaxCycles,
 }
