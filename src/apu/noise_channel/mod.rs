@@ -5,6 +5,7 @@ use crate::{
         CHANNEL_4_COUNTER_CONSECUTIVE_INITIAL, CHANNEL_4_POLYNOMIAL_COUNTER,
         CHANNEL_4_SOUND_LENGTH, CHANNEL_4_VOLUME_ENVELOPE,
     },
+    constants::apu::{ENVELOPE_PERIOD_MAX, ENVELOPE_VOLUME_MAX, ENVELOPE_VOLUME_MIN},
     utils::invalid_address,
 };
 
@@ -31,7 +32,7 @@ pub struct NoiseChannel {
     length_counter: u8,
 
     //Envelope
-    envelop_timer: u8,
+    envelope_timer: u8,
     envelope_running: bool,
 }
 
@@ -49,7 +50,30 @@ impl NoiseChannel {
         }
     }
 
-    pub fn clock_volume_envelope(&mut self) {}
+    pub fn clock_volume_envelope(&mut self) {
+        self.envelope_timer -= 1;
+        if self.envelope_timer > 0 {
+            return;
+        }
+
+        self.envelope_timer = self.volume_envelope.initial_envelope_period();
+        if self.envelope_timer == 0 {
+            self.envelope_timer = ENVELOPE_PERIOD_MAX;
+        }
+
+        if self.envelope_running && self.volume_envelope.initial_envelope_period() > 0 {
+            let direction = self.volume_envelope.direction();
+            if direction && self.volume < ENVELOPE_VOLUME_MAX {
+                self.volume += 1;
+            } else if !direction && self.volume > ENVELOPE_VOLUME_MIN {
+                self.volume -= 1;
+            }
+        }
+
+        if self.volume == ENVELOPE_VOLUME_MIN || self.volume == ENVELOPE_VOLUME_MAX {
+            self.envelope_running = false;
+        }
+    }
 
     pub fn read(&self, address: u16) -> u8 {
         match address {
