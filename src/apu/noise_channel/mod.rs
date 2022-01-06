@@ -29,6 +29,10 @@ pub struct NoiseChannel {
     output_volume: u8,
     volume: u8,
     length_counter: u8,
+
+    //Envelope
+    envelop_timer: u8,
+    envelope_running: bool,
 }
 
 impl NoiseChannel {
