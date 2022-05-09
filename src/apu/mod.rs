@@ -196,6 +196,17 @@ impl Apu {
                 volume,
             );
         }
+        if self
+            .sound_control
+            .output_terminal_selection
+            .sound_4_to_s02()
+        {
+            buffer_input = mix_audio(
+                buffer_input,
+                self.channel_4.get_output_volume() as f32 / 100.0,
+                volume,
+            );
+        }
 
         self.buffer[self.buffer_index] = buffer_input;
         self.buffer_index += 1;
@@ -224,6 +235,17 @@ impl Apu {
             buffer_input = mix_audio(
                 buffer_input,
                 self.channel_2.get_output_volume() as f32 / 100.0,
+                volume,
+            );
+        }
+        if self
+            .sound_control
+            .output_terminal_selection
+            .sound_4_to_s01()
+        {
+            buffer_input = mix_audio(
+                buffer_input,
+                self.channel_4.get_output_volume() as f32 / 100.0,
                 volume,
             );
         }

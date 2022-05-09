@@ -14,7 +14,10 @@ use self::{
     polynomial_counter::PolynomialCounter,
 };
 
-use super::{sound_length_wave_pattern::SoundLengthWavePattern, volume_envelope::VolumeEnvelope};
+use super::{
+    sound_length_wave_pattern::SoundLengthWavePattern, volume_envelope::VolumeEnvelope,
+    LENGTH_COUNTER_MAX,
+};
 
 pub mod counter_consecutive_selection;
 pub mod polynomial_counter;
@@ -26,10 +29,12 @@ pub struct NoiseChannel {
     polynomial_counter: PolynomialCounter,
     selection: CounterConsecutiveSelection,
     timer: u16,
+    timer_load: u16,
     enabled: bool,
     output_volume: u8,
     volume: u8,
     length_counter: u8,
+    lfsr: u16,
 
     //Envelope
     envelope_timer: u8,
@@ -37,7 +42,19 @@ pub struct NoiseChannel {
 }
 
 impl NoiseChannel {
-    pub fn clock(&mut self) {}
+    pub fn clock(&mut self) {
+        self.timer -= 1;
+
+        if self.timer == 0 {
+            self.update_timer();
+            let xor_result = self.lfsr & 0b01 ^ ((self.lfsr & 0b10) >> 1);
+            self.lfsr = (self.lfsr >> 1) | (xor_result << 14);
+            if self.polynomial_counter.counter_step_width() {
+                self.lfsr &= !(1 << 6);
+                self.lfsr |= xor_result << 6;
+            }
+        }
+    }
 
     pub fn clock_length_counter(&mut self) {
         if self.length_counter == 0 || !self.selection.length_enabled() {
@@ -90,8 +107,42 @@ impl NoiseChannel {
             CHANNEL_4_SOUND_LENGTH => self.sound_length.set_sound_length_data(value),
             CHANNEL_4_VOLUME_ENVELOPE => self.volume_envelope.0 = value,
             CHANNEL_4_POLYNOMIAL_COUNTER => self.polynomial_counter.0 = value,
-            CHANNEL_4_COUNTER_CONSECUTIVE_INITIAL => self.selection.0 = value,
+            CHANNEL_4_COUNTER_CONSECUTIVE_INITIAL => {
+                self.selection.0 = value;
+                if self.selection.initialize() {
+                    self.initialize();
+                }
+            }
             _ => invalid_address("APU", address),
         }
+    }
+
+    pub fn get_output_volume(&self) -> u8 {
+        self.output_volume
+    }
+
+    fn initialize(&mut self) {
+        self.enabled = true;
+        self.lfsr = 0x7FFF;
+
+        self.initialize_length_counter();
+        self.initialize_envelope();
+    }
+
+    fn initialize_length_counter(&mut self) {
+        if self.length_counter == 0 {
+            self.length_counter = LENGTH_COUNTER_MAX;
+        }
+        self.update_timer();
+    }
+
+    fn initialize_envelope(&mut self) {
+        self.envelope_running = true;
+        self.envelope_timer = self.volume_envelope.initial_envelope_period();
+        self.volume = self.volume_envelope.initial_volume();
+    }
+
+    fn update_timer(&mut self) {
+        self.timer = self.polynomial_counter.get_frequency_timer();
     }
 }
