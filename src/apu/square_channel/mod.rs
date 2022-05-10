@@ -182,6 +182,10 @@ impl SquareChannel {
         }
     }
 
+    pub fn is_on(&self) -> bool {
+        self.length_counter > 0
+    }
+
     fn update_timer(&mut self) {
         self.timer = if self.frequency > 2048 {
             0

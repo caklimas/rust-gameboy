@@ -53,6 +53,12 @@ impl NoiseChannel {
                 self.lfsr &= !(1 << 6);
                 self.lfsr |= xor_result << 6;
             }
+
+            if self.enabled && (self.lfsr & 0x1) == 0 {
+                self.output_volume = self.volume;
+            } else {
+                self.output_volume = 0;
+            }
         }
     }
 
@@ -119,6 +125,10 @@ impl NoiseChannel {
 
     pub fn get_output_volume(&self) -> u8 {
         self.output_volume
+    }
+
+    pub fn is_on(&self) -> bool {
+        self.length_counter > 0
     }
 
     fn initialize(&mut self) {

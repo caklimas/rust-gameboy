@@ -4,7 +4,7 @@ use crate::addresses::apu::{
     CHANNEL_1_FREQUENCY_HI_DATA, CHANNEL_1_SWEEP_REGISTER, CHANNEL_2_FREQUENCY_HI_DATA,
     CHANNEL_2_SOUND_LENGTH_WAVE_PATTERN, CHANNEL_3_FREQUENCY_HI_DATA, CHANNEL_3_SOUND_ON_OFF,
     CHANNEL_4_COUNTER_CONSECUTIVE_INITIAL, CHANNEL_4_SOUND_LENGTH, CHANNEL_CONTROL, SOUND_CONTROL,
-    WAVE_PATTERN_RAM_LOWER, WAVE_PATTERN_RAM_UPPER,
+    SOUND_OUTPUT_TERMINAL_SELECTION, WAVE_PATTERN_RAM_LOWER, WAVE_PATTERN_RAM_UPPER,
 };
 
 use crate::constants::apu::SAMPLE_SIZE;
@@ -127,7 +127,22 @@ impl Apu {
             CHANNEL_4_SOUND_LENGTH..=CHANNEL_4_COUNTER_CONSECUTIVE_INITIAL => {
                 self.channel_4.read(address)
             }
-            CHANNEL_CONTROL..=SOUND_CONTROL => self.sound_control.read(address),
+            CHANNEL_CONTROL..=SOUND_OUTPUT_TERMINAL_SELECTION => self.sound_control.read(address),
+            SOUND_CONTROL => {
+                let mut value: u8 = 0;
+                value |= if self.sound_control.sound_trigger.all_sound_on_off() {
+                    1
+                } else {
+                    0
+                } << 7;
+
+                value |= if self.channel_4.is_on() { 1 } else { 0 } << 3;
+                value |= if self.channel_3.is_on() { 1 } else { 0 } << 2;
+                value |= if self.channel_2.is_on() { 1 } else { 0 } << 1;
+                value |= if self.channel_1.is_on() { 1 } else { 0 } << 0;
+
+                value
+            }
             WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => 0,
             _ => panic!("Invalid APU address 0x{:4X}", address),
         }
@@ -147,7 +162,14 @@ impl Apu {
             CHANNEL_4_SOUND_LENGTH..=CHANNEL_4_COUNTER_CONSECUTIVE_INITIAL => {
                 self.channel_4.write(address, value)
             }
-            CHANNEL_CONTROL..=SOUND_CONTROL => self.sound_control.write(address, value),
+            CHANNEL_CONTROL..=SOUND_OUTPUT_TERMINAL_SELECTION => {
+                self.sound_control.write(address, value)
+            }
+            SOUND_CONTROL => {
+                self.sound_control
+                    .sound_trigger
+                    .set_all_sound_on_off(value & 0b1000_0000 != 0);
+            }
             WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => (),
             _ => panic!("Invalid APU address 0x{:4X}", address),
         }
