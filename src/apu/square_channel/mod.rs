@@ -7,6 +7,7 @@ use crate::{
         CHANNEL_2_FREQUENCY_HI_DATA, CHANNEL_2_FREQUENCY_LO_DATA,
         CHANNEL_2_SOUND_LENGTH_WAVE_PATTERN, CHANNEL_2_VOLUME_ENVELOPE,
     },
+    constants::apu::{ENVELOPE_PERIOD_MAX, ENVELOPE_VOLUME_MAX, ENVELOPE_VOLUME_MIN},
     utils::invalid_address,
 };
 
@@ -14,9 +15,7 @@ use super::{
     frequency_hi::FrequencyHi,
     sound_length_wave_pattern::SoundLengthWavePattern,
     sweep_register::{SweepRegister, SWEEP_PERIOD_MAX},
-    volume_envelope::{
-        VolumeEnvelope, ENVELOPE_PERIOD_MAX, ENVELOPE_VOLUME_MAX, ENVELOPE_VOLUME_MIN,
-    },
+    volume_envelope::VolumeEnvelope,
     LENGTH_COUNTER_MAX,
 };
 
@@ -181,6 +180,10 @@ impl SquareChannel {
         } else {
             0
         }
+    }
+
+    pub fn is_on(&self) -> bool {
+        self.length_counter > 0
     }
 
     fn update_timer(&mut self) {

@@ -21,6 +21,7 @@ pub struct WaveChannel {
     select_output_level: SelectOutputLevel,
     frequency_lo: u8,
     frequency_hi: FrequencyHi,
+    length_counter: u8,
 }
 
 impl WaveChannel {
@@ -54,5 +55,9 @@ impl WaveChannel {
         let hi = (self.frequency_hi.frequency_higher_bits() as u16) << 8;
         let lo = self.frequency_lo as u16;
         hi | lo
+    }
+
+    pub fn is_on(&self) -> bool {
+        self.length_counter > 0
     }
 }
