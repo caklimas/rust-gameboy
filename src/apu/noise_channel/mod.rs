@@ -131,6 +131,10 @@ impl NoiseChannel {
         self.length_counter > 0
     }
 
+    pub fn reset_length_counter(&mut self) {
+        self.length_counter = 0;
+    }
+
     fn initialize(&mut self) {
         self.enabled = true;
         self.lfsr = 0x7FFF;
