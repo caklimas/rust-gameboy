@@ -31,6 +31,7 @@ pub struct NoiseChannel {
     timer: u16,
     timer_load: u16,
     enabled: bool,
+    dac_enabled: bool,
     output_volume: u8,
     volume: u8,
     length_counter: u8,
@@ -47,7 +48,7 @@ impl NoiseChannel {
 
         if self.timer == 0 {
             self.update_timer();
-            let xor_result = self.lfsr & 0b01 ^ ((self.lfsr & 0b10) >> 1);
+            let xor_result = (self.lfsr & 0x1) ^ ((self.lfsr >> 1) & 0x1);
             self.lfsr = (self.lfsr >> 1) | (xor_result << 14);
             if self.polynomial_counter.counter_step_width() {
                 self.lfsr &= !(1 << 6);
@@ -111,7 +112,10 @@ impl NoiseChannel {
     pub fn write(&mut self, address: u16, value: u8) {
         match address {
             CHANNEL_4_SOUND_LENGTH => self.sound_length.set_sound_length_data(value),
-            CHANNEL_4_VOLUME_ENVELOPE => self.volume_envelope.0 = value,
+            CHANNEL_4_VOLUME_ENVELOPE => {
+                self.dac_enabled = value & 0b000 != 1;
+                self.volume_envelope.0 = value;
+            }
             CHANNEL_4_POLYNOMIAL_COUNTER => self.polynomial_counter.0 = value,
             CHANNEL_4_COUNTER_CONSECUTIVE_INITIAL => {
                 self.selection.0 = value;
