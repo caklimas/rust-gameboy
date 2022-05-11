@@ -113,7 +113,6 @@ impl NoiseChannel {
         match address {
             CHANNEL_4_SOUND_LENGTH => self.sound_length.set_sound_length_data(value),
             CHANNEL_4_VOLUME_ENVELOPE => {
-                self.dac_enabled = value & 0b000 != 1;
                 self.volume_envelope.0 = value;
             }
             CHANNEL_4_POLYNOMIAL_COUNTER => self.polynomial_counter.0 = value,

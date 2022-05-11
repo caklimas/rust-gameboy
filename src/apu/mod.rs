@@ -139,7 +139,7 @@ impl Apu {
                 value |= if self.channel_4.is_on() { 1 } else { 0 } << 3;
                 value |= if self.channel_3.is_on() { 1 } else { 0 } << 2;
                 value |= if self.channel_2.is_on() { 1 } else { 0 } << 1;
-                value |= if self.channel_1.is_on() { 1 } else { 0 } << 0;
+                value |= if self.channel_1.is_on() { 1 } else { 0 };
 
                 value
             }
