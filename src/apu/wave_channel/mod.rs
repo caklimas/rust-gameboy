@@ -60,4 +60,8 @@ impl WaveChannel {
     pub fn is_on(&self) -> bool {
         self.length_counter > 0
     }
+
+    pub fn reset_length_counter(&mut self) {
+        self.length_counter = 0;
+    }
 }

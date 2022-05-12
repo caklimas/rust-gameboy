@@ -139,7 +139,7 @@ impl Apu {
                 value |= if self.channel_4.is_on() { 1 } else { 0 } << 3;
                 value |= if self.channel_3.is_on() { 1 } else { 0 } << 2;
                 value |= if self.channel_2.is_on() { 1 } else { 0 } << 1;
-                value |= if self.channel_1.is_on() { 1 } else { 0 } << 0;
+                value |= if self.channel_1.is_on() { 1 } else { 0 };
 
                 value
             }
@@ -169,6 +169,13 @@ impl Apu {
                 self.sound_control
                     .sound_trigger
                     .set_all_sound_on_off(value & 0b1000_0000 != 0);
+
+                if !self.sound_control.sound_trigger.all_sound_on_off() {
+                    self.channel_1.reset_length_counter();
+                    self.channel_2.reset_length_counter();
+                    self.channel_3.reset_length_counter();
+                    self.channel_4.reset_length_counter();
+                }
             }
             WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => (),
             _ => panic!("Invalid APU address 0x{:4X}", address),
