@@ -1,4 +1,4 @@
-use crate::mmu::memory_sizes::*;
+use crate::{addresses::gpu::sprite::SPRITE_ATTRIBUTE_TABLE_LOWER, mmu::memory_sizes::*};
 use serde::{Deserialize, Serialize};
 
 big_array! { BigArray; }
@@ -21,7 +21,7 @@ impl VideoOam {
     }
 
     fn get_masked_address(&self, address: u16) -> usize {
-        (address % (VIDEO_OAM as u16)) as usize
+        (address - SPRITE_ATTRIBUTE_TABLE_LOWER) as usize
     }
 }
 

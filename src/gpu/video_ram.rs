@@ -1,4 +1,4 @@
-use crate::mmu::memory_sizes::KILOBYTES_8;
+use crate::{addresses::gpu::video_ram::VIDEO_RAM_LOWER, mmu::memory_sizes::KILOBYTES_8};
 use serde::{Deserialize, Serialize};
 
 big_array! { BigArray; }
@@ -21,7 +21,7 @@ impl VideoRam {
     }
 
     fn get_masked_address(&self, address: u16) -> usize {
-        (address % KILOBYTES_8) as usize
+        (address - VIDEO_RAM_LOWER) as usize
     }
 }
 
