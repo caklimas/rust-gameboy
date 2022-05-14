@@ -1,3 +1,5 @@
+use crate::addresses::high_ram::HIGH_RAM_LOWER;
+
 use super::memory_sizes::HIGH_RAM;
 use serde::{Deserialize, Serialize};
 
@@ -18,7 +20,7 @@ impl HighRam {
     }
 
     fn get_masked_address(&self, address: u16) -> usize {
-        (address % HIGH_RAM) as usize
+        (address - HIGH_RAM_LOWER) as usize
     }
 }
 
