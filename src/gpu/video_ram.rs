@@ -1,7 +1,7 @@
 use crate::{addresses::gpu::video_ram::VIDEO_RAM_LOWER, mmu::memory_sizes::KILOBYTES_8};
 use serde::{Deserialize, Serialize};
 
-big_array! { BigArray; }
+use serde_big_array::BigArray;
 
 #[derive(Serialize, Deserialize)]
 pub struct VideoRam {

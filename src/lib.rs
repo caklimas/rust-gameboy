@@ -6,9 +6,6 @@ use wasm_bindgen::prelude::*;
 #[macro_use]
 extern crate bitfield;
 
-#[macro_use]
-extern crate serde_big_array;
-
 pub mod addresses;
 pub mod apu;
 pub mod cartridge;

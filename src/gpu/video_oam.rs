@@ -1,7 +1,7 @@
 use crate::{addresses::gpu::sprite::SPRITE_ATTRIBUTE_TABLE_LOWER, mmu::memory_sizes::*};
 use serde::{Deserialize, Serialize};
 
-big_array! { BigArray; }
+use serde_big_array::BigArray;
 
 #[derive(Serialize, Deserialize)]
 pub struct VideoOam {
