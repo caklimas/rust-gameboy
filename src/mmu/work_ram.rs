@@ -2,7 +2,7 @@ use super::memory_sizes::KILOBYTES_8;
 use crate::addresses::work_ram::WORK_RAM_ECHO_LOWER;
 use serde::{Deserialize, Serialize};
 
-big_array! { BigArray; }
+use serde_big_array::BigArray;
 
 #[derive(Serialize, Deserialize)]
 pub struct WorkRam {

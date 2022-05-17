@@ -1,6 +1,6 @@
 [package]
 name = "caklimas-rust-gameboy"
-version = "0.4.6"
+version = "0.4.7"
 authors = ["caklimas <caklimas@gmail.com>"]
 edition = "2021"
 
@@ -11,9 +11,9 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 bitfield = "0.13.2"
-#ggez = "0.5.1"
+# ggez = "0.5.1"
 serde = { version = "1.0", features = ["derive", "rc"] }
-serde-big-array = "0.3.0"
+serde-big-array = "0.4.1"
 serde_json = "1.0.57"
 wasm-bindgen = "0.2.63"
 wee_alloc = "0.4.5"

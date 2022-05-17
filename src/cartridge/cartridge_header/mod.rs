@@ -6,8 +6,7 @@ pub mod rom_size;
 mod tests;
 
 use serde::{Deserialize, Serialize};
-
-big_array! { BigArray; }
+use serde_big_array::BigArray;
 
 pub const CARTRIDGE_HEADER_INDEX: usize = 0x147;
 pub const CHECKSUM_INDEX: usize = 0x14D;
