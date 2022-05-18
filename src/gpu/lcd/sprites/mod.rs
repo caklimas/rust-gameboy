@@ -63,8 +63,10 @@ impl Lcd {
                     continue;
                 }
 
-                self.screen
-                    .set_pixel(self.line_number as u16, x as u16, sprite_color.color);
+                if !sprite_attributes.obj_priority() {
+                    self.screen
+                        .set_pixel(self.line_number as u16, x as u16, sprite_color.color);
+                }
             }
         }
     }
