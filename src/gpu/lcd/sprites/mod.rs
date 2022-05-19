@@ -11,10 +11,13 @@ pub mod sprite_attributes;
 pub mod sprite_color;
 pub mod sprite_info;
 
+const MAX_SPRITE_PER_LINE: u8 = 10;
+
 impl Lcd {
-    pub fn render_sprites(&mut self) {
+    pub fn render_sprites(&mut self, background_colors: Option<[u8; SCREEN_WIDTH as usize]>) {
         let sprite_size = self.control.get_sprite_size();
-        for sprite in 0..SPRITE_NUMBER {
+        let mut sprites_drawn = 0;
+        for sprite in (0..SPRITE_NUMBER).rev() {
             let index = (SPRITE_NUMBER - 1) - sprite;
             let sprite_info = self.get_sprite_info(index as u16, sprite_size);
             let sprite_attributes = SpriteAttributes(sprite_info.attributes);
@@ -37,6 +40,10 @@ impl Lcd {
             let pixel_low = self.read(data_address);
             let pixel_high = self.read(data_address + 1);
 
+            sprites_drawn += 1;
+            if sprites_drawn > MAX_SPRITE_PER_LINE {
+                continue;
+            }
             for tile_bit in 0..=TILE_BITS {
                 if sprite_info.x_position + tile_bit < 0
                     || sprite_info.x_position + tile_bit >= (SCREEN_WIDTH as i32)
@@ -63,8 +70,14 @@ impl Lcd {
                     continue;
                 }
 
-                self.screen
-                    .set_pixel(self.line_number as u16, x as u16, sprite_color.color);
+                // If sprite has priority over background or if background is color 0(transparent)
+                // Then draw sprite
+                if !sprite_attributes.obj_priority()
+                    || (background_colors.is_some() && background_colors.unwrap()[x as usize] == 0)
+                {
+                    self.screen
+                        .set_pixel(self.line_number as u16, x as u16, sprite_color.color);
+                }
             }
         }
     }
