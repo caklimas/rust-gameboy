@@ -60,8 +60,8 @@ impl Lcd {
                 if self.mode_clock >= DRAWING_CYCLES {
                     self.set_mode(LcdMode::HorizontalBlank);
                     self.render_scanline();
-                    self.line_number = (self.line_number + 1) % 154;
                     self.check_lyc_interrupt(&mut result);
+                    self.line_number = (self.line_number + 1) % 154;
 
                     if self.status.horizontal_blank_interrupt() {
                         result.lcd_stat = true;
@@ -93,7 +93,7 @@ impl Lcd {
                 if self.mode_clock >= MODE_CYCLES {
                     self.mode_clock = 0;
                     self.line_number += 1;
-                    self.check_lyc_interrupt(&mut result);
+                    //self.check_lyc_interrupt(&mut result);
 
                     if self.line_number >= MAX_SCANLINE {
                         self.set_mode(LcdMode::SearchingOam);

@@ -10,8 +10,7 @@ impl Gameboy {
     fn draw_screen(&mut self, ctx: &mut Context) {
         let mut builder = MeshBuilder::new();
         let screen = self.get_screen();
-        let mut coordinates = 0usize;
-        for i in (0..screen.len()).step_by(COLOR_PER_PIXEL) {
+        for (coordinates, i) in (0..screen.len()).step_by(COLOR_PER_PIXEL).enumerate() {
             let r = screen[i];
             let g = screen[i + 1];
             let b = screen[i + 2];
@@ -25,7 +24,6 @@ impl Gameboy {
                 PIXEL_SIZE as f32,
             );
             builder.rectangle(DrawMode::Fill(FillOptions::DEFAULT), rectangle, color);
-            coordinates += 1;
         }
 
         let mesh = builder.build(ctx).expect("Error building screen");
