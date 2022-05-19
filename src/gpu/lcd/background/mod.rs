@@ -5,8 +5,9 @@ use tile::*;
 pub mod tile;
 
 impl Lcd {
-    pub fn render_background(&mut self) {
+    pub fn render_background(&mut self) -> [u8; SCREEN_WIDTH as usize] {
         let window_y = self.get_window_y();
+        let mut background_colors = [0; SCREEN_WIDTH as usize];
 
         for x in 0..SCREEN_WIDTH {
             let window_x = self.get_window_x(x);
@@ -17,8 +18,11 @@ impl Lcd {
             let color_number = self.get_bg_color_number(tile_address, &tile_data);
             let color = self.bg_palette_data.get_color(color_number);
 
+            background_colors[x as usize] = color_number;
             self.screen.set_pixel(self.line_number as u16, x, color)
         }
+
+        background_colors
     }
 
     fn get_tile_number(&self, tile_data: &TileData) -> u8 {

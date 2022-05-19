@@ -14,7 +14,7 @@ pub mod sprite_info;
 const MAX_SPRITE_PER_LINE: u8 = 10;
 
 impl Lcd {
-    pub fn render_sprites(&mut self) {
+    pub fn render_sprites(&mut self, background_colors: Option<[u8; SCREEN_WIDTH as usize]>) {
         let sprite_size = self.control.get_sprite_size();
         let mut sprites_drawn = 0;
         for sprite in (0..SPRITE_NUMBER).rev() {
@@ -70,7 +70,11 @@ impl Lcd {
                     continue;
                 }
 
-                if !sprite_attributes.obj_priority() {
+                // If sprite has priority over background or if background is color 0(transparent)
+                // Then draw sprite
+                if !sprite_attributes.obj_priority()
+                    || (background_colors.is_some() && background_colors.unwrap()[x as usize] == 0)
+                {
                     self.screen
                         .set_pixel(self.line_number as u16, x as u16, sprite_color.color);
                 }

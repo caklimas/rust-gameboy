@@ -163,12 +163,13 @@ impl Lcd {
     }
 
     fn render_scanline(&mut self) {
+        let mut background_colors = Option::None;
         if self.control.background_enabled() {
-            self.render_background();
+            background_colors = Option::Some(self.render_background());
         }
 
         if self.control.sprite_enabled() {
-            self.render_sprites();
+            self.render_sprites(background_colors);
         }
     }
 
