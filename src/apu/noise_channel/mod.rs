@@ -117,8 +117,8 @@ impl NoiseChannel {
     pub fn write(&mut self, address: u16, value: u8) {
         match address {
             CHANNEL_4_SOUND_LENGTH => {
-                self.length_counter = self.sound_length.get_sound_length();
                 self.sound_length.set_sound_length_data(value);
+                self.length_counter = self.sound_length.get_sound_length();
             }
             CHANNEL_4_VOLUME_ENVELOPE => {
                 self.volume_envelope.0 = value;
