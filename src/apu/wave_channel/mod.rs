@@ -39,16 +39,17 @@ impl WaveChannel {
         }
 
         self.timer = self.calculate_timer();
+        self.position_counter = (self.position_counter + 1) & 0x1F;
         self.output_volume = if self.enabled {
             let position = self.position_counter / 2;
             let mut output = self.wave_ram.read(position as usize);
-            if self.position_counter & 0b1 > 0 {
+            if (self.position_counter & (1 << 0)) != 0 {
                 output >>= 4;
             }
             output &= 0xF;
 
-            if self.select_output_level.0 > 0 {
-                output >>= self.select_output_level.0 - 1;
+            if self.select_output_level.select_output_level() > 0 {
+                output >>= self.select_output_level.select_output_level() - 1;
             } else {
                 output = 0;
             }
@@ -59,7 +60,16 @@ impl WaveChannel {
         };
     }
 
-    pub fn clock_length_counter(&mut self) {}
+    pub fn clock_length_counter(&mut self) {
+        if self.length_counter == 0 || !self.frequency_hi.length_enabled() {
+            return;
+        }
+
+        self.length_counter -= 1;
+        if self.length_counter == 0 {
+            self.enabled = false;
+        }
+    }
 
     pub fn read(&self, address: u16) -> u8 {
         match address {
@@ -100,6 +110,10 @@ impl WaveChannel {
 
     pub fn reset_length_counter(&mut self) {
         self.length_counter = 0;
+    }
+
+    pub fn get_output_volume(&self) -> u8 {
+        self.output_volume
     }
 
     fn trigger(&mut self) {

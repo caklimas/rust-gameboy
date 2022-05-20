@@ -11,6 +11,7 @@ impl WaveRam {
     }
 
     pub fn write(&mut self, index: usize, value: u8) {
+        println!("Write to wave ram: {}, {}", index, value);
         self.data[index] = value;
     }
 }
