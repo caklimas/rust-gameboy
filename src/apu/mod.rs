@@ -143,7 +143,7 @@ impl Apu {
 
                 value
             }
-            WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => 0,
+            WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => self.channel_3.read(address),
             _ => panic!("Invalid APU address 0x{:4X}", address),
         }
     }
@@ -177,7 +177,7 @@ impl Apu {
                     self.channel_4.reset_length_counter();
                 }
             }
-            WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => (),
+            WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => self.channel_3.write(address, value),
             _ => panic!("Invalid APU address 0x{:4X}", address),
         }
     }
@@ -228,6 +228,17 @@ impl Apu {
         if self
             .sound_control
             .output_terminal_selection
+            .sound_3_to_s02()
+        {
+            buffer_input = mix_audio(
+                buffer_input,
+                self.channel_3.get_output_volume() as f32 / 100.0,
+                volume,
+            );
+        }
+        if self
+            .sound_control
+            .output_terminal_selection
             .sound_4_to_s02()
         {
             buffer_input = mix_audio(
@@ -264,6 +275,17 @@ impl Apu {
             buffer_input = mix_audio(
                 buffer_input,
                 self.channel_2.get_output_volume() as f32 / 100.0,
+                volume,
+            );
+        }
+        if self
+            .sound_control
+            .output_terminal_selection
+            .sound_3_to_s01()
+        {
+            buffer_input = mix_audio(
+                buffer_input,
+                self.channel_3.get_output_volume() as f32 / 100.0,
                 volume,
             );
         }
