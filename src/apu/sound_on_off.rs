@@ -5,5 +5,5 @@ bitfield! {
     pub struct SoundOnOff(u8);
     impl Debug;
 
-    pub sound_channel_3_off, _: 7;
+    pub sound_channel_3_on, _: 7;
 }

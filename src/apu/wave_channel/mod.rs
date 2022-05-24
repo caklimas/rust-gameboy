@@ -40,14 +40,14 @@ impl WaveChannel {
 
         self.timer = self.calculate_timer();
         self.position_counter = (self.position_counter + 1) & 0x1F;
-        self.output_volume = if self.enabled {
+        self.output_volume = if self.enabled && self.sound_on_off.sound_channel_3_on() {
             let position = self.position_counter / 2;
             let mut output = self.wave_ram.read(position as usize);
             if (self.position_counter & (1 << 0)) != 0 {
                 output >>= 4;
             }
-            output &= 0xF;
 
+            output &= 0xF;
             if self.select_output_level.select_output_level() > 0 {
                 output >>= self.select_output_level.select_output_level() - 1;
             } else {
