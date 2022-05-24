@@ -46,8 +46,8 @@ impl WaveChannel {
             if (self.position_counter & (1 << 0)) != 0 {
                 output >>= 4;
             }
-            output &= 0xF;
 
+            output &= 0xF;
             if self.select_output_level.select_output_level() > 0 {
                 output >>= self.select_output_level.select_output_level() - 1;
             } else {
