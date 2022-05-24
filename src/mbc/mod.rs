@@ -3,6 +3,7 @@ use super::cartridge::cartridge_header::CartridgeHeader;
 
 pub mod mbc0;
 pub mod mbc1;
+pub mod mbc3;
 
 pub trait Mbc {
     fn read_ram(&self, address: u16) -> u8;
