@@ -1,9 +1,13 @@
 use crate::{
-    addresses::mbc::mbc3::{ROM_BANK_0_LOWER, ROM_BANK_1_7F_LOWER},
+    addresses::mbc::mbc3::{
+        RAM_ENABLE_LOWER, RAM_ENABLE_UPPER, ROM_BANK_0_LOWER, ROM_BANK_1_7F_LOWER,
+    },
     cartridge::cartridge_header::CartridgeHeader,
 };
 
 use super::Mbc;
+
+pub const ENABLE_RAM: u8 = 0x0A;
 
 pub struct Mbc3 {
     ram: Vec<u8>,
@@ -11,7 +15,6 @@ pub struct Mbc3 {
     ram_enabled: bool,
     rom: Vec<u8>,
     rom_bank_number: u8,
-    ram_enabled: bool,
 }
 
 impl Mbc3 {
@@ -52,10 +55,19 @@ impl Mbc for Mbc3 {
     }
 
     fn write_ram(&mut self, address: u16, data: u8) {
+        if !self.ram_enabled {
+            return;
+        }
+
         todo!()
     }
 
     fn write_rom(&mut self, address: u16, data: u8) {
+        match address {
+            RAM_ENABLE_LOWER..=RAM_ENABLE_UPPER => self.write_ram_enabled(data),
+            _ => (),
+        }
+
         todo!()
     }
 }
