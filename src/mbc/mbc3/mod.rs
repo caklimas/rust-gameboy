@@ -4,8 +4,9 @@ pub mod rtc;
 use crate::{
     addresses::mbc::mbc3::{
         LATCH_CLOCK_LOWER, LATCH_CLOCK_UPPER, RAM_BANK_NUMBER_RTC_LOWER, RAM_BANK_NUMBER_RTC_UPPER,
-        RAM_ENABLE_LOWER, RAM_ENABLE_UPPER, ROM_BANK_0_LOWER, ROM_BANK_1_7F_LOWER,
-        ROM_BANK_NUMBER_LOWER, ROM_BANK_NUMBER_UPPER, RTC_REGISTER_LOWER, RTC_REGISTER_UPPER,
+        RAM_ENABLE_LOWER, RAM_ENABLE_UPPER, ROM_BANK_0_LOWER, ROM_BANK_0_UPPER,
+        ROM_BANK_1_7F_LOWER, ROM_BANK_1_7F_UPPER, ROM_BANK_NUMBER_LOWER, ROM_BANK_NUMBER_UPPER,
+        RTC_REGISTER_LOWER, RTC_REGISTER_UPPER,
     },
     cartridge::cartridge_header::CartridgeHeader,
     mmu::memory_sizes::KILOBYTES_8,
@@ -32,7 +33,7 @@ pub struct Mbc3 {
 impl Mbc3 {
     pub fn new(header: &CartridgeHeader, data: Vec<u8>) -> Self {
         Self {
-            ram: vec![0; header.ram_size.get_size()],
+            ram: vec![0xFF; header.ram_size.get_size()],
             ram_bank_number: 0x00,
             ram_enabled: false,
             rom: data,
@@ -49,12 +50,10 @@ impl Mbc3 {
     }
 
     fn write_rom_bank_number(&mut self, data: u8) {
-        let bank_number = match data & 0b111_1111 {
+        self.rom_bank_number = match data & 0b111_1111 {
             0 => 1,
             d => d,
         };
-
-        self.rom_bank_number = bank_number;
     }
 
     fn write_ram_bank(&mut self, data: u8) {
@@ -80,7 +79,6 @@ impl Mbc3 {
             0x00 if !self.latch_state => self.latch_state = true,
             _ => self.latch_state = false,
         }
-        todo!()
     }
 
     fn write_ram(&mut self, address: u16, data: u8) {
@@ -112,13 +110,13 @@ impl Mbc for Mbc3 {
 
     fn read_rom(&self, address: u16) -> u8 {
         match address {
-            ROM_BANK_0_LOWER..=ROM_BANK_0_LOWER => self.rom[address as usize],
-            ROM_BANK_1_7F_LOWER..=ROM_BANK_1_7F_LOWER => {
-                let offset = self.rom_bank_number as u16 * ROM_BANK_1_7F_LOWER;
-                let index = address - ROM_BANK_1_7F_LOWER + offset;
+            ROM_BANK_0_LOWER..=ROM_BANK_0_UPPER => self.rom[address as usize],
+            ROM_BANK_1_7F_LOWER..=ROM_BANK_1_7F_UPPER => {
+                let index = self.rom_bank_number as usize * ROM_BANK_1_7F_LOWER as usize
+                    + (address as usize - ROM_BANK_1_7F_LOWER as usize);
                 self.rom[index as usize]
             }
-            _ => panic!("Invalid MBC3 address"),
+            _ => panic!("Invalid MBC3 address 0x{:4X}", address),
         }
     }
 
@@ -143,7 +141,5 @@ impl Mbc for Mbc3 {
             LATCH_CLOCK_LOWER..=LATCH_CLOCK_UPPER => self.write_latch_data(data),
             _ => (),
         }
-
-        todo!()
     }
 }

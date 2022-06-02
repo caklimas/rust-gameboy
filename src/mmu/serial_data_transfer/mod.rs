@@ -21,7 +21,6 @@ impl SerialDataTransfer {
     pub fn write(&mut self, address: u16, data: u8) {
         match address {
             SERIAL_TRANSFER_DATA => {
-                print!("{}", data as char);
                 self.data = data;
             }
             SERIAL_TRANSFER_CONTROL => self.control.set(data),
