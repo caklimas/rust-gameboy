@@ -120,6 +120,7 @@ impl Apu {
     pub fn read(&self, address: u16) -> u8 {
         match address {
             CHANNEL_1_SWEEP_REGISTER..=CHANNEL_1_FREQUENCY_HI_DATA => self.channel_1.read(address),
+            0xFF15 => 0xFF,
             CHANNEL_2_SOUND_LENGTH_WAVE_PATTERN..=CHANNEL_2_FREQUENCY_HI_DATA => {
                 self.channel_2.read(address)
             }
@@ -178,7 +179,7 @@ impl Apu {
                 }
             }
             WAVE_PATTERN_RAM_LOWER..=WAVE_PATTERN_RAM_UPPER => self.channel_3.write(address, value),
-            _ => panic!("Invalid APU address 0x{:4X}", address),
+            _ => (),
         }
     }
 
