@@ -18,6 +18,11 @@ pub fn get_mbc(header: &CartridgeHeader, data: Vec<u8>) -> Option<Box<dyn Mbc>> 
         CartridgeType::Mbc1 | CartridgeType::Mbc1Ram | CartridgeType::Mbc1RamBattery => {
             Some(Box::new(mbc1::Mbc1::new(header, data)))
         }
+        CartridgeType::Mbc3
+        | CartridgeType::Mbc3Ram
+        | CartridgeType::Mbc3RamBattery
+        | CartridgeType::Mbc3TimerBattery
+        | CartridgeType::Mbc3TimerRamBattery => Some(Box::new(mbc3::Mbc3::new(header, data))),
         _ => panic!("Unsupported mbc: {:?}", header.cartridge_type),
     }
 }
