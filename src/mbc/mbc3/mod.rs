@@ -92,7 +92,7 @@ impl Mbc3 {
 
     fn get_ram_index(&self, address: u16) -> usize {
         self.ram_bank_number as usize * (KILOBYTES_8 as usize)
-            + (address - RTC_REGISTER_LOWER) as usize
+            + (address as usize - RTC_REGISTER_LOWER as usize)
     }
 }
 
