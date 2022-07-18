@@ -1,6 +1,7 @@
 use gameboy::Gameboy;
 
 use input::Input;
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 #[macro_use]
@@ -24,6 +25,7 @@ pub mod utils;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
+#[derive(Serialize, Deserialize)]
 pub struct Emulator {
     cycles: usize,
     gameboy: Gameboy,
@@ -35,6 +37,19 @@ impl Emulator {
     pub fn new(bytes: Vec<u8>) -> Self {
         let gameboy = Gameboy::new(bytes, true);
         Self { cycles: 0, gameboy }
+    }
+
+    pub fn from_save_data(bytes: Vec<u8>) -> Self {
+        let data = std::str::from_utf8(&bytes).expect("Could not load Gameboy from bytes");
+        serde_json::from_str(&data).expect("Error loading save data")
+    }
+
+    pub fn from_something(bytes: Vec<u8>) -> u8 {
+        if bytes.len() > 0 {
+            bytes[0]
+        } else {
+            6
+        }
     }
 
     pub fn clock_until_event(&mut self, max_cycles: usize) -> EmulatorState {
@@ -62,6 +77,11 @@ impl Emulator {
 
     pub fn get_audio_buffer(&self) -> Vec<f32> {
         self.gameboy.get_audio_buffer().to_vec()
+    }
+
+    pub fn save(&self) -> Vec<u8> {
+        let serialized = serde_json::to_string(self).expect("Could not serialize emulator");
+        serialized.into_bytes()
     }
 }
 

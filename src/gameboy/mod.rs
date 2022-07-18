@@ -7,6 +7,7 @@ use crate::cartridge::Cartridge;
 use crate::cpu;
 use crate::input::Input;
 use serde::{Deserialize, Serialize};
+use std::str;
 
 #[derive(Serialize, Deserialize)]
 pub struct Gameboy {
