@@ -41,15 +41,7 @@ impl Emulator {
 
     pub fn from_save_data(bytes: Vec<u8>) -> Self {
         let data = std::str::from_utf8(&bytes).expect("Could not load Gameboy from bytes");
-        serde_json::from_str(&data).expect("Error loading save data")
-    }
-
-    pub fn from_something(bytes: Vec<u8>) -> u8 {
-        if bytes.len() > 0 {
-            bytes[0]
-        } else {
-            6
-        }
+        serde_json::from_str(data).expect("Error loading save data")
     }
 
     pub fn clock_until_event(&mut self, max_cycles: usize) -> EmulatorState {

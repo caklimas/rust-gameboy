@@ -5,8 +5,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Cartridge {
-    #[serde(skip)]
-    pub mbc: Option<Box<dyn Mbc>>,
+    pub mbc: Mbc,
     header: cartridge_header::CartridgeHeader,
 }
 

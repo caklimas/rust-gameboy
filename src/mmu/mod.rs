@@ -138,9 +138,7 @@ impl Mmu {
 
     fn read_mbc_ram(&self, address: u16) -> u8 {
         if let Some(ref c) = self.cartridge {
-            if let Some(ref m) = c.mbc {
-                return m.read_ram(address);
-            }
+            return c.mbc.read_ram(address);
         }
 
         0
@@ -148,9 +146,7 @@ impl Mmu {
 
     fn read_mbc_rom(&self, address: u16) -> u8 {
         if let Some(ref c) = self.cartridge {
-            if let Some(ref m) = c.mbc {
-                return m.read_rom(address);
-            }
+            return c.mbc.read_rom(address);
         }
 
         0
@@ -158,17 +154,13 @@ impl Mmu {
 
     fn write_mbc_ram(&mut self, address: u16, data: u8) {
         if let Some(ref mut c) = self.cartridge {
-            if let Some(ref mut m) = c.mbc {
-                m.write_ram(address, data);
-            }
+            c.mbc.write_ram(address, data);
         }
     }
 
     fn write_mbc_rom(&mut self, address: u16, data: u8) {
         if let Some(ref mut c) = self.cartridge {
-            if let Some(ref mut m) = c.mbc {
-                m.write_rom(address, data);
-            }
+            c.mbc.write_rom(address, data);
         }
     }
 }

@@ -1,6 +1,8 @@
 pub mod banking_mode;
 pub mod rtc;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     addresses::mbc::mbc3::{
         LATCH_CLOCK_LOWER, LATCH_CLOCK_UPPER, RAM_BANK_NUMBER_RTC_LOWER, RAM_BANK_NUMBER_RTC_UPPER,
@@ -14,10 +16,9 @@ use crate::{
 
 use self::{banking_mode::BankingMode, rtc::Rtc};
 
-use super::Mbc;
-
 const ENABLE_RAM: u8 = 0x0A;
 
+#[derive(Serialize, Deserialize)]
 pub struct Mbc3 {
     ram: Vec<u8>,
     ram_bank_number: u8,
@@ -42,6 +43,52 @@ impl Mbc3 {
             rtc_register: 0,
             latch_state: false,
             rtc: Default::default(),
+        }
+    }
+
+    pub fn read_ram(&self, address: u16) -> u8 {
+        if !self.ram_enabled {
+            return 0;
+        }
+
+        match self.bank_mode {
+            BankingMode::Ram => self.ram[self.get_ram_index(address)],
+            BankingMode::Rtc => self.rtc.read(self.rtc_register),
+        }
+    }
+
+    pub fn read_rom(&self, address: u16) -> u8 {
+        match address {
+            ROM_BANK_0_LOWER..=ROM_BANK_0_UPPER => self.rom[address as usize],
+            ROM_BANK_1_7F_LOWER..=ROM_BANK_1_7F_UPPER => {
+                let index = self.rom_bank_number as usize * ROM_BANK_1_7F_LOWER as usize
+                    + (address as usize - ROM_BANK_1_7F_LOWER as usize);
+                self.rom[index as usize]
+            }
+            _ => panic!("Invalid MBC3 address 0x{:4X}", address),
+        }
+    }
+
+    pub fn write_ram(&mut self, address: u16, data: u8) {
+        if !self.ram_enabled {
+            return;
+        }
+
+        if let RTC_REGISTER_LOWER..=RTC_REGISTER_UPPER = address {
+            match self.bank_mode {
+                BankingMode::Ram => self.write_ram_data(address, data),
+                BankingMode::Rtc => self.write_rtc_register(data),
+            }
+        }
+    }
+
+    pub fn write_rom(&mut self, address: u16, data: u8) {
+        match address {
+            RAM_ENABLE_LOWER..=RAM_ENABLE_UPPER => self.write_ram_enabled(data),
+            ROM_BANK_NUMBER_LOWER..=ROM_BANK_NUMBER_UPPER => self.write_rom_bank_number(data),
+            RAM_BANK_NUMBER_RTC_LOWER..=RAM_BANK_NUMBER_RTC_UPPER => self.write_ram_bank(data),
+            LATCH_CLOCK_LOWER..=LATCH_CLOCK_UPPER => self.write_latch_data(data),
+            _ => (),
         }
     }
 
@@ -81,7 +128,7 @@ impl Mbc3 {
         }
     }
 
-    fn write_ram(&mut self, address: u16, data: u8) {
+    fn write_ram_data(&mut self, address: u16, data: u8) {
         let index = self.get_ram_index(address);
         self.ram[index] = data;
     }
@@ -93,53 +140,5 @@ impl Mbc3 {
     fn get_ram_index(&self, address: u16) -> usize {
         self.ram_bank_number as usize * (KILOBYTES_8 as usize)
             + (address as usize - RTC_REGISTER_LOWER as usize)
-    }
-}
-
-impl Mbc for Mbc3 {
-    fn read_ram(&self, address: u16) -> u8 {
-        if !self.ram_enabled {
-            return 0;
-        }
-
-        match self.bank_mode {
-            BankingMode::Ram => self.ram[self.get_ram_index(address)],
-            BankingMode::Rtc => self.rtc.read(self.rtc_register),
-        }
-    }
-
-    fn read_rom(&self, address: u16) -> u8 {
-        match address {
-            ROM_BANK_0_LOWER..=ROM_BANK_0_UPPER => self.rom[address as usize],
-            ROM_BANK_1_7F_LOWER..=ROM_BANK_1_7F_UPPER => {
-                let index = self.rom_bank_number as usize * ROM_BANK_1_7F_LOWER as usize
-                    + (address as usize - ROM_BANK_1_7F_LOWER as usize);
-                self.rom[index as usize]
-            }
-            _ => panic!("Invalid MBC3 address 0x{:4X}", address),
-        }
-    }
-
-    fn write_ram(&mut self, address: u16, data: u8) {
-        if !self.ram_enabled {
-            return;
-        }
-
-        if let RTC_REGISTER_LOWER..=RTC_REGISTER_UPPER = address {
-            match self.bank_mode {
-                BankingMode::Ram => self.write_ram(address, data),
-                BankingMode::Rtc => self.write_rtc_register(data),
-            }
-        }
-    }
-
-    fn write_rom(&mut self, address: u16, data: u8) {
-        match address {
-            RAM_ENABLE_LOWER..=RAM_ENABLE_UPPER => self.write_ram_enabled(data),
-            ROM_BANK_NUMBER_LOWER..=ROM_BANK_NUMBER_UPPER => self.write_rom_bank_number(data),
-            RAM_BANK_NUMBER_RTC_LOWER..=RAM_BANK_NUMBER_RTC_UPPER => self.write_ram_bank(data),
-            LATCH_CLOCK_LOWER..=LATCH_CLOCK_UPPER => self.write_latch_data(data),
-            _ => (),
-        }
     }
 }

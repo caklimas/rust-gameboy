@@ -4,14 +4,15 @@ pub mod banking_mode;
 #[cfg(test)]
 mod tests;
 
-use super::Mbc;
 use crate::addresses::mbc::mbc1::*;
 use crate::cartridge::cartridge_header::CartridgeHeader;
 use crate::mmu::memory_sizes::{KILOBYTES_16, KILOBYTES_8};
 use banking_mode::BankingMode;
+use serde::{Deserialize, Serialize};
 
 pub const ENABLE_RAM: u8 = 0x0A;
 
+#[derive(Serialize, Deserialize)]
 pub struct Mbc1 {
     bank_mode: BankingMode,
     ram: Vec<u8>,
@@ -30,6 +31,45 @@ impl Mbc1 {
             ram_enabled: false,
             rom: data,
             rom_bank_number: 0x01,
+        }
+    }
+
+    pub fn read_ram(&self, address: u16) -> u8 {
+        if !self.ram_enabled {
+            return 0;
+        }
+
+        let index = self.get_ram_index(address);
+        self.ram[index]
+    }
+
+    pub fn read_rom(&self, address: u16) -> u8 {
+        let index = if address < KILOBYTES_16 {
+            address as usize
+        } else {
+            (self.rom_bank_number as usize * KILOBYTES_16 as usize)
+                | (address as usize % KILOBYTES_16 as usize)
+        };
+
+        self.rom[index]
+    }
+
+    pub fn write_ram(&mut self, address: u16, data: u8) {
+        if !self.ram_enabled {
+            return;
+        }
+
+        let index = self.get_ram_index(address);
+        self.ram[index as usize] = data;
+    }
+
+    pub fn write_rom(&mut self, address: u16, data: u8) {
+        match address {
+            RAM_ENABLE_LOWER..=RAM_ENABLE_UPPER => self.write_ram_enabled(data),
+            ROM_BANK_NUMBER_LOWER..=ROM_BANK_NUMBER_UPPER => self.write_rom_bank_number_lower(data),
+            RAM_BANK_NUMBER_LOWER..=RAM_BANK_NUMBER_UPPER => self.write_bank_number(data),
+            BANKING_MODE_SELECT_LOWER..=BANKING_MODE_SELECT_UPPER => self.write_bank_mode(data),
+            _ => (),
         }
     }
 
@@ -71,46 +111,5 @@ impl Mbc1 {
         };
 
         self.rom_bank_number = bank_number_upper | bank_number_lower;
-    }
-}
-
-impl Mbc for Mbc1 {
-    fn read_ram(&self, address: u16) -> u8 {
-        if !self.ram_enabled {
-            return 0;
-        }
-
-        let index = self.get_ram_index(address);
-        self.ram[index]
-    }
-
-    fn read_rom(&self, address: u16) -> u8 {
-        let index = if address < KILOBYTES_16 {
-            address as usize
-        } else {
-            (self.rom_bank_number as usize * KILOBYTES_16 as usize)
-                | (address as usize % KILOBYTES_16 as usize)
-        };
-
-        self.rom[index]
-    }
-
-    fn write_ram(&mut self, address: u16, data: u8) {
-        if !self.ram_enabled {
-            return;
-        }
-
-        let index = self.get_ram_index(address);
-        self.ram[index as usize] = data;
-    }
-
-    fn write_rom(&mut self, address: u16, data: u8) {
-        match address {
-            RAM_ENABLE_LOWER..=RAM_ENABLE_UPPER => self.write_ram_enabled(data),
-            ROM_BANK_NUMBER_LOWER..=ROM_BANK_NUMBER_UPPER => self.write_rom_bank_number_lower(data),
-            RAM_BANK_NUMBER_LOWER..=RAM_BANK_NUMBER_UPPER => self.write_bank_number(data),
-            BANKING_MODE_SELECT_LOWER..=BANKING_MODE_SELECT_UPPER => self.write_bank_mode(data),
-            _ => (),
-        }
     }
 }
