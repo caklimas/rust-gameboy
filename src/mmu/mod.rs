@@ -21,6 +21,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Mmu {
+    #[serde(skip_serialize, skip_deserialize)]
     pub ram: ram::Ram,
     boot_rom: boot_rom::BootRom,
     boot_rom_finished: bool,
