@@ -16,7 +16,6 @@ pub const ENABLE_RAM: u8 = 0x0A;
 #[derive(Serialize, Deserialize)]
 pub struct Mbc1 {
     bank_mode: BankingMode,
-    #[serde(skip)]
     ram: Vec<u8>,
     ram_bank_number: u8,
     ram_enabled: bool,

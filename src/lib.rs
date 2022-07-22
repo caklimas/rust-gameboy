@@ -72,8 +72,7 @@ impl Emulator {
     }
 
     pub fn save(&self) -> Vec<u8> {
-        let serialized = serde_json::to_string(self).expect("Could not serialize emulator");
-        serialized.into_bytes()
+        self.gameboy.save()
     }
 }
 
