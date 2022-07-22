@@ -23,6 +23,13 @@ impl Gameboy {
         }
     }
 
+    pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>, run_boot_rom: bool) -> Self {
+        Gameboy {
+            cpu: cpu::Cpu::new(Cartridge::from_save_data(bytes, save_data), run_boot_rom),
+            input: Input::new(),
+        }
+    }
+
     pub fn clock(&mut self) -> (u16, bool) {
         self.cpu.clock()
     }
@@ -50,5 +57,9 @@ impl Gameboy {
     pub fn update_controls(&mut self, input: Input) {
         self.input = input;
         self.cpu.mmu.update_controls(input);
+    }
+
+    pub fn save(&self) -> Vec<u8> {
+        self.cpu.save()
     }
 }

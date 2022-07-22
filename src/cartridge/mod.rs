@@ -16,4 +16,10 @@ impl Cartridge {
 
         Cartridge { header, mbc }
     }
+
+    pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>) -> Self {
+        let mut c = Cartridge::new(bytes);
+        c.mbc.set_ram(save_data);
+        c
+    }
 }

@@ -107,6 +107,10 @@ impl Mbc3 {
         self.ram = data;
     }
 
+    pub fn get_ram(&self) -> Vec<u8> {
+        self.ram.clone()
+    }
+
     pub fn has_battery(&self) -> bool {
         self.has_battery
     }

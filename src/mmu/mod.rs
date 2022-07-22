@@ -102,6 +102,10 @@ impl Mmu {
         }
     }
 
+    pub fn save(&self) -> Vec<u8> {
+        self.cartridge.mbc.get_ram()
+    }
+
     fn program_start(&mut self) {
         self.write_byte(0xFF05, 0x00);
         self.write_byte(0xFF06, 0x00);

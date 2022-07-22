@@ -72,6 +72,15 @@ impl Mbc {
         }
     }
 
+    pub fn get_ram(&self) -> Vec<u8> {
+        match &self.mbc_type {
+            MbcType::Unknown => Vec::new(),
+            MbcType::Mbc0(_) => Vec::new(),
+            MbcType::Mbc1(mbc) => mbc.get_ram(),
+            MbcType::Mbc3(mbc) => mbc.get_ram(),
+        }
+    }
+
     pub fn set_ram(&mut self, data: Vec<u8>) {
         match &mut self.mbc_type {
             MbcType::Unknown | MbcType::Mbc0(_) => (),
