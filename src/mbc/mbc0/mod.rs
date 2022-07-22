@@ -7,6 +7,7 @@ use crate::mmu::memory_sizes::*;
 
 #[derive(Serialize, Deserialize)]
 pub struct Mbc0 {
+    #[serde(skip)]
     ram: Vec<u8>,
     rom: Vec<u8>,
 }
@@ -35,6 +36,10 @@ impl Mbc0 {
     }
 
     pub fn write_rom(&mut self, _address: u16, _data: u8) {}
+
+    pub fn has_battery(&self) -> bool {
+        false
+    }
 
     fn get_ram_index(&self, address: u16) -> usize {
         (address % KILOBYTES_8) as usize

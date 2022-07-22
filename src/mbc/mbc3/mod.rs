@@ -10,7 +10,7 @@ use crate::{
         ROM_BANK_1_7F_LOWER, ROM_BANK_1_7F_UPPER, ROM_BANK_NUMBER_LOWER, ROM_BANK_NUMBER_UPPER,
         RTC_REGISTER_LOWER, RTC_REGISTER_UPPER,
     },
-    cartridge::cartridge_header::CartridgeHeader,
+    cartridge::cartridge_header::{cartridge_type::CartridgeType, CartridgeHeader},
     mmu::memory_sizes::KILOBYTES_8,
 };
 
@@ -29,6 +29,7 @@ pub struct Mbc3 {
     rtc_register: u8,
     latch_state: bool,
     rtc: Rtc,
+    has_battery: bool,
 }
 
 impl Mbc3 {
@@ -43,6 +44,12 @@ impl Mbc3 {
             rtc_register: 0,
             latch_state: false,
             rtc: Default::default(),
+            has_battery: matches!(
+                header.cartridge_type,
+                CartridgeType::Mbc3RamBattery
+                    | CartridgeType::Mbc3TimerBattery
+                    | CartridgeType::Mbc3TimerRamBattery
+            ),
         }
     }
 
@@ -90,6 +97,18 @@ impl Mbc3 {
             LATCH_CLOCK_LOWER..=LATCH_CLOCK_UPPER => self.write_latch_data(data),
             _ => (),
         }
+    }
+
+    pub fn set_ram(&mut self, data: Vec<u8>) {
+        if !self.has_battery {
+            return;
+        }
+
+        self.ram = data;
+    }
+
+    pub fn has_battery(&self) -> bool {
+        self.has_battery
     }
 
     fn write_ram_enabled(&mut self, data: u8) {

@@ -3,7 +3,7 @@ pub mod cartridge_header;
 use super::mbc::{get_mbc, Mbc};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Cartridge {
     pub mbc: Mbc,
     header: cartridge_header::CartridgeHeader,

@@ -26,7 +26,7 @@ pub fn get_mbc(header: &CartridgeHeader, data: Vec<u8>) -> Mbc {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct Mbc {
     mbc_type: MbcType,
 }
@@ -41,6 +41,7 @@ impl Mbc {
             MbcType::Mbc0(mbc) => mbc.read_ram(address),
             MbcType::Mbc1(mbc) => mbc.read_ram(address),
             MbcType::Mbc3(mbc) => mbc.read_ram(address),
+            MbcType::Unknown => 0,
         }
     }
 
@@ -49,6 +50,7 @@ impl Mbc {
             MbcType::Mbc0(mbc) => mbc.read_rom(address),
             MbcType::Mbc1(mbc) => mbc.read_rom(address),
             MbcType::Mbc3(mbc) => mbc.read_rom(address),
+            MbcType::Unknown => 0,
         }
     }
 
@@ -57,6 +59,7 @@ impl Mbc {
             MbcType::Mbc0(mbc) => mbc.write_ram(address, value),
             MbcType::Mbc1(mbc) => mbc.write_ram(address, value),
             MbcType::Mbc3(mbc) => mbc.write_ram(address, value),
+            MbcType::Unknown => (),
         }
     }
 
@@ -65,13 +68,38 @@ impl Mbc {
             MbcType::Mbc0(mbc) => mbc.write_rom(address, value),
             MbcType::Mbc1(mbc) => mbc.write_rom(address, value),
             MbcType::Mbc3(mbc) => mbc.write_rom(address, value),
+            MbcType::Unknown => (),
+        }
+    }
+
+    pub fn set_ram(&mut self, data: Vec<u8>) {
+        match &mut self.mbc_type {
+            MbcType::Unknown | MbcType::Mbc0(_) => (),
+            MbcType::Mbc1(mbc) => mbc.set_ram(data),
+            MbcType::Mbc3(mbc) => mbc.set_ram(data),
+        }
+    }
+
+    pub fn has_battery(&self) -> bool {
+        match &self.mbc_type {
+            MbcType::Unknown => false,
+            MbcType::Mbc0(mbc) => mbc.has_battery(),
+            MbcType::Mbc1(mbc) => mbc.has_battery(),
+            MbcType::Mbc3(mbc) => mbc.has_battery(),
         }
     }
 }
 
 #[derive(Serialize, Deserialize)]
 pub enum MbcType {
+    Unknown,
     Mbc0(Mbc0),
     Mbc1(Mbc1),
     Mbc3(Mbc3),
+}
+
+impl Default for MbcType {
+    fn default() -> Self {
+        MbcType::Unknown
+    }
 }

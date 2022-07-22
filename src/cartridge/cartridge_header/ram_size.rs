@@ -36,3 +36,9 @@ impl RamSize {
         }
     }
 }
+
+impl Default for RamSize {
+    fn default() -> Self {
+        RamSize::None
+    }
+}

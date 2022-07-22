@@ -5,6 +5,7 @@ pub mod banking_mode;
 mod tests;
 
 use crate::addresses::mbc::mbc1::*;
+use crate::cartridge::cartridge_header::cartridge_type::CartridgeType;
 use crate::cartridge::cartridge_header::CartridgeHeader;
 use crate::mmu::memory_sizes::{KILOBYTES_16, KILOBYTES_8};
 use banking_mode::BankingMode;
@@ -15,11 +16,13 @@ pub const ENABLE_RAM: u8 = 0x0A;
 #[derive(Serialize, Deserialize)]
 pub struct Mbc1 {
     bank_mode: BankingMode,
+    #[serde(skip)]
     ram: Vec<u8>,
     ram_bank_number: u8,
     ram_enabled: bool,
     rom: Vec<u8>,
     rom_bank_number: u8,
+    has_battery: bool,
 }
 
 impl Mbc1 {
@@ -31,6 +34,7 @@ impl Mbc1 {
             ram_enabled: false,
             rom: data,
             rom_bank_number: 0x01,
+            has_battery: header.cartridge_type == CartridgeType::Mbc1RamBattery,
         }
     }
 
@@ -71,6 +75,18 @@ impl Mbc1 {
             BANKING_MODE_SELECT_LOWER..=BANKING_MODE_SELECT_UPPER => self.write_bank_mode(data),
             _ => (),
         }
+    }
+
+    pub fn set_ram(&mut self, data: Vec<u8>) {
+        if !self.has_battery {
+            return;
+        }
+
+        self.ram = data;
+    }
+
+    pub fn has_battery(&self) -> bool {
+        self.has_battery
     }
 
     fn get_ram_index(&self, address: u16) -> usize {
