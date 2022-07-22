@@ -24,7 +24,7 @@ pub struct Mmu {
     pub ram: ram::Ram,
     boot_rom: boot_rom::BootRom,
     boot_rom_finished: bool,
-    cartridge: Option<Cartridge>,
+    cartridge: Cartridge,
     controls: Controls,
     run_boot_rom: bool,
 }
@@ -36,7 +36,7 @@ impl Mmu {
             ram: Default::default(),
             boot_rom: Default::default(),
             boot_rom_finished: !run_boot_rom,
-            cartridge: Some(cartridge),
+            cartridge,
             run_boot_rom,
         };
 
@@ -102,6 +102,10 @@ impl Mmu {
         }
     }
 
+    pub fn save(&self) -> Vec<u8> {
+        self.cartridge.mbc.get_ram()
+    }
+
     fn program_start(&mut self) {
         self.write_byte(0xFF05, 0x00);
         self.write_byte(0xFF06, 0x00);
@@ -137,38 +141,18 @@ impl Mmu {
     }
 
     fn read_mbc_ram(&self, address: u16) -> u8 {
-        if let Some(ref c) = self.cartridge {
-            if let Some(ref m) = c.mbc {
-                return m.read_ram(address);
-            }
-        }
-
-        0
+        self.cartridge.mbc.read_ram(address)
     }
 
     fn read_mbc_rom(&self, address: u16) -> u8 {
-        if let Some(ref c) = self.cartridge {
-            if let Some(ref m) = c.mbc {
-                return m.read_rom(address);
-            }
-        }
-
-        0
+        self.cartridge.mbc.read_rom(address)
     }
 
     fn write_mbc_ram(&mut self, address: u16, data: u8) {
-        if let Some(ref mut c) = self.cartridge {
-            if let Some(ref mut m) = c.mbc {
-                m.write_ram(address, data);
-            }
-        }
+        self.cartridge.mbc.write_ram(address, data);
     }
 
     fn write_mbc_rom(&mut self, address: u16, data: u8) {
-        if let Some(ref mut c) = self.cartridge {
-            if let Some(ref mut m) = c.mbc {
-                m.write_rom(address, data);
-            }
-        }
+        self.cartridge.mbc.write_rom(address, data);
     }
 }

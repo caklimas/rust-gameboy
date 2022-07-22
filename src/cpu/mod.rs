@@ -85,6 +85,10 @@ impl Cpu {
         data
     }
 
+    pub fn save(&self) -> Vec<u8> {
+        self.mmu.save()
+    }
+
     fn execute(&mut self) -> Option<u16> {
         if self.halted {
             return Some(self.nop());

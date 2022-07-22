@@ -1,6 +1,8 @@
 use std::time;
 
-#[derive(Default)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Default, Serialize, Deserialize)]
 pub struct Rtc {
     seconds: u8,
     minutes: u8,

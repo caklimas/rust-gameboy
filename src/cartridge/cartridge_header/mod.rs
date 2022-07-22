@@ -65,3 +65,16 @@ impl CartridgeHeader {
         checksum == value
     }
 }
+
+impl Default for CartridgeHeader {
+    fn default() -> Self {
+        Self {
+            logo: [0; LOGO_SIZE],
+            cartridge_type: Default::default(),
+            ram_size: Default::default(),
+            rom_size: Default::default(),
+            name: Default::default(),
+            sgb_flag: Default::default(),
+        }
+    }
+}

@@ -1,6 +1,7 @@
 use gameboy::Gameboy;
 
 use input::Input;
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 #[macro_use]
@@ -24,6 +25,7 @@ pub mod utils;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
+#[derive(Serialize, Deserialize)]
 pub struct Emulator {
     cycles: usize,
     gameboy: Gameboy,
@@ -34,6 +36,11 @@ impl Emulator {
     #[wasm_bindgen(constructor)]
     pub fn new(bytes: Vec<u8>) -> Self {
         let gameboy = Gameboy::new(bytes, true);
+        Self { cycles: 0, gameboy }
+    }
+
+    pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>) -> Self {
+        let gameboy = Gameboy::from_save_data(bytes, save_data, true);
         Self { cycles: 0, gameboy }
     }
 
@@ -62,6 +69,10 @@ impl Emulator {
 
     pub fn get_audio_buffer(&self) -> Vec<f32> {
         self.gameboy.get_audio_buffer().to_vec()
+    }
+
+    pub fn save(&self) -> Vec<u8> {
+        self.gameboy.save()
     }
 }
 

@@ -1,5 +1,5 @@
 use super::super::banking_mode::BankingMode;
-use super::super::{Mbc, Mbc1, ENABLE_RAM};
+use super::super::{Mbc1, ENABLE_RAM};
 use crate::addresses::mbc::mbc1::*;
 use crate::cartridge::cartridge_header::{CartridgeHeader, RAM_SIZE_INDEX};
 use crate::mmu::memory_sizes::{KILOBYTES_16, KILOBYTES_8};
