@@ -1,4 +1,5 @@
 pub mod cartridge_type;
+pub mod cgb_mode;
 pub mod ram_size;
 pub mod rom_size;
 
@@ -8,6 +9,8 @@ mod tests;
 use serde::{Deserialize, Serialize};
 use serde_big_array::BigArray;
 
+use self::cgb_mode::CgbMode;
+
 pub const CARTRIDGE_HEADER_INDEX: usize = 0x147;
 pub const CHECKSUM_INDEX: usize = 0x14D;
 pub const CHECKSUM_RANGE: std::ops::RangeInclusive<usize> = 0x134..=0x14C;
@@ -15,6 +18,7 @@ pub const LOGO_INDEX_LOWER: usize = 0x104;
 pub const LOGO_INDEX_UPPER: usize = 0x133;
 pub const NAME_INDEX_LOWER: usize = 0x134;
 pub const NAME_INDEX_UPPER: usize = 0x142;
+pub const CGB_MODE: usize = 0x143;
 pub const RAM_SIZE_INDEX: usize = 0x149;
 pub const ROM_SIZE_INDEX: usize = 0x148;
 pub const SGB_INDEX: usize = 0x146;
@@ -27,6 +31,7 @@ pub struct CartridgeHeader {
     pub cartridge_type: cartridge_type::CartridgeType,
     pub ram_size: ram_size::RamSize,
     pub rom_size: rom_size::RomSize,
+    pub cgb_mode: CgbMode,
     #[serde(with = "BigArray")]
     logo: [u8; LOGO_SIZE],
     name: [u8; NAME_SIZE],
@@ -49,6 +54,7 @@ impl CartridgeHeader {
             cartridge_type: cartridge_type::CartridgeType::new(&bytes[CARTRIDGE_HEADER_INDEX]),
             ram_size: ram_size::RamSize::new(&bytes[RAM_SIZE_INDEX]),
             rom_size: rom_size::RomSize::new(&bytes[ROM_SIZE_INDEX]),
+            cgb_mode: CgbMode::new(&bytes[CGB_MODE]),
             logo,
             name,
             sgb_flag: bytes[SGB_INDEX],
@@ -73,6 +79,7 @@ impl Default for CartridgeHeader {
             cartridge_type: Default::default(),
             ram_size: Default::default(),
             rom_size: Default::default(),
+            cgb_mode: CgbMode::CgbMonochrome,
             name: Default::default(),
             sgb_flag: Default::default(),
         }
