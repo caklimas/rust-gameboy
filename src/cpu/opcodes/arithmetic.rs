@@ -4,7 +4,7 @@ impl super::super::Cpu {
     pub fn adc_a(&mut self, register: &CpuRegister) -> u16 {
         let target = self.registers.get_target(register);
         let result = self.add(target, true);
-        self.registers.a = result as u8;
+        self.registers.a = result;
         4
     }
 
@@ -27,7 +27,7 @@ impl super::super::Cpu {
     pub fn add_a(&mut self, register: &CpuRegister) -> u16 {
         let target = self.registers.get_target(register);
         let result = self.add(target, false);
-        self.registers.a = result as u8;
+        self.registers.a = result;
         4
     }
 
@@ -84,7 +84,7 @@ impl super::super::Cpu {
 
         self.registers
             .f
-            .set_carry(super::is_overflow_8(self.stack_pointer as u16, e as u16));
+            .set_carry(super::is_overflow_8(self.stack_pointer, e as u16));
         self.registers.f.set_half_carry(super::is_half_carry_8(
             self.stack_pointer as u8,
             e as u8,
@@ -244,7 +244,7 @@ impl super::super::Cpu {
     pub fn or_a(&mut self, register: &CpuRegister) -> u16 {
         let target = self.registers.get_target(register);
         let result = self.or(target);
-        self.registers.a = result as u8;
+        self.registers.a = result;
         4
     }
 
@@ -267,7 +267,7 @@ impl super::super::Cpu {
     pub fn sbc_a(&mut self, register: &CpuRegister) -> u16 {
         let target = self.registers.get_target(register);
         let result = self.sub(target, true);
-        self.registers.a = result as u8;
+        self.registers.a = result;
         4
     }
 
@@ -297,7 +297,7 @@ impl super::super::Cpu {
     pub fn sub_a(&mut self, register: &CpuRegister) -> u16 {
         let target = self.registers.get_target(register);
         let result = self.sub(target, false);
-        self.registers.a = result as u8;
+        self.registers.a = result;
         4
     }
 
@@ -320,7 +320,7 @@ impl super::super::Cpu {
     pub fn xor_a(&mut self, register: &CpuRegister) -> u16 {
         let target = self.registers.get_target(register);
         let result = self.xor(target);
-        self.registers.a = result as u8;
+        self.registers.a = result;
         4
     }
 

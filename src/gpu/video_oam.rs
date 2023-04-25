@@ -28,7 +28,7 @@ impl VideoOam {
 impl Default for VideoOam {
     fn default() -> Self {
         VideoOam {
-            data: [0; VIDEO_OAM as usize],
+            data: [0; VIDEO_OAM],
         }
     }
 }

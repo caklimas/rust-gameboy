@@ -70,7 +70,7 @@ impl Mbc3 {
             ROM_BANK_1_7F_LOWER..=ROM_BANK_1_7F_UPPER => {
                 let index = self.rom_bank_number as usize * ROM_BANK_1_7F_LOWER as usize
                     + (address as usize - ROM_BANK_1_7F_LOWER as usize);
-                self.rom[index as usize]
+                self.rom[index]
             }
             _ => panic!("Invalid MBC3 address 0x{:4X}", address),
         }
