@@ -8,9 +8,7 @@ use rust_gameboy::constants::screen::*;
 
 fn main() {
     let directory = std::env::current_dir().expect("Can't get current directory");
-    let path = directory.join(
-        r"/Users/christopherk/Desktop/Files/Repos/rust-gameboy-web/public/roms/Pokemon Blue.gb",
-    );
+    let path = directory.join(r"H:\Repos\rust-gameboy-web\public\roms\Pokemon Blue.gb");
     let bytes = fs::read(path).expect("Error reading file");
     let cb = get_context_builder();
     let (ctx, event_loop) = cb.build().expect("Error creating event loop");

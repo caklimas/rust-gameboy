@@ -44,7 +44,7 @@ pub struct NoiseChannel {
 
 impl NoiseChannel {
     pub fn clock(&mut self) {
-        self.timer -= 1;
+        self.timer = self.timer.saturating_sub(1);
 
         if self.timer == 0 {
             self.update_timer();
@@ -80,7 +80,7 @@ impl NoiseChannel {
             return;
         }
 
-        self.envelope_timer -= 1;
+        self.envelope_timer = self.envelope_timer.saturating_sub(1);
         if self.envelope_timer > 0 {
             return;
         }

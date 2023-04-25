@@ -36,7 +36,7 @@ impl Gameboy {
     }
 }
 
-impl event::EventHandler for Gameboy {
+impl event::EventHandler<GameError> for Gameboy {
     fn update(&mut self, _ctx: &mut Context) -> GameResult {
         Ok(())
     }
