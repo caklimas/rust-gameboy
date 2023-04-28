@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import chunk from "chunk";
@@ -57,24 +57,6 @@ const sampleCount = 4096;
 const latency = 0.032;
 const audioCtx = new AudioContext();
 
-export function ScreenF(props: Props) {
-  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const setCanvasRef = (element: HTMLCanvasElement) => {
-    if (!element || canvas) return;
-    setCanvas(element);
-  };
-
-  return (
-    <GameboyScreenFlex>
-      <StyledCanvas
-        ref={setCanvasRef}
-        width={props.width * props.pixelSize}
-        height={props.height * props.pixelSize}
-      />
-    </GameboyScreenFlex>
-  );
-}
-
 class Screen extends React.Component<Props, ScreenState> {
   private canvas: HTMLCanvasElement | null;
   private request_id: number;
@@ -123,20 +105,20 @@ class Screen extends React.Component<Props, ScreenState> {
   }
 
   animate = () => {
+    this.request_id = requestAnimationFrame(this.animate);
+
     if (!this.canAnimate()) return;
 
     while (true) {
       const event = this.props.emulator.clock_until_event(maxCycles);
       if (event && event === this.props.EmulatorState.AudioFull) {
-        this.playAudio();
+        //this.playAudio();
       } else if (event === this.props.EmulatorState.MaxCycles) {
         break;
       }
     }
 
     this.renderScreen();
-
-    this.request_id = requestAnimationFrame(this.animate);
   };
 
   setCanvasRef = (element: HTMLCanvasElement) => {
@@ -145,7 +127,7 @@ class Screen extends React.Component<Props, ScreenState> {
   };
 
   canAnimate = () => {
-    return !!this.canvas && !!this.props.emulator;
+    return !!this.canvas && !!this.props.emulator && !!this.props.EmulatorState;
   };
 
   playAudio = () => {
