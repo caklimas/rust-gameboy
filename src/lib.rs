@@ -74,6 +74,10 @@ impl Emulator {
     pub fn save(&self) -> Vec<u8> {
         self.gameboy.save()
     }
+
+    pub fn get_header_info(&self) -> String {
+        self.gameboy.get_header_info()
+    }
 }
 
 #[wasm_bindgen]

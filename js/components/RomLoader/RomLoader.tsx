@@ -37,7 +37,7 @@ const RomLoader = (props: Props) => {
   useEffect(() => {
     const getGameboy = async () => {
       const gameboy = await loadWasm();
-      setGameboy(gameboy!);
+      setGameboy(gameboy);
     };
 
     getGameboy();
@@ -106,7 +106,7 @@ const readFile = async (
   gameboy: RustGameboy | null,
   fileName: string
 ) => {
-  if (!gameboy) return;
+  if (!gameboy?.Emulator) return;
 
   const response = await fetch(`/roms/${fileName}`);
   const blob = await response.blob();
@@ -115,11 +115,11 @@ const readFile = async (
   const key = fileName.replace(/.gb$/, "");
   const fileData = getFileData(key);
   if (fileData === null) {
-    const emulator = new gameboy.Emulator!(bytes);
+    const emulator = new gameboy.Emulator(bytes);
     props.setCurrentGame(key);
     props.loadRom(emulator);
   } else {
-    const emulator = gameboy.Emulator!.from_save_data(bytes, fileData);
+    const emulator = gameboy.Emulator.from_save_data(bytes, fileData);
     props.setCurrentGame(key);
     props.loadRom(emulator);
   }
@@ -130,13 +130,13 @@ const pickFile = async (
   gameboy: RustGameboy | null,
   file: File
 ) => {
-  if (!gameboy) {
+  if (!gameboy?.Emulator) {
     return;
   }
 
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
-  let emulator = new gameboy.Emulator!(bytes);
+  let emulator = new gameboy.Emulator(bytes);
   props.loadRom(emulator);
 };
 
