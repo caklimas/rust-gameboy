@@ -15,7 +15,7 @@ const App = () => {
     <StyledApp>
       <RomLoader />
       <Gameboy />
-      {/* <CartridgeInfo /> */}
+      <CartridgeInfo />
     </StyledApp>
   );
 };

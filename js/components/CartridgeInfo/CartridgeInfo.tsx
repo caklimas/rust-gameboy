@@ -14,11 +14,9 @@ export function CartridgeInfo(props: Props) {
     const emulator = useSelector<State, Emulator>(state => state.gameboy.emulator!);
     if (!emulator) return null;
 
-    const cartridge = JSON.parse(emulator.get_header_info());
-
     return (
         <div>
-            {cartridge}
+            {JSON.parse(emulator.get_header_info()).header.cartridge_type}
         </div>
     );
 }
