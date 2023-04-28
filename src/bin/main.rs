@@ -11,9 +11,9 @@ fn main() {
     // let path = directory.join(r"H:\Repos\rust-gameboy-web\public\roms\Pokemon Blue.gb");
     // let bytes = fs::read(path).expect("Error reading file");
     // let cb = get_context_builder();
-    // let (ctx, event_loop) = &mut cb.build().expect("Error creating event loop");
-    // let mut gameboy = rust_gameboy::gameboy::Gameboy::new(bytes, true);
-    // event::run(ctx, event_loop, &mut gameboy).expect("Error running event loop");
+    // let (ctx, event_loop) = cb.build().expect("Error creating event loop");
+    // let gameboy = rust_gameboy::gameboy::Gameboy::new(bytes, true);
+    // event::run(ctx, event_loop, gameboy)
 }
 
 // fn get_context_builder() -> ggez::ContextBuilder {

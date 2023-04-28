@@ -63,7 +63,7 @@ impl Mbc1 {
         }
 
         let index = self.get_ram_index(address);
-        self.ram[index as usize] = data;
+        self.ram[index] = data;
     }
 
     pub fn write_rom(&mut self, address: u16, data: u8) {

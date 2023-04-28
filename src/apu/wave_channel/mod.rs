@@ -33,7 +33,7 @@ pub struct WaveChannel {
 
 impl WaveChannel {
     pub fn clock(&mut self) {
-        self.timer -= 1;
+        self.timer = self.timer.saturating_sub(1);
         if self.timer > 0 {
             return;
         }

@@ -1,6 +1,7 @@
-// use ggez::event::{self, KeyCode, KeyMods};
-// use ggez::graphics::{self, Color, DrawMode, DrawParam, FillOptions, MeshBuilder};
-// use ggez::{Context, GameResult};
+// use ggez::event::{self};
+// use ggez::graphics::{self, Canvas, Color, DrawMode, DrawParam, FillOptions, MeshBuilder};
+// use ggez::input::keyboard::KeyCode;
+// use ggez::{Context, GameError, GameResult};
 
 // use super::Gameboy;
 // use crate::constants::gpu::*;
@@ -23,21 +24,24 @@
 //                 PIXEL_SIZE as f32,
 //                 PIXEL_SIZE as f32,
 //             );
-//             builder.rectangle(DrawMode::Fill(FillOptions::DEFAULT), rectangle, color);
+//             builder
+//                 .rectangle(DrawMode::Fill(FillOptions::DEFAULT), rectangle, color)
+//                 .expect("Could not fill rectangle");
 //         }
 
-//         let mesh = builder.build(ctx).expect("Error building screen");
-//         graphics::draw(ctx, &mesh, DrawParam::new()).expect("Error drawing the screen");
+//         let mesh = graphics::Mesh::from_data(ctx, builder.build());
+//         let mut canvas = Canvas::from_frame(ctx, graphics::Color::WHITE);
+//         canvas.draw(&mesh, DrawParam::new());
+//         canvas.finish(ctx).expect("Error drawing screen");
 //     }
 // }
 
-// impl event::EventHandler for Gameboy {
+// impl event::EventHandler<GameError> for Gameboy {
 //     fn update(&mut self, _ctx: &mut Context) -> GameResult {
 //         Ok(())
 //     }
 
 //     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-//         graphics::clear(ctx, graphics::WHITE);
 //         let mut frame_complete = false;
 //         while !frame_complete {
 //             self.clock();
@@ -45,7 +49,6 @@
 //         }
 
 //         self.draw_screen(ctx);
-//         graphics::present(ctx).expect("Error rendering the screen");
 
 //         Ok(())
 //     }
@@ -53,95 +56,107 @@
 //     fn key_down_event(
 //         &mut self,
 //         _ctx: &mut Context,
-//         keycode: KeyCode,
-//         _keymods: KeyMods,
-//         _repeat: bool,
-//     ) {
+//         input: ggez::input::keyboard::KeyInput,
+//         _repeated: bool,
+//     ) -> Result<(), GameError> {
 //         let mut controls_updated = false;
 //         let mut current_controls = self.get_controls();
 
-//         match keycode {
-//             KeyCode::Up => {
-//                 controls_updated = true;
-//                 current_controls.up = true;
+//         if let Some(key_code) = input.keycode {
+//             match key_code {
+//                 KeyCode::Up => {
+//                     controls_updated = true;
+//                     current_controls.up = true;
+//                 }
+//                 KeyCode::Down => {
+//                     controls_updated = true;
+//                     current_controls.down = true;
+//                 }
+//                 KeyCode::Left => {
+//                     controls_updated = true;
+//                     current_controls.left = true;
+//                 }
+//                 KeyCode::Right => {
+//                     controls_updated = true;
+//                     current_controls.right = true;
+//                 }
+//                 KeyCode::Z => {
+//                     controls_updated = true;
+//                     current_controls.b = true;
+//                 }
+//                 KeyCode::X => {
+//                     controls_updated = true;
+//                     current_controls.a = true;
+//                 }
+//                 KeyCode::Return => {
+//                     controls_updated = true;
+//                     current_controls.start = true;
+//                 }
+//                 KeyCode::RShift => {
+//                     controls_updated = true;
+//                     current_controls.select = true;
+//                 }
+//                 _ => {}
 //             }
-//             KeyCode::Down => {
-//                 controls_updated = true;
-//                 current_controls.down = true;
-//             }
-//             KeyCode::Left => {
-//                 controls_updated = true;
-//                 current_controls.left = true;
-//             }
-//             KeyCode::Right => {
-//                 controls_updated = true;
-//                 current_controls.right = true;
-//             }
-//             KeyCode::Z => {
-//                 controls_updated = true;
-//                 current_controls.b = true;
-//             }
-//             KeyCode::X => {
-//                 controls_updated = true;
-//                 current_controls.a = true;
-//             }
-//             KeyCode::Return => {
-//                 controls_updated = true;
-//                 current_controls.start = true;
-//             }
-//             KeyCode::RShift => {
-//                 controls_updated = true;
-//                 current_controls.select = true;
-//             }
-//             _ => {}
 //         }
 
 //         if controls_updated {
 //             self.update_controls(current_controls);
 //         }
+
+//         Ok(())
 //     }
 
-//     fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymods: KeyMods) {
+//     fn key_up_event(
+//         &mut self,
+//         _ctx: &mut Context,
+//         input: ggez::input::keyboard::KeyInput,
+//     ) -> Result<(), GameError> {
 //         let mut controls_updated = false;
 //         let mut current_controls = self.get_controls();
-//         match keycode {
-//             KeyCode::Up => {
-//                 controls_updated = true;
-//                 current_controls.up = false;
+
+//         if let Some(key_code) = input.keycode {
+//             match key_code {
+//                 KeyCode::Up => {
+//                     controls_updated = true;
+//                     current_controls.up = false;
+//                 }
+//                 KeyCode::Down => {
+//                     controls_updated = true;
+//                     current_controls.down = false;
+//                 }
+//                 KeyCode::Left => {
+//                     controls_updated = true;
+//                     current_controls.left = false;
+//                 }
+//                 KeyCode::Right => {
+//                     controls_updated = true;
+//                     current_controls.right = false;
+//                 }
+//                 KeyCode::Z => {
+//                     controls_updated = true;
+//                     current_controls.b = false;
+//                 }
+//                 KeyCode::X => {
+//                     controls_updated = true;
+//                     current_controls.a = false;
+//                 }
+//                 KeyCode::Return => {
+//                     controls_updated = true;
+//                     current_controls.start = false;
+//                 }
+//                 KeyCode::RShift => {
+//                     controls_updated = true;
+//                     current_controls.select = false;
+//                 }
+//                 _ => {}
 //             }
-//             KeyCode::Down => {
-//                 controls_updated = true;
-//                 current_controls.down = false;
-//             }
-//             KeyCode::Left => {
-//                 controls_updated = true;
-//                 current_controls.left = false;
-//             }
-//             KeyCode::Right => {
-//                 controls_updated = true;
-//                 current_controls.right = false;
-//             }
-//             KeyCode::Z => {
-//                 controls_updated = true;
-//                 current_controls.b = false;
-//             }
-//             KeyCode::X => {
-//                 controls_updated = true;
-//                 current_controls.a = false;
-//             }
-//             KeyCode::Return => {
-//                 controls_updated = true;
-//                 current_controls.start = false;
-//             }
-//             KeyCode::RShift => {
-//                 controls_updated = true;
-//                 current_controls.select = false;
-//             }
-//             _ => {}
 //         }
 
 //         if controls_updated {
 //             self.update_controls(current_controls);
 //         }
+
+//         Ok(())
 //     }
 // }

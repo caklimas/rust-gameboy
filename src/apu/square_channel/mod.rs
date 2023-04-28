@@ -51,7 +51,7 @@ impl SquareChannel {
     }
 
     pub fn clock(&mut self) {
-        self.timer -= 1;
+        self.timer = self.timer.saturating_sub(1);
         if self.timer == 0 {
             self.sequence_pointer = (self.sequence_pointer + 1) % 8;
             self.update_timer();
@@ -76,7 +76,7 @@ impl SquareChannel {
             return;
         }
 
-        self.sweep_period -= 1;
+        self.sweep_period = self.sweep_period.saturating_sub(1);
         if self.sweep_period > 0 {
             return;
         }
@@ -104,7 +104,7 @@ impl SquareChannel {
     }
 
     pub fn clock_volume_envelope(&mut self) {
-        self.envelope_timer -= 1;
+        self.envelope_timer = self.envelope_timer.saturating_sub(1);
         if self.envelope_timer > 0 {
             return;
         }
