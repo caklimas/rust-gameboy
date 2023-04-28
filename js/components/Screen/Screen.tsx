@@ -93,7 +93,7 @@ class Screen extends React.Component<Props, ScreenState> {
   }
 
   render() {
-    console.log({ headerInfo: this.props.emulator.get_header_info() });
+    console.log({ headerInfo: JSON.parse(this.props.emulator.get_header_info()) });
     return (
       <GameboyScreenFlex>
         <StyledCanvas
