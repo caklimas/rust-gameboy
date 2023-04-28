@@ -2,7 +2,6 @@ import { RustGameboy } from "../redux/state/rustGameboy";
 
 let wasm: RustGameboy | null = null;
 export async function loadWasm(): Promise<RustGameboy | undefined> {
-  debugger;
   if (!!wasm) {
     return wasm;
   }

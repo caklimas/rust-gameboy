@@ -15,7 +15,7 @@ module.exports = {
     chunkFilename: "[name].chunk.js",
   },
   devServer: {
-    static: dist,
+    contentBase: dist,
   },
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
@@ -58,10 +58,6 @@ module.exports = {
       forceMode: "production",
     }),
   ],
-  experiments: {
-    asyncWebAssembly: true,
-    syncWebAssembly: true,
-  },
   performance: {
     hints: false,
     maxEntrypointSize: 512000,
