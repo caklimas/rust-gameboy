@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 pub enum CartridgeType {
+    #[default]
     Unknown,
     RomOnly,
     Mbc1,
@@ -66,11 +67,5 @@ impl CartridgeType {
             0xFF => CartridgeType::HuC1RamBattery,
             _ => panic!("Invalid cartridge type: 0x{:2X}", value),
         }
-    }
-}
-
-impl Default for CartridgeType {
-    fn default() -> Self {
-        CartridgeType::Unknown
     }
 }

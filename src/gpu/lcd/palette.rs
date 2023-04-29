@@ -3,8 +3,9 @@ use serde::{Deserialize, Serialize};
 
 pub type Rgb = (u8, u8, u8);
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub enum Palette {
+    #[default]
     White,
     LightGray,
     DarkGray,
@@ -38,11 +39,5 @@ impl Palette {
             Palette::DarkGray => 2,
             Palette::Black => 3,
         }
-    }
-}
-
-impl Default for Palette {
-    fn default() -> Self {
-        Palette::White
     }
 }

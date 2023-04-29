@@ -99,16 +99,11 @@ impl Mbc {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub enum MbcType {
+    #[default]
     Unknown,
     Mbc0(Mbc0),
     Mbc1(Mbc1),
     Mbc3(Mbc3),
-}
-
-impl Default for MbcType {
-    fn default() -> Self {
-        MbcType::Unknown
-    }
 }

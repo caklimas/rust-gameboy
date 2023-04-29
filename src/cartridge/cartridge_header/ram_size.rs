@@ -1,9 +1,10 @@
 use crate::mmu::memory_sizes::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 #[allow(non_camel_case_types)]
 pub enum RamSize {
+    #[default]
     None,
     Kilobytes_2,
     Kilobytes_8,
@@ -34,11 +35,5 @@ impl RamSize {
             RamSize::Kilobytes_64 => KILOBYTES_64,
             RamSize::Kilobytes_128 => KILOBYTES_128,
         }
-    }
-}
-
-impl Default for RamSize {
-    fn default() -> Self {
-        RamSize::None
     }
 }
