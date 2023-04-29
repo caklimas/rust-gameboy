@@ -9,6 +9,9 @@ import { mediaMinMd } from "../../constants/screenSizes";
 import { Emulator } from "../../../pkg";
 import { State } from "../../redux/state/state";
 import { useBeforeunload } from "react-beforeunload";
+import { Button, ButtonProps } from "react-bootstrap";
+import { useCallback, useState } from "react";
+import { EmulatorInfo } from "../EmulatorInfo/EmulatorInfo";
 
 interface Props {
   emulator: Emulator;
@@ -24,6 +27,7 @@ const StyledGameboy = styled.div`
   display: flex;
   flex-direction: column;
   height: 500px;
+  justify-content: center;
   margin-top: 20px;
   width: 350px;
 
@@ -33,6 +37,18 @@ const StyledGameboy = styled.div`
   }
 `;
 
+const GameboyContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const ShowInfoButton = styled(Button)`
+  margin-top: 10px;
+  height: 50px;
+  width: 100px;
+`;
+
 const Gameboy = ({ emulator, currentGame }: Props) => {
   useBeforeunload(() => {
     if (emulator && currentGame) {
@@ -40,19 +56,35 @@ const Gameboy = ({ emulator, currentGame }: Props) => {
     }
   });
 
+  const [showModal, setShowModal] = useState(false);
+  const handleOpen = useCallback(() => setShowModal(true), [setShowModal]);
   const isMobile = useMediaQuery(mobileMediaQuery);
   const pixelSize = isMobile ? 1 : 3;
   if (!emulator) return null;
 
   return (
-    <StyledGameboy>
-      <Screen
-        width={gameboyDimensions.width}
-        height={gameboyDimensions.height}
-        pixelSize={pixelSize}
-      />
-      <Controls />
-    </StyledGameboy>
+    <GameboyContainer>
+      <StyledGameboy>
+        <Screen
+          width={gameboyDimensions.width}
+          height={gameboyDimensions.height}
+          pixelSize={pixelSize}
+        />
+        <Controls />
+      </StyledGameboy>
+      {
+        !isMobile && (
+          <ShowInfoButton onClick={handleOpen}>
+            Show Info
+          </ShowInfoButton>
+        )
+      }
+      {
+        !isMobile && showModal && (
+          <EmulatorInfo show={showModal} setShow={setShowModal} />
+        )
+      }
+    </GameboyContainer>
   );
 };
 

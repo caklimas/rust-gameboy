@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import Gameboy from "../Gameboy/Gameboy";
 import RomLoader from "../RomLoader/RomLoader";
-import { CartridgeInfo } from "../CartridgeInfo/CartridgeInfo";
+import { EmulatorInfo } from "../EmulatorInfo/EmulatorInfo";
+import { Button } from "react-bootstrap";
 
 const StyledApp = styled.div`
   background-color: black;
@@ -15,7 +16,6 @@ const App = () => {
     <StyledApp>
       <RomLoader />
       <Gameboy />
-      <CartridgeInfo />
     </StyledApp>
   );
 };
