@@ -62,4 +62,8 @@ impl Gameboy {
     pub fn save(&self) -> Vec<u8> {
         self.cpu.save()
     }
+
+    pub fn get_header_info(&self) -> String {
+        serde_json::to_string(&self.cpu.mmu.cartridge).expect("Could not serialize cartridge")
+    }
 }

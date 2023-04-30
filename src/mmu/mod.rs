@@ -22,9 +22,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default)]
 pub struct Mmu {
     pub ram: ram::Ram,
+    pub cartridge: Cartridge,
     boot_rom: boot_rom::BootRom,
     boot_rom_finished: bool,
-    cartridge: Cartridge,
     controls: Controls,
     run_boot_rom: bool,
 }

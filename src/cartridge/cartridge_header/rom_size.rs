@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Default)]
 #[allow(non_camel_case_types)]
 pub enum RomSize {
+    #[default]
     Unknown,
     Kilobyte_32,
     Kilobyte_64,
@@ -35,11 +36,5 @@ impl RomSize {
             0x54 => RomSize::Megabyte_1_5,
             _ => panic!("Invalid rom size 0x{:2X}", value),
         }
-    }
-}
-
-impl Default for RomSize {
-    fn default() -> Self {
-        RomSize::Unknown
     }
 }
