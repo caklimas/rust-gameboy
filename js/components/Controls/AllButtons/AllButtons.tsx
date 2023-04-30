@@ -1,4 +1,4 @@
-import { Emulator } from "../../../../pkg";
+import { Emulator } from "gameboy";
 import { connect } from "react-redux";
 import { getInput } from "../../../helpers/input";
 import { setButtons } from "../../../redux/actions/buttons";

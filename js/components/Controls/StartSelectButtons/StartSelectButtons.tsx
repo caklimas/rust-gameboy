@@ -10,7 +10,7 @@ import { setButtons } from "../../../redux/actions/buttons";
 import { DirectionState } from "../../../redux/state/direction";
 import { mediaMinMd } from "../../../constants/screenSizes";
 import GridCell from "../../GridCell/GridCell";
-import { Emulator } from "../../../../pkg";
+import { Emulator } from "gameboy";
 import AllButtons from "../AllButtons/AllButtons";
 
 type Props = OwnProps & StateProps & DispatchProps;

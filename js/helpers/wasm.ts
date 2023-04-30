@@ -7,7 +7,7 @@ export async function loadWasm(): Promise<RustGameboy> {
   }
 
   try {
-    const loadedWasm = await import("../../pkg");
+    const loadedWasm = await import("gameboy");
     wasm = loadedWasm;
     return wasm;
   } catch (err) {

@@ -1,4 +1,4 @@
-import { Emulator, EmulatorState, Input } from "../../../pkg";
+import { Emulator, EmulatorState, Input } from "gameboy";
 
 export interface RustGameboy {
   Input: typeof Input | null;

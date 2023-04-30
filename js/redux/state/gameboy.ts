@@ -1,4 +1,4 @@
-import { Emulator } from "../../../pkg";
+import { Emulator } from "gameboy";
 
 export interface GameboyState {
   emulator: Emulator | null;

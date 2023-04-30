@@ -14,7 +14,7 @@ import { ButtonState } from "../../../redux/state/buttons";
 import { RustGameboy } from "../../../redux/state/rustGameboy";
 import { getInput } from "../../../helpers/input";
 import StartSelectButtons from "../StartSelectButtons/StartSelectButtons";
-import { Emulator } from "../../../../pkg";
+import { Emulator } from "gameboy";
 
 type Props = StateProps & DispatchProps;
 

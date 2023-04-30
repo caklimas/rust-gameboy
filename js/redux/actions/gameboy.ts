@@ -1,4 +1,4 @@
-import { Emulator } from "../../../pkg";
+import { Emulator } from "gameboy";
 
 export const LOAD_ROM = Symbol("LOAD_ROM");
 

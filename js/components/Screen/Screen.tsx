@@ -7,7 +7,7 @@ import { setRustGameboy } from "../../redux/actions/rustGameboy";
 import { State } from "../../redux/state/state";
 import { RustGameboy } from "../../redux/state/rustGameboy";
 import { mediaMinMd } from "../../constants/screenSizes";
-import { Emulator, EmulatorState } from "../../../pkg";
+import { Emulator, EmulatorState } from "gameboy";
 
 type Props = OwnProps & StateProps & DispatchProps;
 

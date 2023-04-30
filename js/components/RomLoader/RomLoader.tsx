@@ -10,7 +10,7 @@ import { setCurrentGame } from "../../redux/actions/currentGame";
 import { loadWasm } from "../../helpers/wasm";
 import { State } from "../../redux/state/state";
 import { RustGameboy } from "../../redux/state/rustGameboy";
-import { Emulator } from "../../../pkg";
+import { Emulator } from "gameboy";
 
 type Props = StateProps & DispatchProps;
 

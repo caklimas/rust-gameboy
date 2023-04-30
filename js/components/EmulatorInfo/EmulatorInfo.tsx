@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { Emulator } from "../../../pkg";
+import { Emulator } from "gameboy";
 import { State } from "../../redux/state/state";
 import { useCallback, useState } from "react";
 import { Button, Modal } from "react-bootstrap";

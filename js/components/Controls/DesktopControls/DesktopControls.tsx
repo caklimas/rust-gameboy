@@ -13,7 +13,7 @@ import AbButtons from "../AbButtons/AbButtons";
 import ControlButton from "../ControlButton/ControlButton";
 import StartSelectButtons from "../StartSelectButtons/StartSelectButtons";
 import GridCell from "../../GridCell/GridCell";
-import { Emulator } from "../../../../pkg";
+import { Emulator } from "gameboy";
 
 const handleKeys = ["up", "down", "left", "right", "z", "x", "shift", "enter"];
 const keyMapping = new Map();

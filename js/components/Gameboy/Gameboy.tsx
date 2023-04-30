@@ -6,10 +6,10 @@ import { mobileMediaQuery } from "../../helpers/mediaQueries";
 import Screen from "../Screen/Screen";
 import Controls from "../Controls/Controls";
 import { mediaMinMd } from "../../constants/screenSizes";
-import { Emulator } from "../../../pkg";
+import { Emulator } from "gameboy";
 import { State } from "../../redux/state/state";
 import { useBeforeunload } from "react-beforeunload";
-import { Button, ButtonProps } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { useCallback, useState } from "react";
 import { EmulatorInfo } from "../EmulatorInfo/EmulatorInfo";
 

@@ -9,7 +9,7 @@ import { RustGameboy } from "../../../redux/state/rustGameboy";
 import ControlButton from "../ControlButton/ControlButton";
 import { mediaMinMd } from "../../../constants/screenSizes";
 import GridCell from "../../GridCell/GridCell";
-import { Emulator } from "../../../../pkg";
+import { Emulator } from "gameboy";
 
 type Props = StateProps & DispatchProps;
 
