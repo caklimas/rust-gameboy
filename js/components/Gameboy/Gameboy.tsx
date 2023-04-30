@@ -72,13 +72,13 @@ const Gameboy = ({ emulator, currentGame }: Props) => {
         />
         <Controls />
       </StyledGameboy>
-      {
+      {/* {
         !isMobile && (
           <ShowInfoButton onClick={handleOpen}>
             Show Info
           </ShowInfoButton>
         )
-      }
+      } */}
       {
         !isMobile && showModal && (
           <EmulatorInfo show={showModal} setShow={setShowModal} />
