@@ -1,11 +1,15 @@
 use gameboy::Gameboy;
 
 use input::Input;
+use log::Level;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 #[macro_use]
 extern crate bitfield;
+
+#[macro_use]
+extern crate log;
 
 pub mod addresses;
 pub mod apu;
@@ -35,6 +39,9 @@ pub struct Emulator {
 impl Emulator {
     #[wasm_bindgen(constructor)]
     pub fn new(bytes: Vec<u8>) -> Self {
+        console_log::init_with_level(Level::Debug).expect("Error initing log");
+
+        info!("It works!");
         let gameboy = Gameboy::new(bytes, true);
         Self { cycles: 0, gameboy }
     }

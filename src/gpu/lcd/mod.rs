@@ -169,7 +169,7 @@ impl Lcd {
         }
 
         if self.control.sprite_enabled() {
-            self.render_sprites(background_colors);
+            //self.render_sprites(background_colors);
         }
     }
 
