@@ -13,7 +13,7 @@ impl Lcd {
             tile_base,
             self.get_display_address(using_window),
             self.get_tile_x(x, using_window, window_x),
-            self.get_tile_y(using_window, window_y),
+            self.get_tile_y(using_window),
         )
     }
 
@@ -52,9 +52,9 @@ impl Lcd {
         tile_x
     }
 
-    fn get_tile_y(&self, using_window: bool, window_y: i32) -> u16 {
+    fn get_tile_y(&self, using_window: bool) -> u16 {
         let tile_y = if using_window {
-            window_y as u16
+            self.window_line_counter as u16
         } else {
             self.get_background_y() as u16
         };

@@ -36,6 +36,7 @@ pub struct Lcd {
     scroll_x: u8,
     scroll_y: u8,
     status: lcd_status::LcdStatus,
+    window_line_counter: u8,
     window_x: u8,
     window_y: u8,
     video_ram: VideoRam,
@@ -60,8 +61,13 @@ impl Lcd {
                 if self.mode_clock >= DRAWING_CYCLES {
                     self.set_mode(LcdMode::HorizontalBlank);
                     self.render_scanline();
-                    self.check_lyc_interrupt(&mut result);
+
+                    if self.window_visible() {
+                        self.window_line_counter += 1;
+                    }
+
                     self.line_number = (self.line_number + 1) % 154;
+                    self.check_lyc_interrupt(&mut result);
 
                     if self.status.horizontal_blank_interrupt() {
                         result.lcd_stat = true;
@@ -98,6 +104,7 @@ impl Lcd {
                     if self.line_number >= MAX_SCANLINE {
                         self.set_mode(LcdMode::SearchingOam);
                         self.line_number = 0;
+                        self.window_line_counter = 0;
                     }
                 }
             }
@@ -169,7 +176,7 @@ impl Lcd {
         }
 
         if self.control.sprite_enabled() {
-            //self.render_sprites(background_colors);
+            self.render_sprites(background_colors);
         }
     }
 
@@ -192,5 +199,12 @@ impl Lcd {
         if self.line_number == self.lyc {
             result.lcd_stat = true;
         }
+    }
+
+    fn window_visible(&self) -> bool {
+        self.control.window_display()
+            && self.window_x < 166
+            && self.window_y < 143
+            && self.line_number >= self.window_y
     }
 }

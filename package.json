@@ -25,7 +25,6 @@
   "scripts": {
     "build": "rimraf dist pkg && webpack",
     "start": "rimraf dist pkg && webpack-dev-server --open -d",
-    "start:dev": "yarn build && yarn --force && rimraf dist pkg && webpack-dev-server --open -d",
     "test": "cargo test"
   },
   "eslintConfig": {
