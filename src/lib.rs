@@ -42,12 +42,12 @@ impl Emulator {
         console_log::init_with_level(Level::Debug).expect("Error initing log");
 
         info!("It works!");
-        let gameboy = Gameboy::new(bytes, true);
+        let gameboy = Gameboy::new(bytes, false);
         Self { cycles: 0, gameboy }
     }
 
     pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>) -> Self {
-        let gameboy = Gameboy::from_save_data(bytes, save_data, true);
+        let gameboy = Gameboy::from_save_data(bytes, save_data, false);
         Self { cycles: 0, gameboy }
     }
 
@@ -84,6 +84,10 @@ impl Emulator {
 
     pub fn get_header_info(&self) -> String {
         self.gameboy.get_header_info()
+    }
+
+    pub fn get_tiles(&self) -> Vec<u8> {
+        self.gameboy.get_tiles()
     }
 }
 

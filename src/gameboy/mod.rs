@@ -66,4 +66,8 @@ impl Gameboy {
     pub fn get_header_info(&self) -> String {
         serde_json::to_string(&self.cpu.mmu.cartridge).expect("Could not serialize cartridge")
     }
+
+    pub fn get_tiles(&self) -> Vec<u8> {
+        self.cpu.mmu.ram.gpu.lcd.render_vram()
+    }
 }
