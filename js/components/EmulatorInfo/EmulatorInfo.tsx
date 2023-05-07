@@ -36,8 +36,9 @@ export function EmulatorInfo({ show, setShow }: Props) {
         console.log({ dataLength: data.length });
         const colors = chunk(emulator.get_tiles(), 3);
         const tiles = chunk(colors, 64);
+
         for (let columnOffset = 0; columnOffset < 1; columnOffset++) {
-            const tile = tiles[columnOffset];
+            const tile = tiles[columnOffset + 1];
 
             // tiles are 8 x 8 pixels each having a color
             const tileRows = chunk(tile, 8);
@@ -45,16 +46,12 @@ export function EmulatorInfo({ show, setShow }: Props) {
                 tileRow.forEach((color, colorOffset) => {
                     const offset = (colorOffset * 4) + (32 * rowOffset) + (192 * columnOffset);
                     color.forEach((rgb, rgbOffset) => {
+                        data[offset + rgbOffset] = rgb;
                         console.log({ offset: offset + rgbOffset, rgb });
                     });
 
+                    data[offset + color.length] = 255;
                     console.log({ offset: offset + color.length, alpha: 255 });
-
-                    // color.forEach((rgb, rgbOffset) => {
-                    //     data[offset + rgbOffset] = rgb;
-                    // });
-
-                    // data[offset + color.length + 1] = 255;
                 });
             });
         }
