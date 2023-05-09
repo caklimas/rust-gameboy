@@ -57,6 +57,26 @@ const sampleCount = 4096;
 const latency = 0.032;
 const audioCtx = new AudioContext();
 
+export function NewScreen(props: Props) {
+  let bytesPerColumn = props.pixelSize * 4;
+  let bytesPerRow = bytesPerColumn * props.width;
+
+  const [state, setState] = useState<ScreenState>({
+    width: props.width * props.pixelSize,
+    height: props.height * props.pixelSize,
+    bytesPerRow,
+    bytesPerColumn,
+    timestamp: 0,
+    emptyAudioBuffers: [],
+  });
+
+  const [wasm, setWasm] = useState<RustGameboy | null>(null);
+
+  useEffect(() => {
+    const loadWasm = async () => {};
+  });
+}
+
 class Screen extends React.Component<Props, ScreenState> {
   private canvas: HTMLCanvasElement | null;
   private request_id: number;
