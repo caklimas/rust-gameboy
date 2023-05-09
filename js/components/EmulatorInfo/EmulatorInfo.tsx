@@ -3,6 +3,7 @@ import { Emulator } from "gameboy";
 import { State } from "../../redux/state/state";
 import { useCallback, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
+import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import chunk from "chunk";
 import styled from "styled-components";
 import { TileInfo } from "./TileInfo";
@@ -36,17 +37,28 @@ export function EmulatorInfo({ show, setShow }: Props) {
 
   return (
     <>
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title>Emulator Information</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Cartridge Type: {cartridgeType}</p>
-          <CanvasContainer>
-            {tiles.map((tile) => (
-              <TileInfo tile={tile} />
-            ))}
-          </CanvasContainer>
+          <Tabs>
+            <TabList>
+              <Tab>Cartridge Info</Tab>
+              <Tab>VRAM Viewer</Tab>
+            </TabList>
+
+            <TabPanel>
+              <p>Cartridge Type: {cartridgeType}</p>
+            </TabPanel>
+            <TabPanel>
+              <CanvasContainer>
+                {tiles.map((tile) => (
+                  <TileInfo tile={tile} />
+                ))}
+              </CanvasContainer>
+            </TabPanel>
+          </Tabs>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
