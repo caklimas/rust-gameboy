@@ -2,8 +2,7 @@ import { useSelector } from "react-redux";
 import { Emulator } from "gameboy";
 import { State } from "../../redux/state/state";
 import { useCallback, useState } from "react";
-import { Button, Modal } from "react-bootstrap";
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
+import { Button, Modal, Tab, Tabs } from "react-bootstrap";
 import chunk from "chunk";
 import styled from "styled-components";
 import { TileInfo } from "./TileInfo";
@@ -42,22 +41,17 @@ export function EmulatorInfo({ show, setShow }: Props) {
           <Modal.Title>Emulator Information</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Tabs>
-            <TabList>
-              <Tab>Cartridge Info</Tab>
-              <Tab>VRAM Viewer</Tab>
-            </TabList>
-
-            <TabPanel>
+          <Tabs defaultActiveKey="cartridge-info" className="mb-3">
+            <Tab eventKey="cartridge-info" title="Cartridge Info">
               <p>Cartridge Type: {cartridgeType}</p>
-            </TabPanel>
-            <TabPanel>
+            </Tab>
+            <Tab eventKey="vram-viewer" title="VRAM Viewer">
               <CanvasContainer>
                 {tiles.map((tile) => (
                   <TileInfo tile={tile} />
                 ))}
               </CanvasContainer>
-            </TabPanel>
+            </Tab>
           </Tabs>
         </Modal.Body>
         <Modal.Footer>
