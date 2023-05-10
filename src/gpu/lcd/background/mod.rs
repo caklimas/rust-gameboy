@@ -10,8 +10,8 @@ impl Lcd {
         let mut background_colors = [0; SCREEN_WIDTH as usize];
 
         for x in 0..SCREEN_WIDTH {
-            let window_x = self.get_window_x(x);
-            let tile_data = self.get_bg_tile_data(x, window_y, window_x);
+            let window_x = self.get_window_x(x as u8);
+            let tile_data = self.get_bg_tile_data(x as u8, window_y, window_x);
             let tile_number = self.get_tile_number(&tile_data);
             let tile_address =
                 tile_data.tile_base.address + tile_data.get_tile_address(tile_number);
@@ -39,7 +39,7 @@ impl Lcd {
         (color_high << 1) | color_low
     }
 
-    fn get_window_x(&self, x: u16) -> i32 {
+    fn get_window_x(&self, x: u8) -> i32 {
         -((self.window_x as i32) - (WINDOW_X_OFFSET as i32)) + (x as i32)
     }
 
