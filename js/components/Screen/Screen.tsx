@@ -1,31 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
-import styled from "styled-components";
-import chunk from "chunk";
-import { loadWasm } from "../../helpers/wasm";
-import { setRustGameboy } from "../../redux/actions/rustGameboy";
-import { State } from "../../redux/state/state";
-import { RustGameboy } from "../../redux/state/rustGameboy";
-import { mediaMinMd } from "../../constants/screenSizes";
-import { Emulator, EmulatorState } from "gameboy";
+import React, { useCallback, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import styled from 'styled-components';
+import chunk from 'chunk';
+import { loadWasm } from '../../helpers/wasm';
+import {
+  SET_RUST_GAMEBOY,
+  setRustGameboy
+} from '../../redux/actions/rustGameboy';
+import { State } from '../../redux/state/state';
+import { RustGameboy } from '../../redux/state/rustGameboy';
+import { mediaMinMd } from '../../constants/screenSizes';
+import { Emulator, EmulatorState } from 'gameboy';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
-type Props = OwnProps & StateProps & DispatchProps;
-
-interface OwnProps {
+type Props = {
   className?: string;
   width: number;
   height: number;
   pixelSize: number;
-}
-
-interface StateProps {
-  emulator: Emulator;
-  EmulatorState: typeof EmulatorState;
-}
-
-interface DispatchProps {
-  setRustGameboy(rustGameboy: RustGameboy | undefined): void;
-}
+};
 
 interface ScreenState {
   width: number;
@@ -57,129 +51,47 @@ const sampleCount = 4096;
 const latency = 0.032;
 const audioCtx = new AudioContext();
 
-class Screen extends React.Component<Props, ScreenState> {
-  private canvas: HTMLCanvasElement | null;
-  private request_id: number;
+export function Screen(props: Props) {
+  let bytesPerColumn = props.pixelSize * 4;
+  let bytesPerRow = bytesPerColumn * props.width;
 
-  async componentDidMount() {
-    const wasm = await loadWasm();
-    this.props.setRustGameboy(wasm);
-    this.animate();
-    console.log("Loaded WASM");
-  }
+  const [requestId, setRequestId] = useState<number>(0);
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const [state, setState] = useState<ScreenState>({
+    width: props.width * props.pixelSize,
+    height: props.height * props.pixelSize,
+    bytesPerRow,
+    bytesPerColumn,
+    timestamp: 0,
+    emptyAudioBuffers: []
+  });
 
-  componentWillUnmount() {
-    if (this.request_id) {
-      cancelAnimationFrame(this.request_id);
-    }
-  }
+  const [wasm, setWasm] = useState<RustGameboy | null>(null);
+  const dispatch = useDispatch();
 
-  constructor(props: Props) {
-    super(props);
+  const [emulatorState, setEmulatorState] = useState<
+    typeof EmulatorState | null
+  >(null);
+  const emulator = useSelector<State, Emulator>(
+    (state) => state.gameboy.emulator!
+  );
 
-    this.canvas = null;
-    this.request_id = 0;
-
-    let bytesPerColumn = props.pixelSize * 4;
-    let bytesPerRow = bytesPerColumn * props.width;
-    this.state = {
-      width: props.width * props.pixelSize,
-      height: props.height * props.pixelSize,
-      bytesPerRow,
-      bytesPerColumn,
-      timestamp: 0,
-      emptyAudioBuffers: [],
-    };
-  }
-
-  render() {
-    return (
-      <GameboyScreenFlex>
-        <StyledCanvas
-          ref={this.setCanvasRef}
-          width={this.props.width * this.props.pixelSize}
-          height={this.props.height * this.props.pixelSize}
-        />
-      </GameboyScreenFlex>
-    );
-  }
-
-  animate = () => {
-    this.request_id = requestAnimationFrame(this.animate);
-
-    if (!this.canAnimate()) return;
-
-    while (true) {
-      const event = this.props.emulator.clock_until_event(maxCycles);
-      if (event && event === this.props.EmulatorState.AudioFull) {
-        //this.playAudio();
-      } else if (event === this.props.EmulatorState.MaxCycles) {
-        break;
-      }
-    }
-
-    this.renderScreen();
-  };
-
-  setCanvasRef = (element: HTMLCanvasElement) => {
-    if (!element) return;
-    this.canvas = element;
-  };
-
-  canAnimate = () => {
-    return !!this.canvas && !!this.props.emulator && !!this.props.EmulatorState;
-  };
-
-  playAudio = () => {
-    const audio = this.props.emulator.get_audio_buffer();
-    let audioBuffer: AudioBuffer;
-    if (this.state.emptyAudioBuffers.length === 0) {
-      audioBuffer = audioCtx.createBuffer(2, sampleCount, sampleRate * 2);
-    } else {
-      audioBuffer =
-        this.state.emptyAudioBuffers[this.state.emptyAudioBuffers.length - 1];
-      this.setState((prevState) => ({
-        emptyAudioBuffers: prevState.emptyAudioBuffers.slice(0, -1),
-      }));
-    }
-
-    audioBuffer.getChannelData(0).set(audio);
-    audioBuffer.getChannelData(1).set(audio);
-
-    const node = audioCtx.createBufferSource();
-    node.connect(audioCtx.destination);
-    node.buffer = audioBuffer;
-    node.onended = () => {
-      this.setState((prevState) => ({
-        emptyAudioBuffers: [...prevState.emptyAudioBuffers, audioBuffer],
-      }));
-    };
-
-    const playTimestamp = Math.max(
-      audioCtx.currentTime + latency,
-      this.state.timestamp
-    );
-    node.start(playTimestamp);
-
-    this.setState({ timestamp: playTimestamp + sampleCount / 2 / sampleRate });
-  };
-
-  renderScreen = () => {
-    const screen = this.props.emulator.get_screen();
+  const renderScreen = useCallback(() => {
+    const screen = emulator.get_screen();
     const chunked = chunk(screen, 3);
-    const ctx = this.canvas!.getContext("2d")!;
-    const imageData = ctx.createImageData(this.state.width, this.state.height);
+    const ctx = canvas!.getContext('2d')!;
+    const imageData = ctx.createImageData(state.width, state.height);
     const data = imageData.data;
     for (let i = 0; i < chunked.length; i++) {
       let rgb = chunked[i];
-      let x = i % this.props.width;
-      let y = Math.floor(i / this.props.width);
-      let yOffset = y * this.state.bytesPerRow * this.props.pixelSize;
-      for (let rowNum = 0; rowNum < this.props.pixelSize; rowNum++) {
-        let rowOffset = yOffset + rowNum * this.state.bytesPerRow;
-        let xOffset = x * this.state.bytesPerColumn;
+      let x = i % props.width;
+      let y = Math.floor(i / props.width);
+      let yOffset = y * state.bytesPerRow * props.pixelSize;
+      for (let rowNum = 0; rowNum < props.pixelSize; rowNum++) {
+        let rowOffset = yOffset + rowNum * state.bytesPerRow;
+        let xOffset = x * state.bytesPerColumn;
 
-        for (let colNum = 0; colNum < this.props.pixelSize; colNum++) {
+        for (let colNum = 0; colNum < props.pixelSize; colNum++) {
           let colOffset = xOffset + colNum * 4;
           let offset = rowOffset + colOffset;
           let color = 0;
@@ -194,19 +106,88 @@ class Screen extends React.Component<Props, ScreenState> {
     }
 
     ctx.putImageData(imageData, 0, 0);
-  };
+  }, [emulator, canvas, state]);
+
+  const animate = useCallback(() => {
+    setRequestId(requestAnimationFrame(animate));
+
+    if (!canvas || !emulator || !emulatorState) return;
+
+    while (true) {
+      const event = emulator.clock_until_event(maxCycles);
+      if (event && event === emulatorState.AudioFull) {
+        //playAudio();
+      } else if (event === emulatorState.MaxCycles) {
+        break;
+      }
+    }
+
+    renderScreen();
+  }, [canvas, emulator, emulatorState, setRequestId, renderScreen]);
+
+  const playAudio = useCallback(() => {
+    const audio = emulator.get_audio_buffer();
+    let audioBuffer: AudioBuffer;
+    if (state.emptyAudioBuffers.length === 0) {
+      audioBuffer = audioCtx.createBuffer(2, sampleCount, sampleRate * 2);
+    } else {
+      audioBuffer = state.emptyAudioBuffers[state.emptyAudioBuffers.length - 1];
+      setState({
+        ...state,
+        emptyAudioBuffers: state.emptyAudioBuffers.slice(0, -1)
+      });
+    }
+
+    audioBuffer.getChannelData(0).set(audio);
+    audioBuffer.getChannelData(1).set(audio);
+
+    const node = audioCtx.createBufferSource();
+    node.connect(audioCtx.destination);
+    node.buffer = audioBuffer;
+    node.onended = () => {
+      setState({
+        ...state,
+        emptyAudioBuffers: [...state.emptyAudioBuffers, audioBuffer]
+      });
+    };
+
+    const playTimestamp = Math.max(
+      audioCtx.currentTime + latency,
+      state.timestamp
+    );
+    node.start(playTimestamp);
+
+    setState({
+      ...state,
+      timestamp: playTimestamp + sampleCount / 2 / sampleRate
+    });
+  }, [state, setState]);
+
+  useEffect(() => {
+    const fetchWasm = async () => {
+      const wasm = await loadWasm();
+      setWasm(wasm);
+      setEmulatorState(wasm.EmulatorState);
+      dispatch(setRustGameboy(wasm));
+      animate();
+      console.log('Loaded WASM');
+    };
+
+    fetchWasm();
+    return () => {
+      if (requestId) {
+        cancelAnimationFrame(requestId);
+      }
+    };
+  }, [wasm]);
+
+  return (
+    <GameboyScreenFlex>
+      <StyledCanvas
+        ref={setCanvas}
+        width={props.width * props.pixelSize}
+        height={props.height * props.pixelSize}
+      />
+    </GameboyScreenFlex>
+  );
 }
-
-const mapStateToProps = (state: State): StateProps => {
-  return {
-    emulator: state.gameboy.emulator!,
-    EmulatorState: state.rustGameboy.EmulatorState!,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any): DispatchProps => ({
-  setRustGameboy: (rustGameboy: RustGameboy) =>
-    dispatch(setRustGameboy(rustGameboy)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Screen);

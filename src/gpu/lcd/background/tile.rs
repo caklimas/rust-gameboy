@@ -3,7 +3,7 @@ use crate::constants::lcd::*;
 use crate::constants::screen::*;
 
 impl Lcd {
-    pub fn get_bg_tile_data(&self, x: u16, window_y: i32, window_x: i32) -> TileData {
+    pub fn get_bg_tile_data(&self, x: u8, window_y: i32, window_x: i32) -> TileData {
         let using_window = self.control.window_display() && window_y >= 0 && window_x >= 0;
         let tile_base = TileBase::new(self.control.bg_window_tile_data_select());
 
@@ -13,11 +13,11 @@ impl Lcd {
             tile_base,
             self.get_display_address(using_window),
             self.get_tile_x(x, using_window, window_x),
-            self.get_tile_y(using_window, window_y),
+            self.get_tile_y(using_window),
         )
     }
 
-    fn get_pixel_x(&self, x: u16, using_window: bool, window_x: i32) -> u8 {
+    fn get_pixel_x(&self, x: u8, using_window: bool, window_x: i32) -> u8 {
         let pixel_x = if using_window {
             window_x as u8
         } else {
@@ -37,7 +37,7 @@ impl Lcd {
         pixel_y & 0x07
     }
 
-    fn get_tile_x(&self, x: u16, using_window: bool, window_x: i32) -> u16 {
+    fn get_tile_x(&self, x: u8, using_window: bool, window_x: i32) -> u16 {
         let tile = if using_window {
             window_x as u16
         } else {
@@ -52,9 +52,9 @@ impl Lcd {
         tile_x
     }
 
-    fn get_tile_y(&self, using_window: bool, window_y: i32) -> u16 {
+    fn get_tile_y(&self, using_window: bool) -> u16 {
         let tile_y = if using_window {
-            window_y as u16
+            self.window_line_counter as u16
         } else {
             self.get_background_y() as u16
         };
@@ -62,8 +62,8 @@ impl Lcd {
         (tile_y / PIXELS_PER_TILE) % TILE_WIDTH
     }
 
-    fn get_background_x(&self, x: u16) -> u32 {
-        (x as u32) + (self.scroll_x as u32)
+    fn get_background_x(&self, x: u8) -> u32 {
+        (x).wrapping_add(self.scroll_x) as u32
     }
 
     fn get_background_y(&self) -> u8 {

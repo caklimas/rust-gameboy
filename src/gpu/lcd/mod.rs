@@ -25,6 +25,7 @@ mod tests;
 pub struct Lcd {
     pub frame_complete: bool,
     pub screen: screen::Screen,
+    pub video_ram: VideoRam,
     bg_palette_data: bg_palette_data::BgPaletteData,
     control: lcd_control::LcdControl,
     line_number: u8,
@@ -36,9 +37,9 @@ pub struct Lcd {
     scroll_x: u8,
     scroll_y: u8,
     status: lcd_status::LcdStatus,
+    window_line_counter: u8,
     window_x: u8,
     window_y: u8,
-    video_ram: VideoRam,
     video_oam: VideoOam,
 }
 
@@ -60,8 +61,13 @@ impl Lcd {
                 if self.mode_clock >= DRAWING_CYCLES {
                     self.set_mode(LcdMode::HorizontalBlank);
                     self.render_scanline();
-                    self.check_lyc_interrupt(&mut result);
+
+                    if self.window_visible() {
+                        self.window_line_counter += 1;
+                    }
+
                     self.line_number = (self.line_number + 1) % 154;
+                    self.check_lyc_interrupt(&mut result);
 
                     if self.status.horizontal_blank_interrupt() {
                         result.lcd_stat = true;
@@ -98,6 +104,7 @@ impl Lcd {
                     if self.line_number >= MAX_SCANLINE {
                         self.set_mode(LcdMode::SearchingOam);
                         self.line_number = 0;
+                        self.window_line_counter = 0;
                     }
                 }
             }
@@ -162,6 +169,40 @@ impl Lcd {
         }
     }
 
+    /**
+     * https://www.huderlem.com/demos/gameboy2bpp.html
+     */
+    pub fn render_vram(&self) -> Vec<u8> {
+        // Every 16 bytes fully represent a tile
+        let chunks = self.video_ram.chunked();
+        let mut colors = Vec::new();
+
+        for chunk in chunks {
+            // Each pair of bytes represent a row
+            let rows = chunk.chunks(2);
+            for row in rows {
+                // Combine each bit of high and each bit of low to determine the color number
+                let low_byte = row[0];
+                let high_byte = row[1];
+
+                // Start from left most bit
+                for i in 0..8 {
+                    let high_bit = (high_byte >> (7 - i)) & 0b1;
+                    let low_bit = (low_byte >> (7 - i)) & 0b1;
+
+                    // The color is {high_bit}{low_bit} ex. if high is 0 and low is 1 then color is 01
+                    let color_number = (high_bit << 1) | low_bit;
+                    let color = self.bg_palette_data.get_color(color_number);
+                    colors.push(color.0);
+                    colors.push(color.1);
+                    colors.push(color.2);
+                }
+            }
+        }
+
+        colors
+    }
+
     fn render_scanline(&mut self) {
         let mut background_colors = Option::None;
         if self.control.background_enabled() {
@@ -192,5 +233,12 @@ impl Lcd {
         if self.line_number == self.lyc {
             result.lcd_stat = true;
         }
+    }
+
+    fn window_visible(&self) -> bool {
+        self.control.window_display()
+            && self.window_x < 166
+            && self.window_y < 143
+            && self.line_number >= self.window_y
     }
 }

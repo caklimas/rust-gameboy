@@ -1,3 +1,5 @@
+use std::slice::Chunks;
+
 use crate::{addresses::gpu::video_ram::VIDEO_RAM_LOWER, mmu::memory_sizes::KILOBYTES_8};
 use serde::{Deserialize, Serialize};
 
@@ -18,6 +20,10 @@ impl VideoRam {
     pub fn write(&mut self, address: u16, data: u8) {
         let masked_address = self.get_masked_address(address);
         self.data[masked_address] = data;
+    }
+
+    pub fn chunked(&self) -> Chunks<u8> {
+        self.data.chunks(16)
     }
 
     fn get_masked_address(&self, address: u16) -> usize {
