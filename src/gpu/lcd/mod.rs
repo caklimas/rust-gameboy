@@ -59,15 +59,15 @@ impl Lcd {
             }
             LcdMode::Drawing => {
                 if self.mode_clock >= DRAWING_CYCLES {
-                    self.set_mode(LcdMode::HorizontalBlank);
                     self.render_scanline();
+                    self.set_mode(LcdMode::HorizontalBlank);
 
                     if self.window_visible() {
                         self.window_line_counter += 1;
                     }
 
-                    self.line_number = (self.line_number + 1) % 154;
                     self.check_lyc_interrupt(&mut result);
+                    self.line_number = (self.line_number + 1) % 154;
 
                     if self.status.horizontal_blank_interrupt() {
                         result.lcd_stat = true;
@@ -92,6 +92,7 @@ impl Lcd {
                             result.lcd_stat = true;
                         }
                     }
+                    self.check_lyc_interrupt(&mut result);
                 }
             }
             LcdMode::VerticalBlank => {
@@ -99,12 +100,12 @@ impl Lcd {
                 if self.mode_clock >= MODE_CYCLES {
                     self.mode_clock = 0;
                     self.line_number += 1;
-                    self.check_lyc_interrupt(&mut result);
 
                     if self.line_number >= MAX_SCANLINE {
                         self.set_mode(LcdMode::SearchingOam);
                         self.line_number = 0;
                         self.window_line_counter = 0;
+                        self.check_lyc_interrupt(&mut result);
                     }
                 }
             }
@@ -140,9 +141,12 @@ impl Lcd {
                 let previous_lcd_on = self.control.lcd_display_enable();
                 self.control.set(data);
                 if previous_lcd_on && !self.control.lcd_display_enable() {
+                    info!("Turned off");
                     self.mode_clock = 0;
                     self.mode = LcdMode::HorizontalBlank;
                     self.line_number = 0;
+                } else if !previous_lcd_on && self.control.lcd_display_enable() {
+                    info!("Turned on");
                 }
             }
             LCD_STATUS => self.set_status(data),
