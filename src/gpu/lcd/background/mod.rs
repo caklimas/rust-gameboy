@@ -16,7 +16,9 @@ impl Lcd {
             let tile_address =
                 tile_data.tile_base.address + tile_data.get_tile_address(tile_number);
             let color_number = self.get_bg_color_number(tile_address, &tile_data);
-            let color = self.bg_palette_data.get_color(color_number);
+            let color = self
+                .bg_palette_data
+                .get_color(color_number, self.use_green_colors);
 
             background_colors[x as usize] = color_number;
             self.screen.set_pixel(self.line_number as u16, x, color)

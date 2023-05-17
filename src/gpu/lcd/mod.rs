@@ -37,10 +37,11 @@ pub struct Lcd {
     scroll_x: u8,
     scroll_y: u8,
     status: lcd_status::LcdStatus,
+    use_green_colors: bool,
+    video_oam: VideoOam,
     window_line_counter: u8,
     window_x: u8,
     window_y: u8,
-    video_oam: VideoOam,
 }
 
 impl Lcd {
@@ -173,6 +174,10 @@ impl Lcd {
         }
     }
 
+    pub fn set_use_green_colors(&mut self, use_green_colors: bool) {
+        self.use_green_colors = use_green_colors;
+    }
+
     /**
      * https://www.huderlem.com/demos/gameboy2bpp.html
      */
@@ -196,7 +201,9 @@ impl Lcd {
 
                     // The color is {high_bit}{low_bit} ex. if high is 0 and low is 1 then color is 01
                     let color_number = (high_bit << 1) | low_bit;
-                    let color = self.bg_palette_data.get_color(color_number);
+                    let color = self
+                        .bg_palette_data
+                        .get_color(color_number, self.use_green_colors);
                     colors.push(color.0);
                     colors.push(color.1);
                     colors.push(color.2);

@@ -59,9 +59,11 @@ impl Lcd {
                 );
 
                 let sprite_color = if sprite_attributes.palette_number() {
-                    self.obj_palette_1_data.get_color(color_number)
+                    self.obj_palette_1_data
+                        .get_color(color_number, self.use_green_colors)
                 } else {
-                    self.obj_palette_0_data.get_color(color_number)
+                    self.obj_palette_0_data
+                        .get_color(color_number, self.use_green_colors)
                 };
 
                 let x = sprite_info.x_position + tile_bit;

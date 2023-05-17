@@ -70,4 +70,13 @@ impl Gameboy {
     pub fn get_tiles(&self) -> Vec<u8> {
         self.cpu.mmu.ram.gpu.lcd.render_vram()
     }
+
+    pub fn toggle_color(&mut self, use_green_colors: bool) {
+        self.cpu
+            .mmu
+            .ram
+            .gpu
+            .lcd
+            .set_use_green_colors(use_green_colors);
+    }
 }

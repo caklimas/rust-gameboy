@@ -89,6 +89,10 @@ impl Emulator {
     pub fn get_tiles(&self) -> Vec<u8> {
         self.gameboy.get_tiles()
     }
+
+    pub fn toggle_color(&mut self, use_green_colors: bool) {
+        self.gameboy.toggle_color(use_green_colors)
+    }
 }
 
 #[wasm_bindgen]

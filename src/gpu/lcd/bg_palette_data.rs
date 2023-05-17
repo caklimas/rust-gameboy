@@ -19,7 +19,7 @@ impl BgPaletteData {
         }
     }
 
-    pub fn get_color(&self, color_number: u8) -> Rgb {
+    pub fn get_color(&self, color_number: u8, use_green_color: bool) -> Rgb {
         let palette = match color_number {
             0 => &self.color_0,
             1 => &self.color_1,
@@ -28,7 +28,7 @@ impl BgPaletteData {
             _ => panic!("Invalid color number {}", color_number),
         };
 
-        palette.into_rgb()
+        palette.into_rgb(use_green_color)
     }
 
     pub fn into_u8(&self) -> u8 {

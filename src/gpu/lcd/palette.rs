@@ -23,12 +23,16 @@ impl Palette {
         }
     }
 
-    pub fn into_rgb(&self) -> Rgb {
-        match self {
-            Palette::White => RGB_WHITE,
-            Palette::LightGray => RGB_LIGHT_GRAY,
-            Palette::DarkGray => RGB_DARK_GRAY,
-            Palette::Black => RGB_BLACK,
+    pub fn into_rgb(&self, use_green_colors: bool) -> Rgb {
+        match (self, use_green_colors) {
+            (Palette::White, false) => RGB_WHITE,
+            (Palette::LightGray, false) => RGB_LIGHT_GRAY,
+            (Palette::DarkGray, false) => RGB_DARK_GRAY,
+            (Palette::Black, false) => RGB_BLACK,
+            (Palette::White, true) => RGB_LIGHTEST_GREEN,
+            (Palette::LightGray, true) => RGB_LIGHT_GREEN,
+            (Palette::DarkGray, true) => RGB_DARK_GREEN,
+            (Palette::Black, true) => RGB_DARKEST_GREEN,
         }
     }
 

@@ -20,7 +20,7 @@ impl ObjPaletteData {
         }
     }
 
-    pub fn get_color(&self, color_number: u8) -> SpriteColor {
+    pub fn get_color(&self, color_number: u8, use_green_color: bool) -> SpriteColor {
         let palette = match color_number {
             0 => &self.color_0, // sprite index 0 means transparent
             1 => &self.color_1,
@@ -30,7 +30,7 @@ impl ObjPaletteData {
         };
 
         SpriteColor {
-            color: palette.into_rgb(),
+            color: palette.into_rgb(use_green_color),
             index: color_number,
         }
     }
