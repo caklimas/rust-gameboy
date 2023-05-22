@@ -1,12 +1,12 @@
-import { useSelector } from "react-redux";
-import { Emulator } from "gameboy";
-import { State } from "../../redux/state/state";
-import { useCallback, useState } from "react";
-import { Button, Modal, Tab, Tabs } from "react-bootstrap";
-import chunk from "chunk";
-import styled from "styled-components";
-import { TileInfo } from "./TileInfo";
-import { CANVAS_WIDTH } from "./constants";
+import { useSelector } from 'react-redux';
+import { Emulator } from 'gameboy';
+import { State } from '../../redux/state/state';
+import { useCallback, useMemo, useState } from 'react';
+import { Button, Modal, Tab, Tabs } from 'react-bootstrap';
+import chunk from 'chunk';
+import styled from 'styled-components';
+import { TileInfo } from './TileInfo';
+import { CANVAS_WIDTH } from './constants';
 
 type Props = {
   show: boolean;
@@ -22,8 +22,11 @@ export function EmulatorInfo({ show, setShow }: Props) {
   const handleClose = useCallback(() => setShow(false), [setShow]);
   if (!emulator) return null;
 
-  const cartridgeType = JSON.parse(emulator.get_header_info()).header
-    .cartridge_type;
+  const header = useMemo(
+    () => JSON.parse(emulator.get_header_info()).header,
+    [emulator]
+  );
+
   const colors = chunk(emulator.get_tiles(), 3);
   const tiles = chunk(colors, 64);
   console.log({ tileLEngth: tiles.length });
@@ -43,7 +46,8 @@ export function EmulatorInfo({ show, setShow }: Props) {
         <Modal.Body>
           <Tabs defaultActiveKey="cartridge-info" className="mb-3">
             <Tab eventKey="cartridge-info" title="Cartridge Info">
-              <p>Cartridge Type: {cartridgeType}</p>
+              <p>Cartridge Type: {header.cartridge_type}</p>
+              <p>CGB Mode: {header.cgb_mode}</p>
             </Tab>
             <Tab eventKey="vram-viewer" title="VRAM Viewer">
               <CanvasContainer>

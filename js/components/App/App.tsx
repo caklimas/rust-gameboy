@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { Gameboy } from '../Gameboy/Gameboy';
-import RomLoader from '../RomLoader/RomLoader';
+import { RomLoader } from '../RomLoader/RomLoader';
 
 const StyledApp = styled.div`
   background-color: black;

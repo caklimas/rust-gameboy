@@ -17,6 +17,7 @@ use crate::cartridge::Cartridge;
 use crate::constants::boot_rom::*;
 use crate::controls::*;
 use crate::input::Input;
+use crate::rom_config::RomConfig;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
@@ -30,14 +31,14 @@ pub struct Mmu {
 }
 
 impl Mmu {
-    pub fn new(cartridge: Cartridge, run_boot_rom: bool) -> Self {
+    pub fn new(cartridge: Cartridge, rom_config: &RomConfig) -> Self {
         let mut mmu = Mmu {
             controls: Default::default(),
             ram: Default::default(),
             boot_rom: Default::default(),
-            boot_rom_finished: !run_boot_rom,
+            boot_rom_finished: !rom_config.run_boot_rom,
             cartridge,
-            run_boot_rom,
+            run_boot_rom: rom_config.run_boot_rom,
         };
 
         if !mmu.run_boot_rom {

@@ -3,9 +3,9 @@ pub mod render;
 #[cfg(test)]
 mod tests;
 
-use crate::cartridge::Cartridge;
 use crate::cpu;
 use crate::input::Input;
+use crate::{cartridge::Cartridge, rom_config::RomConfig};
 use serde::{Deserialize, Serialize};
 use std::str;
 
@@ -16,16 +16,16 @@ pub struct Gameboy {
 }
 
 impl Gameboy {
-    pub fn new(bytes: Vec<u8>, run_boot_rom: bool) -> Self {
+    pub fn new(bytes: Vec<u8>, rom_config: &RomConfig) -> Self {
         Gameboy {
-            cpu: cpu::Cpu::new(Cartridge::new(bytes), run_boot_rom),
+            cpu: cpu::Cpu::new(Cartridge::new(bytes), rom_config),
             input: Input::new(),
         }
     }
 
-    pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>, run_boot_rom: bool) -> Self {
+    pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>, rom_config: &RomConfig) -> Self {
         Gameboy {
-            cpu: cpu::Cpu::new(Cartridge::from_save_data(bytes, save_data), run_boot_rom),
+            cpu: cpu::Cpu::new(Cartridge::from_save_data(bytes, save_data), rom_config),
             input: Input::new(),
         }
     }

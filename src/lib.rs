@@ -2,6 +2,7 @@ use gameboy::Gameboy;
 
 use input::Input;
 use log::Level;
+use rom_config::RomConfig;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
@@ -22,9 +23,8 @@ pub mod gpu;
 pub mod input;
 pub mod mbc;
 pub mod mmu;
+pub mod rom_config;
 pub mod utils;
-
-const RUN_BOOT_ROM: bool = false;
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
@@ -40,17 +40,17 @@ pub struct Emulator {
 #[wasm_bindgen]
 impl Emulator {
     #[wasm_bindgen(constructor)]
-    pub fn new(bytes: Vec<u8>) -> Self {
+    pub fn new(bytes: Vec<u8>, rom_config: RomConfig) -> Self {
         init_console_log();
 
-        let gameboy = Gameboy::new(bytes, RUN_BOOT_ROM);
+        let gameboy = Gameboy::new(bytes, &rom_config);
         Self { cycles: 0, gameboy }
     }
 
-    pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>) -> Self {
+    pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>, rom_config: RomConfig) -> Self {
         init_console_log();
 
-        let gameboy = Gameboy::from_save_data(bytes, save_data, RUN_BOOT_ROM);
+        let gameboy = Gameboy::from_save_data(bytes, save_data, &rom_config);
         Self { cycles: 0, gameboy }
     }
 
