@@ -37,10 +37,11 @@ pub struct Lcd {
     scroll_x: u8,
     scroll_y: u8,
     status: lcd_status::LcdStatus,
+    use_green_colors: bool,
+    video_oam: VideoOam,
     window_line_counter: u8,
     window_x: u8,
     window_y: u8,
-    video_oam: VideoOam,
 }
 
 impl Lcd {
@@ -59,15 +60,15 @@ impl Lcd {
             }
             LcdMode::Drawing => {
                 if self.mode_clock >= DRAWING_CYCLES {
-                    self.set_mode(LcdMode::HorizontalBlank);
                     self.render_scanline();
+                    self.set_mode(LcdMode::HorizontalBlank);
 
                     if self.window_visible() {
                         self.window_line_counter += 1;
                     }
 
-                    self.line_number = (self.line_number + 1) % 154;
                     self.check_lyc_interrupt(&mut result);
+                    self.line_number = (self.line_number + 1) % 154;
 
                     if self.status.horizontal_blank_interrupt() {
                         result.lcd_stat = true;
@@ -92,6 +93,7 @@ impl Lcd {
                             result.lcd_stat = true;
                         }
                     }
+                    self.check_lyc_interrupt(&mut result);
                 }
             }
             LcdMode::VerticalBlank => {
@@ -99,12 +101,12 @@ impl Lcd {
                 if self.mode_clock >= MODE_CYCLES {
                     self.mode_clock = 0;
                     self.line_number += 1;
-                    self.check_lyc_interrupt(&mut result);
 
                     if self.line_number >= MAX_SCANLINE {
                         self.set_mode(LcdMode::SearchingOam);
                         self.line_number = 0;
                         self.window_line_counter = 0;
+                        self.check_lyc_interrupt(&mut result);
                     }
                 }
             }
@@ -140,9 +142,12 @@ impl Lcd {
                 let previous_lcd_on = self.control.lcd_display_enable();
                 self.control.set(data);
                 if previous_lcd_on && !self.control.lcd_display_enable() {
+                    info!("Turned off");
                     self.mode_clock = 0;
                     self.mode = LcdMode::HorizontalBlank;
                     self.line_number = 0;
+                } else if !previous_lcd_on && self.control.lcd_display_enable() {
+                    info!("Turned on");
                 }
             }
             LCD_STATUS => self.set_status(data),
@@ -169,6 +174,10 @@ impl Lcd {
         }
     }
 
+    pub fn set_use_green_colors(&mut self, use_green_colors: bool) {
+        self.use_green_colors = use_green_colors;
+    }
+
     /**
      * https://www.huderlem.com/demos/gameboy2bpp.html
      */
@@ -192,7 +201,9 @@ impl Lcd {
 
                     // The color is {high_bit}{low_bit} ex. if high is 0 and low is 1 then color is 01
                     let color_number = (high_bit << 1) | low_bit;
-                    let color = self.bg_palette_data.get_color(color_number);
+                    let color = self
+                        .bg_palette_data
+                        .get_color(color_number, self.use_green_colors);
                     colors.push(color.0);
                     colors.push(color.1);
                     colors.push(color.2);

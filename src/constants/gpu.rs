@@ -17,3 +17,8 @@ pub const RGB_BLACK: Rgb = (0, 0, 0);
 pub const RGB_DARK_GRAY: Rgb = (96, 96, 96);
 pub const RGB_LIGHT_GRAY: Rgb = (192, 192, 192);
 pub const RGB_WHITE: Rgb = (255, 255, 255);
+
+pub const RGB_DARKEST_GREEN: Rgb = (15, 56, 15);
+pub const RGB_DARK_GREEN: Rgb = (48, 98, 48);
+pub const RGB_LIGHT_GREEN: Rgb = (139, 172, 15);
+pub const RGB_LIGHTEST_GREEN: Rgb = (155, 188, 15);
