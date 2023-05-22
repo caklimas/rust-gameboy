@@ -1,17 +1,16 @@
-import { connect } from "react-redux";
-import styled from "styled-components";
-import { getInput } from "../../../helpers/input";
-import { State } from "../../../redux/state/state";
-import { ButtonState } from "../../../redux/state/buttons";
-import { setButtons } from "../../../redux/actions/buttons";
-import { DirectionState } from "../../../redux/state/direction";
-import { RustGameboy } from "../../../redux/state/rustGameboy";
-import ControlButton from "../ControlButton/ControlButton";
-import { mediaMinMd } from "../../../constants/screenSizes";
-import GridCell from "../../GridCell/GridCell";
-import { Emulator } from "gameboy";
-
-type Props = StateProps & DispatchProps;
+import { Emulator } from 'gameboy';
+import { useSelector, useDispatch } from 'react-redux';
+import { useCallback } from 'react';
+import styled from 'styled-components';
+import { getInput } from '../../../helpers/input';
+import { State } from '../../../redux/state/state';
+import { ButtonState } from '../../../redux/state/buttons';
+import { setButtons } from '../../../redux/actions/buttons';
+import { DirectionState } from '../../../redux/state/direction';
+import { RustGameboy } from '../../../redux/state/rustGameboy';
+import ControlButton from '../ControlButton/ControlButton';
+import { mediaMinMd } from '../../../constants/screenSizes';
+import GridCell from '../../GridCell/GridCell';
 
 interface StateProps {
   buttons: ButtonState;
@@ -20,11 +19,7 @@ interface StateProps {
   rustGameboy: RustGameboy;
 }
 
-interface DispatchProps {
-  setButtons(buttons: ButtonState): void;
-}
-
-type ButtonKey = "a" | "b";
+type ButtonKey = 'a' | 'b';
 
 const StyledAbControls = styled.div`
   bottom: 90px;
@@ -40,60 +35,65 @@ const StyledAbControls = styled.div`
   }
 `;
 
-const AbButtons = (props: Props) => {
+export function AbButtons() {
+  const dispatch = useDispatch();
+  const stateProps = useSelector<State, StateProps>((state) => ({
+    buttons: state.buttons,
+    direction: state.direction,
+    emulator: state.gameboy.emulator!,
+    rustGameboy: state.rustGameboy
+  }));
+
+  const handleTouch = useCallback(
+    (
+      _e: React.TouchEvent<HTMLElement>,
+      buttonKey: ButtonKey,
+      pressed: boolean
+    ) => {
+      const updatedState = { ...stateProps.buttons, [buttonKey]: pressed };
+      const input = getInput(
+        stateProps.rustGameboy,
+        updatedState,
+        stateProps.direction
+      );
+      dispatch(setButtons(updatedState));
+      stateProps.emulator.update_controls(input);
+
+      if (pressed) {
+        window.navigator.vibrate(10);
+      }
+    },
+    [
+      dispatch,
+      stateProps.buttons,
+      stateProps.direction,
+      stateProps.emulator,
+      stateProps.rustGameboy
+    ]
+  );
+
   return (
     <StyledAbControls>
       <GridCell column={2} row={1}>
         <ControlButton
-          pressed={props.buttons.a}
+          pressed={stateProps.buttons.a}
           text="A"
           type="circle"
-          onTouchStart={(e) => handleTouch(e, props, "a", true)}
-          onTouchEnd={(e) => handleTouch(e, props, "a", false)}
-          onTouchCancel={(e) => handleTouch(e, props, "a", false)}
+          onTouchStart={(e) => handleTouch(e, 'a', true)}
+          onTouchEnd={(e) => handleTouch(e, 'a', false)}
+          onTouchCancel={(e) => handleTouch(e, 'a', false)}
         />
       </GridCell>
       <GridCell column={1} row={2}>
         <ControlButton
-          pressed={props.buttons.b}
+          pressed={stateProps.buttons.b}
           text="B"
           type="circle"
-          onTouchStart={(e) => handleTouch(e, props, "b", true)}
-          onTouchEnd={(e) => handleTouch(e, props, "b", false)}
-          onTouchCancel={(e) => handleTouch(e, props, "b", false)}
+          onTouchStart={(e) => handleTouch(e, 'b', true)}
+          onTouchEnd={(e) => handleTouch(e, 'b', false)}
+          onTouchCancel={(e) => handleTouch(e, 'b', false)}
         />
       </GridCell>
     </StyledAbControls>
   );
-};
-
-const handleTouch = (
-  e: React.TouchEvent<HTMLElement>,
-  props: Props,
-  buttonKey: ButtonKey,
-  pressed: boolean
-) => {
-  const updatedState = { ...props.buttons, [buttonKey]: pressed };
-  const input = getInput(props.rustGameboy, updatedState, props.direction);
-  props.setButtons(updatedState);
-  props.emulator.update_controls(input);
-
-  if (pressed) {
-    window.navigator.vibrate(10);
-  }
-};
-
-const mapStateToProps = (state: State): StateProps => {
-  return {
-    buttons: state.buttons,
-    direction: state.direction,
-    emulator: state.gameboy.emulator!,
-    rustGameboy: state.rustGameboy,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any): DispatchProps => ({
-  setButtons: (buttons: ButtonState) => dispatch(setButtons(buttons)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(AbButtons);
+}

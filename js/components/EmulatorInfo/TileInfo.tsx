@@ -1,11 +1,11 @@
-import chunk from "chunk";
-import { useState } from "react";
-import styled from "styled-components";
-import { CANVAS_WIDTH, TILE_LENGTH } from "./constants";
+import chunk from 'chunk';
+import { useState } from 'react';
+import styled from 'styled-components';
+import { CANVAS_WIDTH, TILE_LENGTH } from './constants';
 
-type Props = {
+interface Props {
   tile: number[][];
-};
+}
 
 const StyledCanvas = styled.canvas`
   border: 1px solid #000000;
@@ -19,11 +19,11 @@ export function TileInfo({ tile }: Props) {
       return;
     }
 
-    const newCanvas = document.createElement("canvas");
+    const newCanvas = document.createElement('canvas');
     newCanvas.width = 8;
     newCanvas.height = 8;
 
-    const ctx = newCanvas.getContext("2d")!;
+    const ctx = newCanvas.getContext('2d')!;
     const imageData = ctx.createImageData(TILE_LENGTH, TILE_LENGTH);
     const data = imageData.data;
 
@@ -42,7 +42,7 @@ export function TileInfo({ tile }: Props) {
 
     ctx.putImageData(imageData, 0, 0);
 
-    const ctx2 = canvas.getContext("2d")!;
+    const ctx2 = canvas.getContext('2d')!;
     ctx2.drawImage(newCanvas, 0, 0, CANVAS_WIDTH, CANVAS_WIDTH);
   };
 

@@ -142,12 +142,10 @@ impl Lcd {
                 let previous_lcd_on = self.control.lcd_display_enable();
                 self.control.set(data);
                 if previous_lcd_on && !self.control.lcd_display_enable() {
-                    info!("Turned off");
                     self.mode_clock = 0;
                     self.mode = LcdMode::HorizontalBlank;
                     self.line_number = 0;
                 } else if !previous_lcd_on && self.control.lcd_display_enable() {
-                    info!("Turned on");
                 }
             }
             LCD_STATUS => self.set_status(data),

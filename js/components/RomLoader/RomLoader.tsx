@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFilePicker } from 'use-file-picker';
 
 import { loadRom } from '../../redux/actions/gameboy';
@@ -40,7 +40,7 @@ export function RomLoader() {
       setGameboy(gameboy);
     };
 
-    getGameboy();
+    getGameboy().catch((error) => console.error(error));
   });
 
   const readFile = useCallback(
@@ -91,7 +91,7 @@ export function RomLoader() {
   if (!!emulator) return null;
 
   if (plainFiles.length > 0) {
-    pickFile(plainFiles[0]);
+    pickFile(plainFiles[0]).catch((error) => console.error(error));
   }
 
   return (
@@ -118,10 +118,10 @@ export function RomLoader() {
         <Dropdown.Item
           onClick={async () => await readFile("Kirby's Dream Land.gb")}
         >
-          Kirby's Dream Land
+          Kirby&apos;s Dream Land
         </Dropdown.Item>
         <Dropdown.Item onClick={async () => await readFile('Zelda.gb')}>
-          The Legend of Zelda Link's Awakening
+          The Legend of Zelda Link&apos;s Awakening
         </Dropdown.Item>
         <Dropdown.Item onClick={async () => await readFile('Pokemon Blue.gb')}>
           Pokemon Blue
@@ -153,7 +153,7 @@ export function RomLoader() {
 }
 
 const getFileData = (key: string): Uint8Array | null => {
-  if (!window || !window.localStorage) {
+  if (!window?.localStorage) {
     return null;
   }
 

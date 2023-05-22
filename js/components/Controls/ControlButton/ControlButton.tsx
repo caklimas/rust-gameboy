@@ -1,7 +1,7 @@
-import styled from "styled-components";
-import Button from "react-bootstrap/Button";
+import styled from 'styled-components';
+import Button from 'react-bootstrap/Button';
 
-type ButtonType = "circle" | "directional" | "start-select";
+type ButtonType = 'circle' | 'directional' | 'start-select';
 
 const StyledButton = styled(Button)`
   font-size: 15px;
@@ -38,21 +38,19 @@ const ControlButton = ({
   text,
   onTouchStart,
   onTouchEnd,
-  onTouchCancel,
+  onTouchCancel
 }: Props) => {
   const getVariant = (pressed: boolean): string =>
-    pressed ? "primary" : "secondary";
+    pressed ? 'primary' : 'secondary';
 
   const getButtonComponent = () => {
     switch (type) {
-      case "circle":
+      case 'circle':
         return CircleButton;
-      case "directional":
+      case 'directional':
         return DirectionalButton;
-      case "start-select":
+      case 'start-select':
         return StartSelectButton;
-      default:
-        throw new Error(`Invalid button type ${type}`);
     }
   };
 

@@ -1,25 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import chunk from 'chunk';
 import { loadWasm } from '../../helpers/wasm';
-import {
-  SET_RUST_GAMEBOY,
-  setRustGameboy
-} from '../../redux/actions/rustGameboy';
+import { setRustGameboy } from '../../redux/actions/rustGameboy';
 import { State } from '../../redux/state/state';
 import { RustGameboy } from '../../redux/state/rustGameboy';
 import { mediaMinMd } from '../../constants/screenSizes';
 import { Emulator, EmulatorState } from 'gameboy';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
 
-type Props = {
+interface Props {
   className?: string;
   width: number;
   height: number;
   pixelSize: number;
-};
+}
 
 interface ScreenState {
   width: number;
@@ -46,18 +41,17 @@ const StyledCanvas = styled.canvas`
 `;
 
 const maxCycles = 69_905;
-const sampleRate = 44_100.0;
-const sampleCount = 4096;
-const latency = 0.032;
-const audioCtx = new AudioContext();
+// const sampleRate = 44_100.0;
+// const sampleCount = 4096;
+// const latency = 0.032;
+// const audioCtx = new AudioContext();
 
 export function Screen(props: Props) {
-  let bytesPerColumn = props.pixelSize * 4;
-  let bytesPerRow = bytesPerColumn * props.width;
+  const bytesPerColumn = props.pixelSize * 4;
+  const bytesPerRow = bytesPerColumn * props.width;
 
-  const [requestId, setRequestId] = useState<number>(0);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const [state, setState] = useState<ScreenState>({
+  const [state] = useState<ScreenState>({
     width: props.width * props.pixelSize,
     height: props.height * props.pixelSize,
     bytesPerRow,
@@ -83,17 +77,17 @@ export function Screen(props: Props) {
     const imageData = ctx.createImageData(state.width, state.height);
     const data = imageData.data;
     for (let i = 0; i < chunked.length; i++) {
-      let rgb = chunked[i];
-      let x = i % props.width;
-      let y = Math.floor(i / props.width);
-      let yOffset = y * state.bytesPerRow * props.pixelSize;
+      const rgb = chunked[i];
+      const x = i % props.width;
+      const y = Math.floor(i / props.width);
+      const yOffset = y * state.bytesPerRow * props.pixelSize;
       for (let rowNum = 0; rowNum < props.pixelSize; rowNum++) {
-        let rowOffset = yOffset + rowNum * state.bytesPerRow;
-        let xOffset = x * state.bytesPerColumn;
+        const rowOffset = yOffset + rowNum * state.bytesPerRow;
+        const xOffset = x * state.bytesPerColumn;
 
         for (let colNum = 0; colNum < props.pixelSize; colNum++) {
-          let colOffset = xOffset + colNum * 4;
-          let offset = rowOffset + colOffset;
+          const colOffset = xOffset + colNum * 4;
+          const offset = rowOffset + colOffset;
           let color = 0;
           while (color < rgb.length) {
             data[offset + color] = rgb[color];
@@ -106,62 +100,71 @@ export function Screen(props: Props) {
     }
 
     ctx.putImageData(imageData, 0, 0);
-  }, [emulator, canvas, state]);
+  }, [
+    emulator,
+    canvas,
+    state.width,
+    state.height,
+    state.bytesPerRow,
+    state.bytesPerColumn,
+    props.width,
+    props.pixelSize
+  ]);
 
   const animate = useCallback(() => {
-    setRequestId(requestAnimationFrame(animate));
+    requestAnimationFrame(animate);
 
     if (!canvas || !emulator || !emulatorState) return;
 
     while (true) {
       const event = emulator.clock_until_event(maxCycles);
       if (event && event === emulatorState.AudioFull) {
-        //playAudio();
+        // playAudio();
       } else if (event === emulatorState.MaxCycles) {
         break;
       }
     }
 
     renderScreen();
-  }, [canvas, emulator, emulatorState, setRequestId, renderScreen]);
+  }, [canvas, emulator, emulatorState, renderScreen]);
 
-  const playAudio = useCallback(() => {
-    const audio = emulator.get_audio_buffer();
-    let audioBuffer: AudioBuffer;
-    if (state.emptyAudioBuffers.length === 0) {
-      audioBuffer = audioCtx.createBuffer(2, sampleCount, sampleRate * 2);
-    } else {
-      audioBuffer = state.emptyAudioBuffers[state.emptyAudioBuffers.length - 1];
-      setState({
-        ...state,
-        emptyAudioBuffers: state.emptyAudioBuffers.slice(0, -1)
-      });
-    }
+  // const playAudio = useCallback(() => {
+  //   const audio = emulator.get_audio_buffer();
+  //   let audioBuffer: AudioBuffer;
+  //   if (state.emptyAudioBuffers.length === 0) {
+  //     audioBuffer = audioCtx.createBuffer(2, sampleCount, sampleRate * 2);
+  //   } else {
+  //     audioBuffer = state.emptyAudioBuffers[state.emptyAudioBuffers.length - 1];
+  //     setState({
+  //       ...state,
+  //       emptyAudioBuffers: state.emptyAudioBuffers.slice(0, -1)
+  //     });
+  //   }
 
-    audioBuffer.getChannelData(0).set(audio);
-    audioBuffer.getChannelData(1).set(audio);
+  //   audioBuffer.getChannelData(0).set(audio);
+  //   audioBuffer.getChannelData(1).set(audio);
 
-    const node = audioCtx.createBufferSource();
-    node.connect(audioCtx.destination);
-    node.buffer = audioBuffer;
-    node.onended = () => {
-      setState({
-        ...state,
-        emptyAudioBuffers: [...state.emptyAudioBuffers, audioBuffer]
-      });
-    };
+  //   const node = audioCtx.createBufferSource();
+  //   node.connect(audioCtx.destination);
+  //   node.buffer = audioBuffer;
+  //   node.onended = () => {
+  //     setState({
+  //       ...state,
+  //       emptyAudioBuffers: [...state.emptyAudioBuffers, audioBuffer]
+  //     });
+  //   };
 
-    const playTimestamp = Math.max(
-      audioCtx.currentTime + latency,
-      state.timestamp
-    );
-    node.start(playTimestamp);
+  //   const playTimestamp = Math.max(
+  //     audioCtx.currentTime + latency,
+  //     state.timestamp
+  //   );
+  //   node.start(playTimestamp);
 
-    setState({
-      ...state,
-      timestamp: playTimestamp + sampleCount / 2 / sampleRate
-    });
-  }, [state, setState]);
+  //   setState({
+  //     ...state,
+  //     timestamp: playTimestamp + sampleCount / 2 / sampleRate
+  //   });
+  // }, [state, setState]);
 
   useEffect(() => {
     const fetchWasm = async () => {
@@ -173,13 +176,8 @@ export function Screen(props: Props) {
       console.log('Loaded WASM');
     };
 
-    fetchWasm();
-    return () => {
-      if (requestId) {
-        cancelAnimationFrame(requestId);
-      }
-    };
-  }, [wasm]);
+    fetchWasm().catch((error) => console.error(error));
+  }, [animate, dispatch, wasm]);
 
   return (
     <GameboyScreenFlex>

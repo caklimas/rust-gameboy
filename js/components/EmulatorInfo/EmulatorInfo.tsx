@@ -1,17 +1,17 @@
 import { useSelector } from 'react-redux';
 import { Emulator } from 'gameboy';
 import { State } from '../../redux/state/state';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Button, Modal, Tab, Tabs } from 'react-bootstrap';
 import chunk from 'chunk';
 import styled from 'styled-components';
 import { TileInfo } from './TileInfo';
 import { CANVAS_WIDTH } from './constants';
 
-type Props = {
+interface Props {
   show: boolean;
   setShow: (show: boolean) => void;
-};
+}
 
 const GRID_GAP = CANVAS_WIDTH + 3;
 
@@ -20,12 +20,14 @@ export function EmulatorInfo({ show, setShow }: Props) {
     (state) => state.gameboy.emulator!
   );
   const handleClose = useCallback(() => setShow(false), [setShow]);
-  if (!emulator) return null;
-
   const header = useMemo(
     () => JSON.parse(emulator.get_header_info()).header,
     [emulator]
   );
+
+  if (!emulator) {
+    return null;
+  }
 
   const colors = chunk(emulator.get_tiles(), 3);
   const tiles = chunk(colors, 64);
@@ -51,8 +53,8 @@ export function EmulatorInfo({ show, setShow }: Props) {
             </Tab>
             <Tab eventKey="vram-viewer" title="VRAM Viewer">
               <CanvasContainer>
-                {tiles.map((tile) => (
-                  <TileInfo tile={tile} />
+                {tiles.map((tile, i) => (
+                  <TileInfo key={i} tile={tile} />
                 ))}
               </CanvasContainer>
             </Tab>

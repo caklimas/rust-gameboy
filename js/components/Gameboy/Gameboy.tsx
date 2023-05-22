@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import { useBeforeunload } from 'react-beforeunload';
-import { Button, Form, ToggleButton } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { useCallback, useState } from 'react';
 import gameboyDimensions from '../../constants/gameboy';
 import { mobileMediaQuery } from '../../helpers/mediaQueries';
