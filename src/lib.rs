@@ -24,6 +24,8 @@ pub mod mbc;
 pub mod mmu;
 pub mod utils;
 
+const RUN_BOOT_ROM: bool = false;
+
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -39,15 +41,16 @@ pub struct Emulator {
 impl Emulator {
     #[wasm_bindgen(constructor)]
     pub fn new(bytes: Vec<u8>) -> Self {
-        console_log::init_with_level(Level::Debug).expect("Error initing log");
+        init_console_log();
 
-        info!("It works!");
-        let gameboy = Gameboy::new(bytes, false);
+        let gameboy = Gameboy::new(bytes, RUN_BOOT_ROM);
         Self { cycles: 0, gameboy }
     }
 
     pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>) -> Self {
-        let gameboy = Gameboy::from_save_data(bytes, save_data, false);
+        init_console_log();
+
+        let gameboy = Gameboy::from_save_data(bytes, save_data, RUN_BOOT_ROM);
         Self { cycles: 0, gameboy }
     }
 
@@ -101,4 +104,10 @@ pub enum EmulatorState {
     FrameComplete,
     AudioFull,
     MaxCycles,
+}
+
+fn init_console_log() {
+    console_log::init_with_level(Level::Debug).expect("Error initializing log");
+
+    info!("It works!");
 }
