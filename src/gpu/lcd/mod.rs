@@ -132,6 +132,10 @@ impl Lcd {
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
                 self.video_oam.read(address)
             }
+            LCD_BCPS_BGPI..=LCD_BCPD_BGPD => {
+                info!("Read from CGB Background color palette addresses");
+                0
+            }
             _ => panic!("Invalid lcd address: 0x{:4X}", address),
         }
     }
@@ -167,6 +171,9 @@ impl Lcd {
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
                 self.video_oam.write(address, data)
+            }
+            LCD_BCPS_BGPI..=LCD_BCPD_BGPD => {
+                info!("{} written to CGB Background color palette addresses", data);
             }
             _ => panic!("Invalid lcd address: 0x{:4X}", address),
         }

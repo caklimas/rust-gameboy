@@ -13,6 +13,7 @@ mod tests;
 use crate::addresses::boot_rom::*;
 use crate::addresses::cartridge::*;
 use crate::addresses::controls::*;
+use crate::addresses::gpu::lcd::LCD_BG_PALETTE_DATA;
 use crate::cartridge::Cartridge;
 use crate::constants::boot_rom::*;
 use crate::controls::*;
@@ -133,7 +134,7 @@ impl Mmu {
         self.write_byte(0xFF42, 0x00);
         self.write_byte(0xFF43, 0x00);
         self.write_byte(0xFF45, 0x00);
-        self.write_byte(0xFF47, 0xFC);
+        self.write_byte(LCD_BG_PALETTE_DATA, 0xFC);
         self.write_byte(0xFF48, 0xFF);
         self.write_byte(0xFF49, 0xFF);
         self.write_byte(0xFF4A, 0x00);
