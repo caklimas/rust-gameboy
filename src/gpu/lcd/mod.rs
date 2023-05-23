@@ -5,7 +5,9 @@ use crate::constants::gpu::*;
 use serde::{Deserialize, Serialize};
 
 pub mod background;
+pub mod bg_color_palette_spec;
 pub mod bg_palette_data;
+pub mod color_ram;
 pub mod lcd_control;
 pub mod lcd_mode;
 pub mod lcd_status;
@@ -26,6 +28,7 @@ pub struct Lcd {
     pub frame_complete: bool,
     pub screen: screen::Screen,
     pub video_ram: VideoRam,
+    bg_color_palette_spec: bg_color_palette_spec::BgColorPaletteSpec,
     bg_palette_data: bg_palette_data::BgPaletteData,
     control: lcd_control::LcdControl,
     line_number: u8,
@@ -132,8 +135,9 @@ impl Lcd {
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
                 self.video_oam.read(address)
             }
-            LCD_BCPS_BGPI..=LCD_BCPD_BGPD => {
-                info!("Read from CGB Background color palette addresses");
+            LCD_BCPS_BGPI => self.bg_color_palette_spec.0,
+            LCD_BCPD_BGPD => {
+                info!("Read from LCD_BCPD_BGPD");
                 0
             }
             _ => panic!("Invalid lcd address: 0x{:4X}", address),
@@ -172,8 +176,9 @@ impl Lcd {
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
                 self.video_oam.write(address, data)
             }
-            LCD_BCPS_BGPI..=LCD_BCPD_BGPD => {
-                info!("{} written to CGB Background color palette addresses", data);
+            LCD_BCPS_BGPI => self.bg_color_palette_spec.set(data),
+            LCD_BCPD_BGPD => {
+                info!("Writing to LCD_BCPD_BGPD")
             }
             _ => panic!("Invalid lcd address: 0x{:4X}", address),
         }

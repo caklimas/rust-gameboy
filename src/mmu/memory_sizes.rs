@@ -12,3 +12,4 @@ pub const KILOBYTES_128: usize = 0x20000;
 pub const BOOT_ROM_SIZE: usize = 256;
 pub const HIGH_RAM: u16 = (HIGH_RAM_UPPER - HIGH_RAM_LOWER) + 1;
 pub const VIDEO_OAM: usize = 0xA0;
+pub const COLOR_RAM: usize = 64;

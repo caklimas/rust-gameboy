@@ -41,14 +41,14 @@ pub struct Emulator {
 impl Emulator {
     #[wasm_bindgen(constructor)]
     pub fn new(bytes: Vec<u8>, rom_config: RomConfig) -> Self {
-        init_console_log();
+        init_console_hooks();
 
         let gameboy = Gameboy::new(bytes, &rom_config);
         Self { cycles: 0, gameboy }
     }
 
     pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>, rom_config: RomConfig) -> Self {
-        init_console_log();
+        init_console_hooks();
 
         let gameboy = Gameboy::from_save_data(bytes, save_data, &rom_config);
         Self { cycles: 0, gameboy }
@@ -106,8 +106,9 @@ pub enum EmulatorState {
     MaxCycles,
 }
 
-fn init_console_log() {
+fn init_console_hooks() {
     console_log::init_with_level(Level::Debug).expect("Error initializing log");
+    console_error_panic_hook::set_once();
 
     info!("It works!");
 }

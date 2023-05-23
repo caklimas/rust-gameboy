@@ -30,7 +30,7 @@ export function RomLoader() {
     (state) => state.gameboy.emulator
   );
   const [openFileSelector, { plainFiles }] = useFilePicker({
-    accept: '.gb',
+    accept: ['.gb', '.gbc'],
     multiple: false
   });
 
