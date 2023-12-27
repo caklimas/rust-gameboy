@@ -79,4 +79,8 @@ impl Gameboy {
             .lcd
             .set_use_green_colors(use_green_colors);
     }
+
+    pub fn get_register_info(&self) -> String {
+        serde_json::to_string(&self.cpu.registers).expect("Could not serialize registers")
+    }
 }

@@ -26,6 +26,7 @@ const CGB_HARDWARE_DETECTED: u8 = 0x11;
 pub struct Cpu {
     pub master_clock_cycles: u32,
     pub mmu: Mmu,
+    pub registers: registers::Registers,
     cb_opcode: bool,
     halted: bool,
     index_registers: index_registers::IndexRegisters,
@@ -34,7 +35,6 @@ pub struct Cpu {
     memory_refresh: u8,
     opcode: usize,
     program_counter: u16,
-    registers: registers::Registers,
     stack_pointer: u16,
     stopped: bool,
 }

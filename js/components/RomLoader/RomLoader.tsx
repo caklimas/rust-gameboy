@@ -115,6 +115,9 @@ export function RomLoader() {
         <Dropdown.Item onClick={async () => await readFile('Tetris.gb')}>
           Tetris
         </Dropdown.Item>
+        <Dropdown.Item onClick={async () => await readFile('Tetris DX.gbc')}>
+          Tetris DX
+        </Dropdown.Item>
         <Dropdown.Item
           onClick={async () => await readFile("Kirby's Dream Land.gb")}
         >

@@ -96,6 +96,10 @@ impl Emulator {
     pub fn toggle_color(&mut self, use_green_colors: bool) {
         self.gameboy.toggle_color(use_green_colors)
     }
+
+    pub fn get_register_info(&self) -> String {
+        self.gameboy.get_register_info()
+    }
 }
 
 #[wasm_bindgen]

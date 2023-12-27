@@ -25,6 +25,11 @@ export function EmulatorInfo({ show, setShow }: Props) {
     [emulator]
   );
 
+  const register = useMemo(
+    () => JSON.parse(emulator.get_register_info()),
+    [emulator]
+  );
+
   if (!emulator) {
     return null;
   }
@@ -57,6 +62,15 @@ export function EmulatorInfo({ show, setShow }: Props) {
                   <TileInfo key={i} tile={tile} />
                 ))}
               </CanvasContainer>
+            </Tab>
+            <Tab eventKey="cpu-values" title="CPU Register Viewer">
+              <p>A: {register.a}</p>
+              <p>B: {register.b}</p>
+              <p>C: {register.c}</p>
+              <p>D: {register.d}</p>
+              <p>E: {register.e}</p>
+              <p>H: {register.h}</p>
+              <p>L: {register.l}</p>
             </Tab>
           </Tabs>
         </Modal.Body>
