@@ -1,4 +1,5 @@
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import { useBeforeunload } from 'react-beforeunload';
@@ -12,6 +13,11 @@ import { mediaMinMd } from '../../constants/screenSizes';
 import { Emulator } from 'gameboy';
 import { State } from '../../redux/state/state';
 import { EmulatorInfo } from '../EmulatorInfo/EmulatorInfo';
+import { setPaused } from '../../redux/actions/paused';
+
+const StyledCheck = styled(Form.Check)`
+  color: white;
+`;
 
 const StyledGameboy = styled.div`
   background-color: #bababa;
@@ -55,12 +61,14 @@ export function Gameboy() {
     }
   });
 
+  const dispatch = useDispatch();
   const [checked, setChecked] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const handleOpen = useCallback(() => setShowModal(true), [setShowModal]);
   const isMobile = useMediaQuery(mobileMediaQuery);
   const pixelSize = isMobile ? 1 : 3;
-  const currentGame = useSelector<State, string>((state) => state.currentGame);
+  const currentGame = useSelector<State, string>(state => state.currentGame);
+  const paused = useSelector<State, boolean>(state => state.paused);
   const emulator = useSelector<State, Emulator>(
     (state) => state.gameboy.emulator!
   );
@@ -96,6 +104,16 @@ export function Gameboy() {
       {!isMobile && showModal && (
         <EmulatorInfo show={showModal} setShow={setShowModal} />
       )}
+      {!isMobile &&
+        <StyledCheck
+          id="pause-checkbox"
+          type="checkbox"
+          checked={paused}
+          label="Pause"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            dispatch(setPaused(e.target.checked))
+          }
+        />}
     </GameboyContainer>
   );
 }

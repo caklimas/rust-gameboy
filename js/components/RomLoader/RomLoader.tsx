@@ -26,6 +26,7 @@ export function RomLoader() {
   const [gameboy, setGameboy] = useState<RustGameboy | null>(null);
   const [runBootRom, setRunBootRom] = useState(false);
   const [cgb, setCgb] = useState(false);
+  const [paused, setPaused] = useState(false);
   const emulator = useSelector<State, Emulator | null>(
     (state) => state.gameboy.emulator
   );

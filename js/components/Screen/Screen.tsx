@@ -63,6 +63,7 @@ export function Screen(props: Props) {
   const [wasm, setWasm] = useState<RustGameboy | null>(null);
   const dispatch = useDispatch();
 
+  const paused = useSelector<State, boolean>(state => state.paused);
   const [emulatorState, setEmulatorState] = useState<
     typeof EmulatorState | null
   >(null);
@@ -116,7 +117,7 @@ export function Screen(props: Props) {
 
     if (!canvas || !emulator || !emulatorState) return;
 
-    while (true) {
+    while (true && !paused) {
       const event = emulator.clock_until_event(maxCycles);
       if (event && event === emulatorState.AudioFull) {
         // playAudio();

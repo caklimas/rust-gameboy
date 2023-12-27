@@ -3,6 +3,7 @@ import { buttons } from './buttons';
 import { currentGame } from './currentGame';
 import { direction } from './direction';
 import { gameboy } from './gameboy';
+import { paused } from './paused';
 import { rustGameboy } from './rustGameboy';
 
 export const rootReducer = combineReducers({
@@ -10,5 +11,6 @@ export const rootReducer = combineReducers({
     currentGame,
     direction,
     gameboy,
-    rustGameboy
+    rustGameboy,
+    paused
 });
