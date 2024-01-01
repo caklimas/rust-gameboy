@@ -135,7 +135,10 @@ impl Lcd {
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
                 self.video_oam.read(address)
             }
-            LCD_BCPS_BGPI => self.bg_color_palette_spec.0,
+            LCD_BCPS_BGPI => {
+                info!("Read from LCD_BCPS_BGPI");
+                self.bg_color_palette_spec.0
+            }
             LCD_BCPD_BGPD => {
                 info!("Read from LCD_BCPD_BGPD");
                 0
@@ -176,7 +179,10 @@ impl Lcd {
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
                 self.video_oam.write(address, data)
             }
-            LCD_BCPS_BGPI => self.bg_color_palette_spec.set(data),
+            LCD_BCPS_BGPI => {
+                info!("Writing to LCD_BCPS_BGPI");
+                self.bg_color_palette_spec.set(data)
+            }
             LCD_BCPD_BGPD => {
                 info!("Writing to LCD_BCPD_BGPD")
             }

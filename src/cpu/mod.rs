@@ -289,9 +289,7 @@ impl Cpu {
             return;
         }
 
-        self.program_counter = PROGRAM_START;
-        self.stack_pointer = 0xFFFE;
-
+        // https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
         match &self.mmu.cartridge.header.cgb_mode {
             CgbMode::CgbMonochrome => {
                 self.registers.set_target_16(&CpuRegister16::AF, 0x1180);
@@ -308,7 +306,7 @@ impl Cpu {
             }
         }
 
-        // https://gbdev.io/pandocs/CGB_Registers.html#detecting-cgb-and-gba-functions
-        info!("A after startup: {}", self.registers.a);
+        self.program_counter = PROGRAM_START;
+        self.stack_pointer = 0xFFFE;
     }
 }
