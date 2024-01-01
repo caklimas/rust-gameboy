@@ -2,6 +2,7 @@ use gameboy::Gameboy;
 
 use input::Input;
 use log::Level;
+use rom_config::RomConfig;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
@@ -22,9 +23,8 @@ pub mod gpu;
 pub mod input;
 pub mod mbc;
 pub mod mmu;
+pub mod rom_config;
 pub mod utils;
-
-const RUN_BOOT_ROM: bool = false;
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
@@ -40,17 +40,17 @@ pub struct Emulator {
 #[wasm_bindgen]
 impl Emulator {
     #[wasm_bindgen(constructor)]
-    pub fn new(bytes: Vec<u8>) -> Self {
-        init_console_log();
+    pub fn new(bytes: Vec<u8>, rom_config: RomConfig) -> Self {
+        init_console_hooks();
 
-        let gameboy = Gameboy::new(bytes, RUN_BOOT_ROM);
+        let gameboy = Gameboy::new(bytes, &rom_config);
         Self { cycles: 0, gameboy }
     }
 
-    pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>) -> Self {
-        init_console_log();
+    pub fn from_save_data(bytes: Vec<u8>, save_data: Vec<u8>, rom_config: RomConfig) -> Self {
+        init_console_hooks();
 
-        let gameboy = Gameboy::from_save_data(bytes, save_data, RUN_BOOT_ROM);
+        let gameboy = Gameboy::from_save_data(bytes, save_data, &rom_config);
         Self { cycles: 0, gameboy }
     }
 
@@ -96,6 +96,10 @@ impl Emulator {
     pub fn toggle_color(&mut self, use_green_colors: bool) {
         self.gameboy.toggle_color(use_green_colors)
     }
+
+    pub fn get_register_info(&self) -> String {
+        self.gameboy.get_register_info()
+    }
 }
 
 #[wasm_bindgen]
@@ -106,8 +110,9 @@ pub enum EmulatorState {
     MaxCycles,
 }
 
-fn init_console_log() {
+fn init_console_hooks() {
     console_log::init_with_level(Level::Debug).expect("Error initializing log");
+    console_error_panic_hook::set_once();
 
     info!("It works!");
 }

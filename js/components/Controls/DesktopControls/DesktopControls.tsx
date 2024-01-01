@@ -1,26 +1,26 @@
-import { connect } from "react-redux";
-import styled from "styled-components";
-// @ts-ignore
-import KeyboardEventHandler from "react-keyboard-event-handler";
-import { getInput } from "../../../helpers/input";
-import { State } from "../../../redux/state/state";
-import { ButtonState } from "../../../redux/state/buttons";
-import { DirectionState } from "../../../redux/state/direction";
-import { setButtons } from "../../../redux/actions/buttons";
-import { setDirection } from "../../../redux/actions/direction";
-import { RustGameboy } from "../../../redux/state/rustGameboy";
-import AbButtons from "../AbButtons/AbButtons";
-import ControlButton from "../ControlButton/ControlButton";
-import StartSelectButtons from "../StartSelectButtons/StartSelectButtons";
-import GridCell from "../../GridCell/GridCell";
-import { Emulator } from "gameboy";
+import { connect } from 'react-redux';
+import styled from 'styled-components';
+// @ts-expect-error react-keyboard-event-handler has no d.ts
+import KeyboardEventHandler from 'react-keyboard-event-handler';
+import { getInput } from '../../../helpers/input';
+import { State } from '../../../redux/state/state';
+import { ButtonState } from '../../../redux/state/buttons';
+import { DirectionState } from '../../../redux/state/direction';
+import { setButtons } from '../../../redux/actions/buttons';
+import { setDirection } from '../../../redux/actions/direction';
+import { RustGameboy } from '../../../redux/state/rustGameboy';
+import { AbButtons } from '../AbButtons/AbButtons';
+import ControlButton from '../ControlButton/ControlButton';
+import { StartSelectButtons } from '../StartSelectButtons/StartSelectButtons';
+import GridCell from '../../GridCell/GridCell';
+import { Emulator } from 'gameboy';
 
-const handleKeys = ["up", "down", "left", "right", "z", "x", "shift", "enter"];
+const handleKeys = ['up', 'down', 'left', 'right', 'z', 'x', 'shift', 'enter'];
 const keyMapping = new Map();
-keyMapping.set("x", "a");
-keyMapping.set("z", "b");
-keyMapping.set("enter", "start");
-keyMapping.set("shift", "select");
+keyMapping.set('x', 'a');
+keyMapping.set('z', 'b');
+keyMapping.set('enter', 'start');
+keyMapping.set('shift', 'select');
 
 type Props = StateProps & DispatchProps;
 
@@ -32,8 +32,8 @@ interface StateProps {
 }
 
 interface DispatchProps {
-  setButtons(buttons: ButtonState): void;
-  setDirection(direction: DirectionState): void;
+  setButtons: (buttons: ButtonState) => void;
+  setDirection: (direction: DirectionState) => void;
 }
 
 const StyledDesktopControls = styled.div`
@@ -100,7 +100,7 @@ const renderKeyboardHandlers = (props: Props) => {
         handleEventType="keydown"
         onKeyEvent={(key: string, _e: any) => {
           if (keyMapping.has(key)) {
-            let p: keyof ButtonState = keyMapping.get(key) as any;
+            const p: keyof ButtonState = keyMapping.get(key);
             if (props.buttons[p]) return;
 
             const updatedButtons = { ...props.buttons, [p]: true };
@@ -131,7 +131,7 @@ const renderKeyboardHandlers = (props: Props) => {
         handleEventType="keyup"
         onKeyEvent={(key: any, _e: any) => {
           if (keyMapping.has(key)) {
-            let p: keyof ButtonState = keyMapping.get(key) as any;
+            const p: keyof ButtonState = keyMapping.get(key);
             if (!props.buttons[p]) return;
 
             const updatedButtons = { ...props.buttons, [p]: false };
@@ -143,7 +143,7 @@ const renderKeyboardHandlers = (props: Props) => {
             props.setButtons(updatedButtons);
             props.emulator.update_controls(input);
           } else {
-            let p: keyof DirectionState = key as any;
+            const p: keyof DirectionState = key;
             if (!props.direction[p]) return;
 
             const updatedDirection = { ...props.direction, [p]: false };
@@ -165,13 +165,12 @@ const mapStateToProps = (state: State): StateProps => ({
   buttons: state.buttons,
   direction: state.direction,
   emulator: state.gameboy.emulator!,
-  rustGameboy: state.rustGameboy,
+  rustGameboy: state.rustGameboy
 });
 
 const mapDispatchToProps = (dispatch: any): DispatchProps => ({
   setButtons: (buttons: ButtonState) => dispatch(setButtons(buttons)),
-  setDirection: (direction: DirectionState) =>
-    dispatch(setDirection(direction)),
+  setDirection: (direction: DirectionState) => dispatch(setDirection(direction))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DesktopControls);

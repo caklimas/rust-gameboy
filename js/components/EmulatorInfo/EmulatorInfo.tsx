@@ -1,17 +1,17 @@
-import { useSelector } from "react-redux";
-import { Emulator } from "gameboy";
-import { State } from "../../redux/state/state";
-import { useCallback, useState } from "react";
-import { Button, Modal, Tab, Tabs } from "react-bootstrap";
-import chunk from "chunk";
-import styled from "styled-components";
-import { TileInfo } from "./TileInfo";
-import { CANVAS_WIDTH } from "./constants";
+import { useSelector } from 'react-redux';
+import { Emulator } from 'gameboy';
+import { State } from '../../redux/state/state';
+import { useCallback, useMemo } from 'react';
+import { Button, Modal, Tab, Tabs } from 'react-bootstrap';
+import chunk from 'chunk';
+import styled from 'styled-components';
+import { TileInfo } from './TileInfo';
+import { CANVAS_WIDTH } from './constants';
 
-type Props = {
+interface Props {
   show: boolean;
   setShow: (show: boolean) => void;
-};
+}
 
 const GRID_GAP = CANVAS_WIDTH + 3;
 
@@ -20,10 +20,20 @@ export function EmulatorInfo({ show, setShow }: Props) {
     (state) => state.gameboy.emulator!
   );
   const handleClose = useCallback(() => setShow(false), [setShow]);
-  if (!emulator) return null;
+  const header = useMemo(
+    () => JSON.parse(emulator.get_header_info()).header,
+    [emulator]
+  );
 
-  const cartridgeType = JSON.parse(emulator.get_header_info()).header
-    .cartridge_type;
+  const register = useMemo(
+    () => JSON.parse(emulator.get_register_info()),
+    [emulator]
+  );
+
+  if (!emulator) {
+    return null;
+  }
+
   const colors = chunk(emulator.get_tiles(), 3);
   const tiles = chunk(colors, 64);
   console.log({ tileLEngth: tiles.length });
@@ -43,14 +53,24 @@ export function EmulatorInfo({ show, setShow }: Props) {
         <Modal.Body>
           <Tabs defaultActiveKey="cartridge-info" className="mb-3">
             <Tab eventKey="cartridge-info" title="Cartridge Info">
-              <p>Cartridge Type: {cartridgeType}</p>
+              <p>Cartridge Type: {header.cartridge_type}</p>
+              <p>CGB Mode: {header.cgb_mode}</p>
             </Tab>
             <Tab eventKey="vram-viewer" title="VRAM Viewer">
               <CanvasContainer>
-                {tiles.map((tile) => (
-                  <TileInfo tile={tile} />
+                {tiles.map((tile, i) => (
+                  <TileInfo key={i} tile={tile} />
                 ))}
               </CanvasContainer>
+            </Tab>
+            <Tab eventKey="cpu-values" title="CPU Register Viewer">
+              <p>A: {register.a}</p>
+              <p>B: {register.b}</p>
+              <p>C: {register.c}</p>
+              <p>D: {register.d}</p>
+              <p>E: {register.e}</p>
+              <p>H: {register.h}</p>
+              <p>L: {register.l}</p>
             </Tab>
           </Tabs>
         </Modal.Body>

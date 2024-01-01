@@ -10,3 +10,9 @@ pub const LCD_OBJ_0_PALETTE_DATA: u16 = 0xFF48;
 pub const LCD_OBJ_1_PALETTE_DATA: u16 = 0xFF49;
 pub const LCD_WINDOW_Y: u16 = 0xFF4A;
 pub const LCD_WINDOW_X: u16 = 0xFF4B;
+
+// CGB Background color palette specification / Background palette index
+pub const LCD_BCPS_BGPI: u16 = 0xFF68;
+
+// CGB Background color palette data / Background palette data
+pub const LCD_BCPD_BGPD: u16 = 0xFF69;

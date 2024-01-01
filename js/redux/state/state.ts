@@ -8,7 +8,8 @@ export interface State {
     direction: DirectionState,
     gameboy: GameboyState,
     rustGameboy: RustGameboy,
-    currentGame: string
+    currentGame: string,
+    paused: boolean
 };
 
 export const defaultState: State = {
@@ -16,5 +17,6 @@ export const defaultState: State = {
     direction: directionState,
     gameboy: gameboyState,
     rustGameboy: rustGameboyState,
-    currentGame: ''
+    currentGame: '',
+    paused: false
 };

@@ -27,7 +27,8 @@ impl Gpu {
             LCD_CONTROL..=LCD_LYC
             | LCD_BG_PALETTE_DATA..=LCD_WINDOW_X
             | VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER
-            | SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => self.lcd.read(address),
+            | SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER
+            | LCD_BCPS_BGPI..=LCD_BCPD_BGPD => self.lcd.read(address),
             _ => panic!("Invalid GPU address 0x{:4X}", address),
         }
     }

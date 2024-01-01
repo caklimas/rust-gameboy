@@ -6,10 +6,11 @@ pub mod registers;
 #[cfg(test)]
 mod tests;
 
-use crate::cartridge::Cartridge;
+use crate::cartridge::cartridge_header::cgb_mode::CgbMode;
 use crate::constants::cpu::PROGRAM_START;
 use crate::mmu::interrupts::Interrupt;
 use crate::mmu::Mmu;
+use crate::{cartridge::Cartridge, rom_config::RomConfig};
 use opcodes::{
     cb_opcode::CbOpcode,
     cb_opcode_table::CB_OPCODE_TABLE,
@@ -18,10 +19,14 @@ use opcodes::{
 };
 use serde::{Deserialize, Serialize};
 
+const CGB_HARDWARE_DETECTED: u8 = 0x11;
+
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cpu {
     pub master_clock_cycles: u32,
     pub mmu: Mmu,
+    pub registers: registers::Registers,
+
     cb_opcode: bool,
     halted: bool,
     index_registers: index_registers::IndexRegisters,
@@ -30,19 +35,26 @@ pub struct Cpu {
     memory_refresh: u8,
     opcode: usize,
     program_counter: u16,
-    registers: registers::Registers,
     stack_pointer: u16,
     stopped: bool,
 }
 
 impl Cpu {
-    pub fn new(cartridge: Cartridge, run_boot_rom: bool) -> Self {
+    pub fn new(cartridge: Cartridge, rom_config: &RomConfig) -> Self {
+        let mmu = Mmu::new(cartridge, rom_config);
         let mut cpu = Cpu {
-            mmu: Mmu::new(cartridge, run_boot_rom),
+            mmu,
             ..Default::default()
         };
 
-        cpu.program_start(run_boot_rom);
+        cpu.program_start(rom_config);
+
+        if cpu.registers.a == CGB_HARDWARE_DETECTED {
+            info!("CGB Hardware detected");
+        } else {
+            info!("GB Hardware detected");
+        }
+
         cpu
     }
 
@@ -272,16 +284,29 @@ impl Cpu {
         }
     }
 
-    fn program_start(&mut self, run_boot_rom: bool) {
-        if run_boot_rom {
+    fn program_start(&mut self, rom_config: &RomConfig) {
+        if rom_config.run_boot_rom {
             return;
+        }
+
+        // https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
+        match &self.mmu.cartridge.header.cgb_mode {
+            CgbMode::CgbMonochrome => {
+                self.registers.set_target_16(&CpuRegister16::AF, 0x1180);
+                self.registers.set_target_16(&CpuRegister16::BC, 0x0000);
+                self.registers.set_target_16(&CpuRegister16::DE, 0xFF56);
+                self.registers.set_target_16(&CpuRegister16::HL, 0x000D);
+            }
+            CgbMode::CgbOnly => panic!("Unsupported"),
+            CgbMode::NonCgb => {
+                self.registers.set_target_16(&CpuRegister16::AF, 0x01B0);
+                self.registers.set_target_16(&CpuRegister16::BC, 0x0013);
+                self.registers.set_target_16(&CpuRegister16::DE, 0x00D8);
+                self.registers.set_target_16(&CpuRegister16::HL, 0x014D);
+            }
         }
 
         self.program_counter = PROGRAM_START;
         self.stack_pointer = 0xFFFE;
-        self.registers.set_target_16(&CpuRegister16::AF, 0x01B0);
-        self.registers.set_target_16(&CpuRegister16::BC, 0x0013);
-        self.registers.set_target_16(&CpuRegister16::DE, 0x00D8);
-        self.registers.set_target_16(&CpuRegister16::HL, 0x014D);
     }
 }

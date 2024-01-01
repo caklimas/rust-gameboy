@@ -5,14 +5,15 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct Cartridge {
+    pub header: cartridge_header::CartridgeHeader,
     pub mbc: Mbc,
-    header: cartridge_header::CartridgeHeader,
 }
 
 impl Cartridge {
     pub fn new(bytes: Vec<u8>) -> Self {
         let header = cartridge_header::CartridgeHeader::new(&bytes, true);
         let mbc = get_mbc(&header, bytes);
+        info!("Cartridge type: {:?}", header.cgb_mode);
 
         Cartridge { header, mbc }
     }

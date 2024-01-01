@@ -5,7 +5,9 @@ use crate::constants::gpu::*;
 use serde::{Deserialize, Serialize};
 
 pub mod background;
+pub mod bg_color_palette_spec;
 pub mod bg_palette_data;
+pub mod color_ram;
 pub mod lcd_control;
 pub mod lcd_mode;
 pub mod lcd_status;
@@ -26,6 +28,7 @@ pub struct Lcd {
     pub frame_complete: bool,
     pub screen: screen::Screen,
     pub video_ram: VideoRam,
+    bg_color_palette_spec: bg_color_palette_spec::BgColorPaletteSpec,
     bg_palette_data: bg_palette_data::BgPaletteData,
     control: lcd_control::LcdControl,
     line_number: u8,
@@ -132,6 +135,14 @@ impl Lcd {
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
                 self.video_oam.read(address)
             }
+            LCD_BCPS_BGPI => {
+                info!("Read from LCD_BCPS_BGPI");
+                self.bg_color_palette_spec.0
+            }
+            LCD_BCPD_BGPD => {
+                info!("Read from LCD_BCPD_BGPD");
+                0
+            }
             _ => panic!("Invalid lcd address: 0x{:4X}", address),
         }
     }
@@ -142,12 +153,10 @@ impl Lcd {
                 let previous_lcd_on = self.control.lcd_display_enable();
                 self.control.set(data);
                 if previous_lcd_on && !self.control.lcd_display_enable() {
-                    info!("Turned off");
                     self.mode_clock = 0;
                     self.mode = LcdMode::HorizontalBlank;
                     self.line_number = 0;
                 } else if !previous_lcd_on && self.control.lcd_display_enable() {
-                    info!("Turned on");
                 }
             }
             LCD_STATUS => self.set_status(data),
@@ -169,6 +178,13 @@ impl Lcd {
             VIDEO_RAM_LOWER..=VIDEO_RAM_UPPER => self.video_ram.write(address, data),
             SPRITE_ATTRIBUTE_TABLE_LOWER..=SPRITE_ATTRIBUTE_TABLE_UPPER => {
                 self.video_oam.write(address, data)
+            }
+            LCD_BCPS_BGPI => {
+                info!("Writing to LCD_BCPS_BGPI");
+                self.bg_color_palette_spec.set(data)
+            }
+            LCD_BCPD_BGPD => {
+                info!("Writing to LCD_BCPD_BGPD")
             }
             _ => panic!("Invalid lcd address: 0x{:4X}", address),
         }

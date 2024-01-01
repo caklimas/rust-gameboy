@@ -1,21 +1,19 @@
-import React from "react";
-import { connect } from "react-redux";
-import styled from "styled-components";
-import ControlButton from "../ControlButton/ControlButton";
-import { ButtonState } from "../../../redux/state/buttons";
-import { State } from "../../../redux/state/state";
-import { getInput } from "../../../helpers/input";
-import { RustGameboy } from "../../../redux/state/rustGameboy";
-import { setButtons } from "../../../redux/actions/buttons";
-import { DirectionState } from "../../../redux/state/direction";
-import { mediaMinMd } from "../../../constants/screenSizes";
-import GridCell from "../../GridCell/GridCell";
-import { Emulator } from "gameboy";
-import AllButtons from "../AllButtons/AllButtons";
+import React, { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
+import ControlButton from '../ControlButton/ControlButton';
+import { ButtonState } from '../../../redux/state/buttons';
+import { State } from '../../../redux/state/state';
+import { getInput } from '../../../helpers/input';
+import { RustGameboy } from '../../../redux/state/rustGameboy';
+import { setButtons } from '../../../redux/actions/buttons';
+import { DirectionState } from '../../../redux/state/direction';
+import { mediaMinMd } from '../../../constants/screenSizes';
+import GridCell from '../../GridCell/GridCell';
+import { Emulator } from 'gameboy';
+import { AllButtons } from '../AllButtons/AllButtons';
 
-type Props = OwnProps & StateProps & DispatchProps;
-
-interface OwnProps {
+interface Props {
   isMobile?: boolean;
 }
 
@@ -26,11 +24,7 @@ interface StateProps {
   rustGameboy: RustGameboy;
 }
 
-interface DispatchProps {
-  setButtons(buttons: ButtonState): void;
-}
-
-type ButtonKey = "start" | "select";
+type ButtonKey = 'start' | 'select';
 
 const StyledStartSelectControls = styled.div`
   display: grid;
@@ -45,63 +39,70 @@ const StyledStartSelectControls = styled.div`
   }
 `;
 
-const StartSelectButtons = (props: Props) => {
+export function StartSelectButtons({ isMobile }: Props) {
+  const dispatch = useDispatch();
+  const stateProps = useSelector<State, StateProps>((state) => ({
+    buttons: state.buttons,
+    direction: state.direction,
+    emulator: state.gameboy.emulator!,
+    rustGameboy: state.rustGameboy
+  }));
+
+  const handleTouch = useCallback(
+    (
+      e: React.TouchEvent<HTMLElement>,
+      buttonKey: ButtonKey,
+      pressed: boolean
+    ) => {
+      const updatedState = { ...stateProps.buttons, [buttonKey]: pressed };
+      const input = getInput(
+        stateProps.rustGameboy,
+        updatedState,
+        stateProps.direction
+      );
+      dispatch(setButtons(updatedState));
+      stateProps.emulator.update_controls(input);
+
+      if (pressed) {
+        window.navigator.vibrate(10);
+      }
+    },
+    [
+      dispatch,
+      stateProps.buttons,
+      stateProps.direction,
+      stateProps.emulator,
+      stateProps.rustGameboy
+    ]
+  );
+
   return (
     <StyledStartSelectControls>
       <GridCell column={1} row={1}>
         <ControlButton
-          pressed={props.buttons.start}
+          pressed={stateProps.buttons.start}
           text="Start"
           type="start-select"
-          onTouchStart={(e) => handleTouch(e, props, "start", true)}
-          onTouchEnd={(e) => handleTouch(e, props, "start", false)}
-          onTouchCancel={(e) => handleTouch(e, props, "start", false)}
+          onTouchStart={(e) => handleTouch(e, 'start', true)}
+          onTouchEnd={(e) => handleTouch(e, 'start', false)}
+          onTouchCancel={(e) => handleTouch(e, 'start', false)}
         />
       </GridCell>
       <GridCell column={2} row={1}>
         <ControlButton
-          pressed={props.buttons.select}
+          pressed={stateProps.buttons.select}
           text="Select"
           type="start-select"
-          onTouchStart={(e) => handleTouch(e, props, "select", true)}
-          onTouchEnd={(e) => handleTouch(e, props, "select", false)}
-          onTouchCancel={(e) => handleTouch(e, props, "select", false)}
+          onTouchStart={(e) => handleTouch(e, 'select', true)}
+          onTouchEnd={(e) => handleTouch(e, 'select', false)}
+          onTouchCancel={(e) => handleTouch(e, 'select', false)}
         />
       </GridCell>
-      {props.isMobile && (
+      {isMobile && (
         <GridCell column={3} row={1}>
           <AllButtons />
         </GridCell>
       )}
     </StyledStartSelectControls>
   );
-};
-
-const handleTouch = (
-  e: React.TouchEvent<HTMLElement>,
-  props: Props,
-  buttonKey: ButtonKey,
-  pressed: boolean
-) => {
-  const updatedState = { ...props.buttons, [buttonKey]: pressed };
-  const input = getInput(props.rustGameboy, updatedState, props.direction);
-  props.setButtons(updatedState);
-  props.emulator.update_controls(input);
-
-  if (pressed) {
-    window.navigator.vibrate(10);
-  }
-};
-
-const mapStateToProps = (state: State): StateProps => ({
-  buttons: state.buttons,
-  direction: state.direction,
-  emulator: state.gameboy.emulator!,
-  rustGameboy: state.rustGameboy,
-});
-
-const mapDispatchToProps = (dispatch: any): DispatchProps => ({
-  setButtons: (buttons: ButtonState) => dispatch(setButtons(buttons)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(StartSelectButtons);
+}
