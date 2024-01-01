@@ -25,8 +25,6 @@ export function RomLoader() {
   const dispatch = useDispatch();
   const [gameboy, setGameboy] = useState<RustGameboy | null>(null);
   const [runBootRom, setRunBootRom] = useState(false);
-  const [cgb, setCgb] = useState(false);
-  const [paused, setPaused] = useState(false);
   const emulator = useSelector<State, Emulator | null>(
     (state) => state.gameboy.emulator
   );
@@ -56,7 +54,7 @@ export function RomLoader() {
       const bytes = new Uint8Array(buffer);
       const key = fileName.replace(/.gb$/, '');
       const fileData = getFileData(key);
-      const romConfig = new gameboy.RomConfig(runBootRom, cgb);
+      const romConfig = new gameboy.RomConfig(runBootRom);
       if (fileData === null) {
         const emulator = new gameboy.Emulator(bytes, romConfig);
         dispatch(setCurrentGame(key));
@@ -71,7 +69,7 @@ export function RomLoader() {
         dispatch(loadRom(emulator));
       }
     },
-    [runBootRom, cgb, gameboy, dispatch]
+    [runBootRom, gameboy, dispatch]
   );
 
   const pickFile = useCallback(
@@ -82,11 +80,11 @@ export function RomLoader() {
 
       const buffer = await file.arrayBuffer();
       const bytes = new Uint8Array(buffer);
-      const romConfig = new gameboy.RomConfig(runBootRom, cgb);
+      const romConfig = new gameboy.RomConfig(runBootRom);
       const emulator = new gameboy.Emulator(bytes, romConfig);
       dispatch(loadRom(emulator));
     },
-    [runBootRom, cgb, gameboy, dispatch]
+    [runBootRom, gameboy, dispatch]
   );
 
   if (!!emulator) return null;
@@ -141,15 +139,6 @@ export function RomLoader() {
         label="Run Boot ROM"
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           setRunBootRom(e.target.checked)
-        }
-      />
-      <StyledCheck
-        id="cgb-checkbox"
-        type="checkbox"
-        checked={cgb}
-        label="Gameboy Color"
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setCgb(e.target.checked)
         }
       />
     </div>

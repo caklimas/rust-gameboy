@@ -205,7 +205,7 @@ impl SquareChannel {
     }
 
     fn set_sweep_register(&mut self, value: u8) {
-        let mut sweep_register = self
+        let sweep_register = self
             .sweep_register
             .as_mut()
             .unwrap_or_else(|| panic!("Sweep not available"));

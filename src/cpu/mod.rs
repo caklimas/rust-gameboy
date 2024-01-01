@@ -6,6 +6,7 @@ pub mod registers;
 #[cfg(test)]
 mod tests;
 
+use crate::cartridge::cartridge_header::cgb_mode::CgbMode;
 use crate::constants::cpu::PROGRAM_START;
 use crate::mmu::interrupts::Interrupt;
 use crate::mmu::Mmu;
@@ -18,8 +19,6 @@ use opcodes::{
 };
 use serde::{Deserialize, Serialize};
 
-use self::opcodes::opcode::CpuRegister;
-
 const CGB_HARDWARE_DETECTED: u8 = 0x11;
 
 #[derive(Serialize, Deserialize, Default)]
@@ -27,6 +26,7 @@ pub struct Cpu {
     pub master_clock_cycles: u32,
     pub mmu: Mmu,
     pub registers: registers::Registers,
+
     cb_opcode: bool,
     halted: bool,
     index_registers: index_registers::IndexRegisters,
@@ -41,8 +41,9 @@ pub struct Cpu {
 
 impl Cpu {
     pub fn new(cartridge: Cartridge, rom_config: &RomConfig) -> Self {
+        let mmu = Mmu::new(cartridge, rom_config);
         let mut cpu = Cpu {
-            mmu: Mmu::new(cartridge, rom_config),
+            mmu,
             ..Default::default()
         };
 
@@ -290,14 +291,24 @@ impl Cpu {
 
         self.program_counter = PROGRAM_START;
         self.stack_pointer = 0xFFFE;
-        self.registers.set_target_16(&CpuRegister16::AF, 0x01B0);
-        self.registers.set_target_16(&CpuRegister16::BC, 0x0013);
-        self.registers.set_target_16(&CpuRegister16::DE, 0x00D8);
-        self.registers.set_target_16(&CpuRegister16::HL, 0x014D);
 
-        if rom_config.cgb {
-            // https://gbdev.io/pandocs/CGB_Registers.html#detecting-cgb-and-gba-functions
-            self.registers.set_target(&CpuRegister::A, 0x11);
+        match &self.mmu.cartridge.header.cgb_mode {
+            CgbMode::CgbMonochrome => {
+                self.registers.set_target_16(&CpuRegister16::AF, 0x1180);
+                self.registers.set_target_16(&CpuRegister16::BC, 0x0000);
+                self.registers.set_target_16(&CpuRegister16::DE, 0xFF56);
+                self.registers.set_target_16(&CpuRegister16::HL, 0x000D);
+            }
+            CgbMode::CgbOnly => panic!("Unsupported"),
+            CgbMode::NonCgb => {
+                self.registers.set_target_16(&CpuRegister16::AF, 0x01B0);
+                self.registers.set_target_16(&CpuRegister16::BC, 0x0013);
+                self.registers.set_target_16(&CpuRegister16::DE, 0x00D8);
+                self.registers.set_target_16(&CpuRegister16::HL, 0x014D);
+            }
         }
+
+        // https://gbdev.io/pandocs/CGB_Registers.html#detecting-cgb-and-gba-functions
+        info!("A after startup: {}", self.registers.a);
     }
 }
